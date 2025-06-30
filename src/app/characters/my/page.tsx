@@ -209,77 +209,78 @@ export default function MyCharactersPage() {
 							{filteredCharacters.map((character: any) => (
 								<Card
 									key={character.id}
-									className="group border-primary/10 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 hover:shadow-primary/5 hover:shadow-xl"
+									className="group cursor-pointer border-primary/10 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/20 hover:bg-card/80 hover:shadow-lg"
 								>
-									<CardHeader>
-										<div className="flex items-start justify-between">
-											<div className="flex-1">
-												<CardTitle className="text-lg transition-colors group-hover:text-primary">
-													{character.name}
-												</CardTitle>
-												<CardDescription className="mt-1">
-													{character.synopsis || "Tidak ada synopsis"}
-												</CardDescription>
-											</div>
-											<div className="ml-2 flex items-center space-x-1">
-												{character.isPublic ? (
-													<div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-green-700 text-xs">
-														<Eye className="h-3 w-3" />
-														<span>Publik</span>
-													</div>
-												) : (
-													<div className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-600 text-xs">
-														<EyeOff className="h-3 w-3" />
-														<span>Privat</span>
-													</div>
-												)}
-											</div>
-										</div>
-									</CardHeader>
-									<CardContent>
-										{character.avatarUrl && (
-											<div className="mb-4 flex justify-center">
+									<div className="flex gap-4 px-6">
+										{/* Avatar on the left */}
+										<div className="flex-shrink-0">
+											{character.avatarUrl ? (
 												<img
 													src={character.avatarUrl}
 													alt={character.name}
-													className="h-16 w-16 rounded-full object-cover ring-2 ring-primary/20 transition-all group-hover:ring-primary/30"
+													className="aspect-[2/3] w-20 rounded-lg object-cover ring-2 ring-background transition-all group-hover:ring-primary/20"
 												/>
-											</div>
-										)}
-
-										<div className="mb-4 text-center text-muted-foreground text-sm">
-											<p>
-												Dibuat:{" "}
-												{new Date(character.createdAt).toLocaleDateString(
-													"id-ID",
-													{
-														day: "numeric",
-														month: "short",
-														year: "numeric",
-													},
-												)}
-											</p>
+											) : (
+												<div className="aspect-[2/3] w-20 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 transition-all group-hover:from-primary/30 group-hover:to-primary/20">
+													<span className="font-semibold text-2xl text-primary">
+														{character.name.charAt(0).toUpperCase()}
+													</span>
+												</div>
+											)}
 										</div>
 
-										<div className="flex flex-col justify-between gap-2 sm:flex-row sm:gap-2">
-											<Link
-												href={`/characters/edit/${character.id}`}
-												className="flex-1"
-											>
-												<Button
-													variant="outline"
-													size="sm"
-													className="w-full border-primary/20 bg-background/50 transition-all hover:border-primary/30 hover:bg-muted/50"
-												>
-													<Settings className="mr-2 h-4 w-4" />
-													Edit
-												</Button>
-											</Link>
-											<div className="flex flex-1 gap-2">
-												<Link href={`/chat/${character.id}`} className="flex-1">
+										{/* Content on the right */}
+										<div className="min-w-0 flex-1">
+											<div className="mb-3 flex items-start justify-between">
+												<div className="flex-1 min-w-0">
+													<CardTitle className="truncate text-base transition-colors group-hover:text-primary">
+														{character.name}
+													</CardTitle>
+													<p className="truncate text-muted-foreground text-xs">
+														Dibuat: {new Date(character.createdAt).toLocaleDateString("id-ID", {
+															day: "numeric",
+															month: "short",
+															year: "numeric",
+														})}
+													</p>
+												</div>
+												<div className="ml-2 flex-shrink-0">
+													{character.isPublic ? (
+														<div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-green-700 text-xs">
+															<Eye className="h-3 w-3" />
+															<span>Publik</span>
+														</div>
+													) : (
+														<div className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-600 text-xs">
+															<EyeOff className="h-3 w-3" />
+															<span>Privat</span>
+														</div>
+													)}
+												</div>
+											</div>
+
+											<p className="mb-3 line-clamp-2 text-muted-foreground text-sm leading-relaxed">
+												{character.synopsis || "Tidak ada synopsis"}
+											</p>
+
+											{/* Action buttons */}
+											<div className="flex gap-1">
+												<Link href={`/characters/edit/${character.id}`}>
+													<Button
+														variant="outline"
+														size="sm"
+														className="border-primary/20 bg-primary/5 px-2 py-1 text-primary text-xs hover:bg-primary/10"
+														onClick={(e) => e.stopPropagation()}
+													>
+														<Settings className="mr-1 h-3 w-3" />
+														Edit
+													</Button>
+												</Link>
+												<Link href={`/chat/${character.id}`}>
 													<Button
 														size="sm"
-														className="w-full bg-primary/90 shadow-sm transition-all hover:bg-primary group-hover:shadow-md"
+														className="bg-primary/90 px-2 py-1 text-xs hover:bg-primary"
+														onClick={(e) => e.stopPropagation()}
 													>
 														Chat
 													</Button>
@@ -287,17 +288,18 @@ export default function MyCharactersPage() {
 												<Button
 													variant="destructive"
 													size="sm"
-													onClick={() =>
-														handleDeleteCharacter(character.id, character.name)
-													}
+													onClick={(e) => {
+														e.stopPropagation();
+														handleDeleteCharacter(character.id, character.name);
+													}}
 													disabled={deleteCharacterMutation.isPending}
-													className="px-3 hover:bg-destructive/90"
+													className="px-2 py-1 text-xs hover:bg-destructive/90"
 												>
-													<Trash2 className="h-4 w-4" />
+													<Trash2 className="h-3 w-3" />
 												</Button>
 											</div>
 										</div>
-									</CardContent>
+									</div>
 								</Card>
 							))}
 						</div>

@@ -3,13 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import {
 	ChevronRight,
-	Clock,
 	LogOut,
 	Menu,
 	MessageCircle,
 	Plus,
 	Settings,
-	Sparkles,
 	User,
 	Home,
 	Users,
@@ -36,7 +34,6 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
@@ -65,20 +62,23 @@ function SidebarContent({
 		<div className="flex h-full flex-col bg-card/50 backdrop-blur-sm">
 			{/* Header */}
 			<div className="flex-shrink-0 border-b bg-gradient-to-r from-background/90 to-muted/30 p-6">
-				<div className="flex items-center gap-3">
-					<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 ring-1 ring-primary/20">
-						<img 
-							src="/aidorama-logo-trans.png" 
-							alt="AiDorama Logo" 
-							className="h-6 w-6 object-contain"
-						/>
+				<div className="flex items-center justify-between gap-3">
+					<div className="flex items-center gap-3">
+						<div className="flex h-10 w-10 items-center justify-center">
+							<img 
+								src="/aidorama-logo-trans.png" 
+								alt="AiDorama Logo" 
+								className="h-10 w-10 object-contain"
+							/>
+						</div>
+						<div>
+							<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
+								AiDorama
+							</h1>
+							<p className="text-muted-foreground text-xs">Ngobrol dengan karakter imajinermu</p>
+						</div>
 					</div>
-					<div>
-						<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
-							AiDorama
-						</h1>
-						<p className="text-muted-foreground text-xs">Chat dengan AI</p>
-					</div>
+					<ModeToggle />
 				</div>
 			</div>
 
@@ -121,15 +121,7 @@ function SidebarContent({
 										onClick={onLinkClick}
 									>
 										<Plus className="h-4 w-4" />
-										<span className="text-sm">Buat Karakter</span>
-									</Link>
-									<Link
-										href="/chats"
-										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
-										onClick={onLinkClick}
-									>
-										<MessageCircle className="h-4 w-4" />
-										<span className="text-sm">Chat Saya</span>
+										<span className="text-sm font-semibold">Buat Karakter</span>
 									</Link>
 								</>
 							)}

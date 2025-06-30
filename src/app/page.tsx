@@ -107,24 +107,26 @@ export default function PublicCharactersPage() {
 										key={i}
 										className="border-primary/10 bg-card/50 backdrop-blur-sm"
 									>
-										<CardHeader className="pb-3">
-											<div className="flex items-center gap-3">
-												<div className="h-12 w-12 animate-pulse rounded-full bg-muted" />
-												<div className="flex-1">
+										<div className="flex gap-4 p-6">
+											{/* Avatar skeleton */}
+											<div className="flex-shrink-0">
+												<div className="aspect-[2/3] w-20 animate-pulse rounded-lg bg-muted" />
+											</div>
+
+											{/* Content skeleton */}
+											<div className="min-w-0 flex-1">
+												<div className="mb-3">
 													<div className="mb-2 h-5 animate-pulse rounded bg-muted" />
 													<div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
 												</div>
+												<div className="mb-3 h-16 animate-pulse rounded bg-muted" />
+												<div className="flex gap-1">
+													<div className="h-6 w-16 animate-pulse rounded-full bg-muted" />
+													<div className="h-6 w-12 animate-pulse rounded-full bg-muted" />
+													<div className="h-6 w-14 animate-pulse rounded-full bg-muted" />
+												</div>
 											</div>
-										</CardHeader>
-										<CardContent className="pt-0">
-											<div className="mb-3 h-16 animate-pulse rounded bg-muted" />
-											<div className="mb-4 flex gap-1">
-												<div className="h-6 w-16 animate-pulse rounded-full bg-muted" />
-												<div className="h-6 w-12 animate-pulse rounded-full bg-muted" />
-												<div className="h-6 w-14 animate-pulse rounded-full bg-muted" />
-											</div>
-											<div className="h-9 animate-pulse rounded bg-muted" />
-										</CardContent>
+										</div>
 									</Card>
 								))}
 							</div>
@@ -164,22 +166,27 @@ export default function PublicCharactersPage() {
 										className="group cursor-pointer border-primary/10 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/20 hover:bg-card/80 hover:shadow-lg"
 										onClick={() => handleViewDetails(character.id)}
 									>
-										<CardHeader>
-											<div className="flex items-center gap-3">
+										<div className="flex gap-4 px-4">
+											{/* Avatar on the left */}
+											<div className="flex-shrink-0">
 												{character.avatarUrl ? (
 													<img
 														src={character.avatarUrl}
 														alt={character.name}
-														className="h-12 w-12 rounded-full object-cover ring-2 ring-background transition-all group-hover:ring-primary/20"
+														className="aspect-[2/3] w-20 rounded-lg object-cover ring-2 ring-background transition-all group-hover:ring-primary/20"
 													/>
 												) : (
-													<div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 transition-all group-hover:from-primary/30 group-hover:to-primary/20">
-														<span className="font-semibold text-lg text-primary">
+													<div className="aspect-[2/3] w-20 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 transition-all group-hover:from-primary/30 group-hover:to-primary/20">
+														<span className="font-semibold text-2xl text-primary">
 															{character.name.charAt(0).toUpperCase()}
 														</span>
 													</div>
 												)}
-												<div className="min-w-0 flex-1">
+											</div>
+
+											{/* Content on the right */}
+											<div className="min-w-0 flex-1">
+												<div className="mb-3">
 													<CardTitle className="truncate text-base transition-colors group-hover:text-primary">
 														{character.name}
 													</CardTitle>
@@ -191,41 +198,39 @@ export default function PublicCharactersPage() {
 															"Unknown"}
 													</p>
 												</div>
-											</div>
-										</CardHeader>
 
-										<CardContent className="pt-0">
-											<p className="mb-3 line-clamp-3 text-muted-foreground text-sm leading-relaxed">
-												{character.synopsis ||
-													"Karakter AI yang menarik untuk diajak berbicara"}
-											</p>
+												<p className="mb-3 line-clamp-3 text-muted-foreground text-sm leading-relaxed">
+													{character.synopsis ||
+														"Karakter AI yang menarik untuk diajak berbicara"}
+												</p>
 
-											{/* Character Tags */}
-											{character.characterTags &&
-												character.characterTags.length > 0 && (
-													<div className="mb-4 flex flex-wrap gap-1">
-														{character.characterTags
-															.slice(0, 3)
-															.map((tag: string, index: number) => (
+												{/* Character Tags */}
+												{character.characterTags &&
+													character.characterTags.length > 0 && (
+														<div className="flex flex-wrap gap-1">
+															{character.characterTags
+																.slice(0, 3)
+																.map((tag: string, index: number) => (
+																	<Badge
+																		key={`${character.id}-${tag}-${index}`}
+																		variant="secondary"
+																		className="border-primary/20 bg-primary/10 px-2 py-1 text-primary text-xs hover:bg-primary/20"
+																	>
+																		{tag}
+																	</Badge>
+																))}
+															{character.characterTags.length > 3 && (
 																<Badge
-																	key={`${character.id}-${tag}-${index}`}
-																	variant="secondary"
-																	className="border-primary/20 bg-primary/10 px-2 py-1 text-primary text-xs hover:bg-primary/20"
+																	variant="outline"
+																	className="px-2 py-1 text-muted-foreground text-xs"
 																>
-																	{tag}
+																	+{character.characterTags.length - 3}
 																</Badge>
-															))}
-														{character.characterTags.length > 3 && (
-															<Badge
-																variant="outline"
-																className="px-2 py-1 text-muted-foreground text-xs"
-															>
-																+{character.characterTags.length - 3}
-															</Badge>
-														)}
-													</div>
-												)}
-										</CardContent>
+															)}
+														</div>
+													)}
+											</div>
+										</div>
 									</Card>
 								))}
 							</div>
