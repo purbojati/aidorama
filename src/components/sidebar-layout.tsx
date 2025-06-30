@@ -4,8 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	ChevronRight,
 	Clock,
-	Grid3X3,
-	Home,
 	LogOut,
 	Menu,
 	MessageCircle,
@@ -13,8 +11,6 @@ import {
 	Settings,
 	Sparkles,
 	User,
-	Users,
-	X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,7 +29,6 @@ import {
 import {
 	Sheet,
 	SheetContent,
-	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
@@ -68,7 +63,11 @@ function SidebarContent({
 			<div className="flex-shrink-0 border-b p-4">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Sparkles className="h-5 w-5 text-primary" />
+						<img 
+							src="/aidorama-logo-trans.png" 
+							alt="AiDorama Logo" 
+							className="h-8 w-8 object-contain"
+						/>
 						<h1 className="font-semibold text-lg">AiDorama</h1>
 					</div>
 					<ModeToggle />
@@ -111,7 +110,7 @@ function SidebarContent({
 								className="justify-start bg-background/50 hover:bg-muted/50"
 							>
 								<User className="mr-2 h-4 w-4" />
-								Karakter Gue
+								Karakterku
 							</Button>
 						</Link>
 					</div>
@@ -338,9 +337,11 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 					</Sheet>
 
 					<div className="flex items-center gap-2">
-						<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80">
-							<Sparkles className="h-4 w-4 text-primary-foreground" />
-						</div>
+						<img 
+							src="/aidorama-logo-trans.png" 
+							alt="AiDorama Logo" 
+							className="h-8 w-8 object-contain"
+						/>
 						<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
 							AiDorama
 						</h1>
