@@ -299,6 +299,16 @@ export default function ChatPage() {
 	const [sessionId, setSessionId] = useState<number | null>(
 		existingSessionId ? Number.parseInt(existingSessionId) : null,
 	);
+
+	// Ensure sessionId state is synced with URL when existingSessionId changes
+	useEffect(() => {
+		if (existingSessionId) {
+			const parsedSessionId = Number.parseInt(existingSessionId);
+			if (sessionId !== parsedSessionId) {
+				setSessionId(parsedSessionId);
+			}
+		}
+	}, [existingSessionId, sessionId]);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -323,7 +333,7 @@ export default function ChatPage() {
 		enabled: !isNaN(characterId),
 	});
 
-	// Check for existing session for this character
+	// Check for existing session for this character (only when not already continuing a session)
 	const { data: existingSession, isLoading: existingSessionLoading } = useQuery(
 		{
 			...trpc.chat.findExistingSession.queryOptions({ characterId }),
@@ -331,17 +341,22 @@ export default function ChatPage() {
 		},
 	);
 
+	// Use the actual sessionId we have, either from state or URL
+	const actualSessionId = sessionId || (existingSessionId ? Number.parseInt(existingSessionId) : null);
+	
 	const { data: sessionMessages, refetch: refetchMessages } = useQuery({
-		...trpc.chat.getSessionMessages.queryOptions({ sessionId: sessionId! }),
-		enabled: !!sessionId,
+		...trpc.chat.getSessionMessages.queryOptions({ 
+			sessionId: actualSessionId || 0  // Provide a default value instead of assertion
+		}),
+		enabled: !!actualSessionId && actualSessionId > 0, // More explicit check
 	});
 
 	const createSessionMutation = useMutation({
-		mutationFn: async (input: { characterId: number; title?: string }) => {
+		mutationFn: async (input: { characterId: number; forceNew?: boolean }) => {
 			const serverUrl =
 				process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
-			const response = await fetch(`${serverUrl}/trpc/chat.createSession`, {
+			const response = await fetch(`${serverUrl}/trpc/chat.getOrCreateSession`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -506,7 +521,7 @@ export default function ChatPage() {
 		) {
 			createSessionMutation.mutate({
 				characterId: character.id,
-				title: `Chat dengan ${character.name}`,
+				forceNew: false, // This will find existing session or create new one
 			});
 		}
 	}, [
@@ -541,6 +556,8 @@ export default function ChatPage() {
 	useEffect(() => {
 		setIsMobileMenuOpen(false);
 	}, []);
+
+
 
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -621,8 +638,8 @@ export default function ChatPage() {
 		);
 	}
 
-	// Show loading while checking for existing session
-	if (existingSessionLoading || isCheckingSession) {
+	// Show loading while checking for existing session (only when no sessionId in URL)
+	if (!existingSessionId && (existingSessionLoading || isCheckingSession)) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background">
 				<div className="text-center">
@@ -777,7 +794,7 @@ export default function ChatPage() {
 								</div>
 								<div className="rounded-2xl border border-white/20 bg-black/30 p-6 backdrop-blur-sm">
 									<p className="font-medium text-white/90 text-lg leading-relaxed">
-										{existingSession
+										{existingSessionId
 											? `Selamat datang kembali! Lanjutkan obrolan intim dengan ${character.name}.`
 											: `Mulai obrolan pribadi dengan ${character.name}!`}
 									</p>
@@ -786,6 +803,22 @@ export default function ChatPage() {
 											Ini adalah ruang pribadi kalian berdua
 										</span>
 									</div>
+									{/* Show refresh button if we have a sessionId but no messages loaded */}
+									{existingSessionId && (
+										<div className="mt-6">
+											<Button
+												onClick={() => {
+													refetchMessages();
+													toast.success("Memuat ulang percakapan...");
+												}}
+												variant="outline"
+												className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50"
+											>
+												<MessageCircle className="mr-2 h-4 w-4" />
+												Muat Percakapan Sebelumnya
+											</Button>
+										</div>
+									)}
 								</div>
 							</div>
 						) : (
@@ -863,7 +896,7 @@ export default function ChatPage() {
 							<textarea
 								value={newMessage}
 								onChange={(e) => setNewMessage(e.target.value)}
-								placeholder={`Kirim pesan ke ${character.name}...`}
+								placeholder={`Ketik disini...`}
 								disabled={isLoading || isStreaming}
 								rows={1}
 								className="flex-1 resize-none rounded-2xl border-white/30 bg-white/10 px-6 py-4 font-normal text-base text-white placeholder:text-white/60 leading-relaxed focus:bg-white/20 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20 max-h-32 overflow-y-auto"
