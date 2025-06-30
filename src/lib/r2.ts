@@ -21,7 +21,7 @@ export const COMPRESSION_CONFIG = {
 	maxWidth: 512,
 	maxHeight: 512,
 	quality: 80,
-	format: "webp" as const,
+	format: "jpeg" as const,
 };
 
 // Compress image to reduce file size and standardize format
@@ -43,15 +43,15 @@ export async function compressImage(
 				fit: "inside",
 				withoutEnlargement: true,
 			})
-			.webp({
+			.jpeg({
 				quality: config.quality,
-				effort: 6, // Higher effort for better compression
+				progressive: true, // Enable progressive JPEG for better loading
 			})
 			.toBuffer();
 
 		return {
 			buffer: compressedBuffer,
-			format: "webp",
+			format: "jpeg",
 			originalSize,
 			compressedSize: compressedBuffer.length,
 		};
@@ -73,8 +73,8 @@ export function generateFileName(originalName: string): string {
 		.toLowerCase()
 		.slice(0, 20); // Limit length
 
-	// Always use .webp since we compress to WebP format
-	return `avatars/${timestamp}-${randomString}-${safeName}.webp`;
+	// Always use .jpg since we compress to JPEG format
+	return `avatars/${timestamp}-${randomString}-${safeName}.jpg`;
 }
 
 // Upload file to R2 with compression
@@ -96,7 +96,7 @@ export async function uploadToR2(
 			Bucket: R2_BUCKET_NAME,
 			Key: fileName,
 			Body: compressionResult.buffer,
-			ContentType: "image/webp", // Always WebP after compression
+			ContentType: "image/jpeg", // Always JPEG after compression
 			CacheControl: "public, max-age=31536000", // 1 year cache
 		});
 

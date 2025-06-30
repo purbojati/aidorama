@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -373,7 +374,7 @@ export default function ChatPage() {
 			router.replace(newUrl);
 		},
 		onError: (error: { message?: string }) => {
-			alert(error.message || "Gagal membuat sesi chat");
+			toast.error(error.message || "Gagal membuat sesi chat");
 		},
 	});
 
@@ -463,7 +464,7 @@ export default function ChatPage() {
 		onError: (error: { message?: string }) => {
 			// Remove the temporary user message on error
 			setMessages((prev) => prev.slice(0, -1));
-			alert(error.message || "Gagal mengirim pesan");
+			toast.error(error.message || "Gagal mengirim pesan");
 			setIsLoading(false);
 			setIsStreaming(false);
 			setStreamingMessage("");

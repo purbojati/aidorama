@@ -2,14 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-	Calendar,
-	MessageCircle,
 	Search,
 	Sparkles,
-	User,
-	Users,
 } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CharacterDetailSheet } from "@/components/character-detail-sheet";
 import SidebarLayout from "@/components/sidebar-layout";
@@ -18,24 +14,33 @@ import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
 export default function PublicCharactersPage() {
+	const router = useRouter();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
 		null,
 	);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const { data: session } = authClient.useSession();
 
 	const handleViewDetails = (characterId: number) => {
 		setSelectedCharacterId(characterId);
 		setIsSheetOpen(true);
+	};
+
+	const handleCreateCharacter = () => {
+		if (!session) {
+			router.push("/login");
+		} else {
+			router.push("/characters/create");
+		}
 	};
 
 	// Fetch public characters
@@ -50,7 +55,7 @@ export default function PublicCharactersPage() {
 	const filteredCharacters = publicCharacters || [];
 
 	return (
-		<SidebarLayout>
+		<SidebarLayout requireAuth={false}>
 			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10">
 				<div className="overflow-auto p-4 lg:p-6">
 					<div className="mx-auto max-w-7xl">
@@ -144,9 +149,7 @@ export default function PublicCharactersPage() {
 									<Button
 										size="lg"
 										className="bg-primary/90 shadow-lg hover:bg-primary"
-										onClick={() => {
-											window.location.href = "/characters/create";
-										}}
+										onClick={handleCreateCharacter}
 									>
 										<Sparkles className="mr-2 h-5 w-5" />
 										Buat Karakter Pertama

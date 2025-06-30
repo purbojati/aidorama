@@ -11,6 +11,10 @@ import {
 	Settings,
 	Sparkles,
 	User,
+	Home,
+	Users,
+	Bot,
+	LogIn,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -39,6 +43,7 @@ import { trpc } from "@/utils/trpc";
 
 interface SidebarLayoutProps {
 	children: React.ReactNode;
+	requireAuth?: boolean;
 }
 
 // Sidebar content component to avoid duplication
@@ -55,242 +60,268 @@ function SidebarContent({
 }) {
 	const router = useRouter();
 	const { formatDate } = useClientDate();
-	const recentSessions = chatSessions?.slice(0, 4) || [];
 
 	return (
-		<div className="flex h-screen flex-col">
+		<div className="flex h-full flex-col bg-card/50 backdrop-blur-sm">
 			{/* Header */}
-			<div className="flex-shrink-0 border-b p-4">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-2">
+			<div className="flex-shrink-0 border-b bg-gradient-to-r from-background/90 to-muted/30 p-6">
+				<div className="flex items-center gap-3">
+					<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 ring-1 ring-primary/20">
 						<img 
 							src="/aidorama-logo-trans.png" 
 							alt="AiDorama Logo" 
-							className="h-8 w-8 object-contain"
+							className="h-6 w-6 object-contain"
 						/>
-						<h1 className="font-semibold text-lg">AiDorama</h1>
 					</div>
-					<ModeToggle />
+					<div>
+						<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
+							AiDorama
+						</h1>
+						<p className="text-muted-foreground text-xs">Chat dengan AI</p>
+					</div>
 				</div>
 			</div>
 
-			<div className="flex-1 overflow-hidden p-6">
-				{/* Quick Actions */}
-				<div className="mb-8">
-					<div className="mb-4 flex items-center gap-2">
-						<h3 className="font-semibold text-sm">Menu Cepat</h3>
-						<div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-					</div>
-					<div className="flex flex-wrap gap-2">
-						<Link href="/" onClick={onLinkClick}>
-							<Button
-								variant="outline"
-								size="sm"
-								className="justify-start bg-background/50 hover:bg-muted/50"
+			{/* Navigation */}
+			<div className="flex-1 overflow-y-auto p-4">
+				<div className="space-y-6">
+					{/* Main Navigation */}
+					<div className="space-y-2">
+						<h2 className="font-semibold text-foreground text-sm">Menu Utama</h2>
+						<nav className="space-y-1">
+							<Link
+								href="/"
+								className="flex items-center gap-3 rounded-lg px-3 py-2 text-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+								onClick={onLinkClick}
 							>
-								<Sparkles className="mr-2 h-4 w-4" />
-								Jelajah
-							</Button>
-						</Link>
-						<Link href="/characters/create" onClick={onLinkClick}>
-							<Button
-								variant="outline"
-								size="sm"
-								className="justify-start bg-background/50 hover:bg-muted/50"
-							>
-								<Plus className="mr-2 h-4 w-4" />
-								Bikin Karakter
-							</Button>
-						</Link>
-
-						<Link href="/characters/my" onClick={onLinkClick}>
-							<Button
-								variant="outline"
-								size="sm"
-								className="justify-start bg-background/50 hover:bg-muted/50"
-							>
-								<User className="mr-2 h-4 w-4" />
-								Karakterku
-							</Button>
-						</Link>
-					</div>
-				</div>
-
-				{/* Recent Chat History */}
-				<div className="min-h-0 flex-1">
-					<div className="mb-4 flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<Clock className="h-4 w-4 text-muted-foreground" />
-							<h3 className="font-semibold text-sm">Chat Terakhir</h3>
-						</div>
-						<Link href="/chats" onClick={onLinkClick}>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="text-xs hover:bg-muted/50"
-							>
-								Lihat Semua
-							</Button>
-						</Link>
-					</div>
-
-					<div className="h-full overflow-y-auto">
-						{sessionsLoading ? (
-							<div className="space-y-3">
-								{[1, 2, 3].map((i) => (
-									<div
-										key={i}
-										className="flex items-center gap-3 rounded-lg border bg-background/50 p-3"
-									>
-										<Skeleton className="h-10 w-10 rounded-full" />
-										<div className="flex-1">
-											<Skeleton className="mb-2 h-4 w-full" />
-											<Skeleton className="h-3 w-2/3" />
-										</div>
-									</div>
-								))}
-							</div>
-						) : recentSessions.length === 0 ? (
-							<div className="rounded-xl border border-dashed bg-muted/20 py-8 text-center">
-								<MessageCircle className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
-								<p className="mb-3 text-muted-foreground text-sm">
-									Belum ada chat nih
-								</p>
-								{/* <Link href="/characters" onClick={onLinkClick}>
-									<Button size="sm" className="bg-primary/90 hover:bg-primary">
-										<Sparkles className="mr-2 h-4 w-4" />
-										Mulai Chat Yuk
-									</Button>
-								</Link> */}
-							</div>
-						) : (
-							<div className="space-y-2">
-								{recentSessions.map((session: any) => (
+								<Home className="h-4 w-4" />
+								<span className="text-sm">Beranda</span>
+							</Link>
+							{session && (
+								<>
 									<Link
-										key={session.id}
-										href={`/chat/${session.character?.id}?sessionId=${session.id}`}
-										className="block"
+										href="/characters"
+										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
 										onClick={onLinkClick}
 									>
-										<div className="group flex items-center gap-3 rounded-lg border bg-background/50 p-3 transition-all hover:bg-muted/50 hover:shadow-sm">
-											{session.character?.avatarUrl ? (
-												<img
-													src={session.character.avatarUrl}
-													alt={session.character.name}
-													className="h-10 w-10 rounded-full object-cover ring-2 ring-background"
-												/>
-											) : (
-												<div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
-													<span className="font-semibold text-primary text-sm">
-														{session.character?.name
-															?.charAt(0)
-															?.toUpperCase() || "?"}
-													</span>
-												</div>
-											)}
-											<div className="min-w-0 flex-1">
-												<p className="truncate font-medium text-sm group-hover:text-foreground">
-													{session.title ||
-														`Chat sama ${session.character?.name}`}
-												</p>
-												<p className="text-muted-foreground text-xs">
-													{formatDate(session.updatedAt, {
-														day: "numeric",
-														month: "short",
-													})}
-												</p>
-											</div>
-											<ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
-										</div>
+										<Users className="h-4 w-4" />
+										<span className="text-sm">Karakter Publik</span>
 									</Link>
-								))}
-							</div>
-						)}
+									<Link
+										href="/characters/my"
+										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+										onClick={onLinkClick}
+									>
+										<Bot className="h-4 w-4" />
+										<span className="text-sm">Karakter Saya</span>
+									</Link>
+									<Link
+										href="/characters/create"
+										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+										onClick={onLinkClick}
+									>
+										<Plus className="h-4 w-4" />
+										<span className="text-sm">Buat Karakter</span>
+									</Link>
+									<Link
+										href="/chats"
+										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+										onClick={onLinkClick}
+									>
+										<MessageCircle className="h-4 w-4" />
+										<span className="text-sm">Chat Saya</span>
+									</Link>
+								</>
+							)}
+						</nav>
 					</div>
+
+					{/* Chat Sessions - Only show for authenticated users */}
+					{session && (
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<h2 className="font-semibold text-foreground text-sm">
+									Chat Terbaru
+								</h2>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="h-6 w-6 rounded-full p-0"
+									asChild
+								>
+									<Link href="/chats" onClick={onLinkClick}>
+										<ChevronRight className="h-3 w-3" />
+									</Link>
+								</Button>
+							</div>
+
+							{sessionsLoading ? (
+								<div className="space-y-2">
+									{[1, 2, 3].map((i) => (
+										<div
+											key={i}
+											className="flex items-center gap-3 rounded-lg border bg-background/50 p-3"
+										>
+											<div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
+											<div className="flex-1">
+												<div className="mb-1 h-4 animate-pulse rounded bg-muted" />
+												<div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
+											</div>
+										</div>
+									))}
+								</div>
+							) : chatSessions.length > 0 ? (
+								<div className="space-y-1">
+									{chatSessions.slice(0, 5).map((session: any) => (
+										<Link
+											key={session.id}
+											href={`/chat/${session.character?.id}?sessionId=${session.id}`}
+											className="block"
+											onClick={onLinkClick}
+										>
+											<div className="group flex items-center gap-3 rounded-lg border bg-background/50 p-3 transition-all hover:bg-muted/50 hover:shadow-sm">
+												{session.character?.avatarUrl ? (
+													<img
+														src={session.character.avatarUrl}
+														alt={session.character.name}
+														className="h-10 w-10 rounded-full object-cover ring-2 ring-background"
+													/>
+												) : (
+													<div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
+														<span className="font-semibold text-primary text-sm">
+															{session.character?.name
+																?.charAt(0)
+																?.toUpperCase() || "?"}
+														</span>
+													</div>
+												)}
+												<div className="min-w-0 flex-1">
+													<p className="truncate font-medium text-sm group-hover:text-foreground">
+														{session.title ||
+															`Chat sama ${session.character?.name}`}
+													</p>
+													<p className="text-muted-foreground text-xs">
+														{formatDate(session.updatedAt, {
+															day: "numeric",
+															month: "short",
+														})}
+													</p>
+												</div>
+												<ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
+											</div>
+										</Link>
+									))}
+								</div>
+							) : (
+								<div className="rounded-lg border-2 border-dashed p-4 text-center">
+									<MessageCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
+									<p className="text-muted-foreground text-sm">
+										Belum ada chat. Mulai chat dengan karakter!
+									</p>
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 
-			{/* Bottom Section - User Account Only */}
+			{/* Bottom Section - Show different content based on auth */}
 			<div className="flex-shrink-0 border-t bg-muted/20 p-4">
-				<div className="flex items-center gap-3 rounded-lg bg-background/50 p-3">
-					<div className="relative">
-						<div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
-							<User className="h-4 w-4 text-primary" />
+				{session ? (
+					<div className="flex items-center gap-3 rounded-lg bg-background/50 p-3">
+						<div className="relative">
+							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
+								<User className="h-4 w-4 text-primary" />
+							</div>
+							<div className="-bottom-0.5 -right-0.5 absolute h-3 w-3 rounded-full bg-green-500 ring-2 ring-background" />
 						</div>
-						<div className="-bottom-0.5 -right-0.5 absolute h-3 w-3 rounded-full bg-green-500 ring-2 ring-background" />
+						<div className="min-w-0 flex-1">
+							<p className="truncate font-medium text-sm">{session.user.name}</p>
+							<p className="truncate text-muted-foreground text-xs">
+								{session.user.email}
+							</p>
+						</div>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="h-8 w-8 rounded-full p-0"
+								>
+									<Settings className="h-4 w-4" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								className="bg-card/95 backdrop-blur-sm"
+								align="end"
+							>
+								<DropdownMenuLabel>Akun Gue</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem asChild>
+									<Link
+										href="/profile"
+										className="w-full cursor-pointer"
+										onClick={onLinkClick}
+									>
+										<User className="mr-2 h-4 w-4" />
+										Atur Profil
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									className="cursor-pointer text-destructive focus:text-destructive"
+									onClick={() => {
+										authClient.signOut({
+											fetchOptions: {
+												onSuccess: () => {
+													router.push("/");
+												},
+											},
+										});
+									}}
+								>
+									<LogOut className="mr-2 h-4 w-4" />
+									Logout
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
-					<div className="min-w-0 flex-1">
-						<p className="truncate font-medium text-sm">{session.user.name}</p>
-						<p className="truncate text-muted-foreground text-xs">
-							{session.user.email}
+				) : (
+					<div className="space-y-2">
+						<Button asChild className="w-full">
+							<Link href="/login" onClick={onLinkClick}>
+								<LogIn className="mr-2 h-4 w-4" />
+								Masuk / Daftar
+							</Link>
+						</Button>
+						<p className="text-center text-muted-foreground text-xs">
+							Masuk untuk membuat karakter dan chat
 						</p>
 					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-8 w-8 rounded-full p-0"
-							>
-								<Settings className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							className="bg-card/95 backdrop-blur-sm"
-							align="end"
-						>
-							<DropdownMenuLabel>Akun Gue</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem asChild>
-								<Link
-									href="/profile"
-									className="w-full cursor-pointer"
-									onClick={onLinkClick}
-								>
-									<User className="mr-2 h-4 w-4" />
-									Atur Profil
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								className="cursor-pointer text-destructive focus:text-destructive"
-								onClick={() => {
-									authClient.signOut({
-										fetchOptions: {
-											onSuccess: () => {
-												router.push("/");
-											},
-										},
-									});
-								}}
-							>
-								<LogOut className="mr-2 h-4 w-4" />
-								Logout
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+				)}
 			</div>
 		</div>
 	);
 }
 
-export default function SidebarLayout({ children }: SidebarLayoutProps) {
+export default function SidebarLayout({ children, requireAuth = true }: SidebarLayoutProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const { data: session, isPending } = authClient.useSession();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-	// Fetch user's chat sessions for sidebar
-	const { data: chatSessions, isLoading: sessionsLoading } = useQuery(
-		trpc.chat.getUserSessions.queryOptions(),
-	);
+	// Fetch user's chat sessions for sidebar (only for authenticated users)
+	const { data: chatSessions, isLoading: sessionsLoading } = useQuery({
+		...trpc.chat.getUserSessions.queryOptions(),
+		enabled: !!session,
+	});
 
+	// Only redirect to login if authentication is required
 	useEffect(() => {
-		if (!session && !isPending) {
+		if (requireAuth && !session && !isPending) {
 			router.push("/login");
 		}
-	}, [session, isPending]);
+	}, [session, isPending, requireAuth, router]);
 
 	// Close mobile menu when route changes
 	useEffect(() => {
@@ -305,7 +336,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 		);
 	}
 
-	if (!session) {
+	if (requireAuth && !session) {
 		return null; // Will redirect to login
 	}
 

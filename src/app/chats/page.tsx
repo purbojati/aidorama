@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import SidebarLayout from "@/components/sidebar-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,7 +69,7 @@ export default function ChatsPage() {
 		},
 		onSuccess: (data, variables) => {
 			console.log("Delete session success:", data);
-			alert("Sesi chat berhasil dihapus");
+			toast.success("Sesi chat berhasil dihapus! 🗑️");
 			// Immediately remove from local state
 			setDeletedSessions((prev) => [...prev, variables.sessionId]);
 			// Invalidate all chat-related queries
@@ -79,7 +80,7 @@ export default function ChatsPage() {
 		},
 		onError: (error: unknown) => {
 			console.error("Delete session error:", error);
-			alert(
+			toast.error(
 				error instanceof Error ? error.message : "Gagal menghapus sesi chat",
 			);
 		},

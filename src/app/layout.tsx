@@ -14,7 +14,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Aidorama",
+	title: "AiDorama",
 	description: "Roleplay AI Indonesia",
 	icons: {
 		icon: [

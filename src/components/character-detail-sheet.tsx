@@ -10,6 +10,7 @@ import {
 	UserCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClientDate } from "@/hooks/use-client-date";
+import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
 interface CharacterDetailSheetProps {
@@ -41,11 +43,21 @@ export function CharacterDetailSheet({
 	open,
 	onOpenChange,
 }: CharacterDetailSheetProps) {
+	const router = useRouter();
 	const { formatDate } = useClientDate();
+	const { data: session } = authClient.useSession();
 	const { data: character, isLoading } = useQuery({
 		...trpc.characters.getCharacter.queryOptions({ id: characterId! }),
 		enabled: !!characterId && open,
 	});
+
+	const handleStartChat = () => {
+		if (!session) {
+			router.push("/login");
+		} else {
+			router.push(`/chat/${character?.id}`);
+		}
+	};
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
@@ -125,12 +137,10 @@ export function CharacterDetailSheet({
 
 						{/* Actions */}
 						<div className="space-y-3">
-							<Link href={`/chat/${character.id}`} className="block">
-								<Button className="w-full" size="lg">
-									<MessageCircle className="mr-2 h-4 w-4" />
-									Mulai Chat
-								</Button>
-							</Link>
+							<Button className="w-full" size="lg" onClick={handleStartChat}>
+								<MessageCircle className="mr-2 h-4 w-4" />
+								Mulai Chat
+							</Button>
 						</div>
 
 						{/* Character Details */}

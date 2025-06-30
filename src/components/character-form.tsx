@@ -2,8 +2,9 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -31,6 +32,7 @@ import {
 	validateImageFile,
 } from "@/lib/image-compression";
 import { trpc } from "@/utils/trpc";
+import Image from "next/image";
 
 interface CharacterForm {
 	name: string;
@@ -247,11 +249,11 @@ export default function CharacterFormComponent({
 			return result.result?.data;
 		},
 		onSuccess: (character: any) => {
-			alert("Karakter udah jadi nih!");
+			toast.success("Karakter udah jadi nih! 🎉");
 			router.push(`/chat/${character.id}`);
 		},
 		onError: (error: any) => {
-			alert(error.message || "Waduh, gagal bikin karakter");
+			toast.error(error.message || "Waduh, gagal bikin karakter");
 		},
 	});
 
@@ -278,11 +280,11 @@ export default function CharacterFormComponent({
 			return response.json();
 		},
 		onSuccess: () => {
-			alert("Karakter berhasil diperbarui!");
+			toast.success("Karakter berhasil diperbarui! ✨");
 			router.push("/");
 		},
 		onError: (error: any) => {
-			alert(error.message || "Gagal memperbarui karakter");
+			toast.error(error.message || "Gagal memperbarui karakter");
 		},
 	});
 
@@ -343,10 +345,10 @@ export default function CharacterFormComponent({
 			setForm(newForm);
 			setIsAiDialogOpen(false);
 			setAiInput("");
-			alert("Berhasil mengisi form dengan AI! 🎉");
+			toast.success("Berhasil mengisi form dengan AI! ✨🤖");
 		},
 		onError: (error: any) => {
-			alert(error.message || "Gagal memproses input dengan AI");
+			toast.error(error.message || "Gagal memproses input dengan AI");
 		},
 	});
 
@@ -486,7 +488,7 @@ export default function CharacterFormComponent({
 		// Validate file first
 		const validation = validateImageFile(file);
 		if (!validation.valid) {
-			alert(validation.error);
+			toast.error(validation.error);
 			return;
 		}
 
@@ -563,7 +565,7 @@ export default function CharacterFormComponent({
 			);
 		} catch (error: any) {
 			console.error("Avatar upload error:", error);
-			alert(error.message || "Gagal upload avatar");
+			toast.error(error.message || "Gagal upload avatar");
 
 			// Reset on error
 			setAvatarFile(null);
@@ -597,7 +599,7 @@ export default function CharacterFormComponent({
 	// AI Auto-fill handlers (only for create mode)
 	const handleAiParse = () => {
 		if (!aiInput.trim()) {
-			alert("Silakan masukkan deskripsi karakter terlebih dahulu");
+			toast.error("Silakan masukkan deskripsi karakter terlebih dahulu");
 			return;
 		}
 
@@ -740,11 +742,19 @@ export default function CharacterFormComponent({
 											</p>
 										</div>
 									) : avatarPreview ? (
-										<img
-											src={avatarPreview}
-											alt="Avatar preview"
-											className="h-full w-full object-cover"
-										/>
+										<div className="h-full w-full relative">
+											<Image
+												src={avatarPreview}
+												alt="Avatar preview"
+												fill
+												className="object-cover"
+												onError={(e) => {
+													console.error("Avatar image load error:", e);
+													// You could set a fallback here if needed
+												}}
+												unoptimized={avatarPreview.startsWith("blob:") || avatarPreview.includes("r2.dev")}
+											/>
+										</div>
 									) : (
 										<div className="text-center">
 											<div className="mb-2 text-3xl">📷</div>
