@@ -38,9 +38,9 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
-import { useClientDate } from "@/hooks/use-client-date";
 
 interface SidebarLayoutProps {
 	children: React.ReactNode;
@@ -195,7 +195,10 @@ function SidebarContent({
 														`Chat sama ${session.character?.name}`}
 												</p>
 												<p className="text-muted-foreground text-xs">
-													{formatDate(session.updatedAt, { day: "numeric", month: "short" })}
+													{formatDate(session.updatedAt, {
+														day: "numeric",
+														month: "short",
+													})}
 												</p>
 											</div>
 											<ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
@@ -323,15 +326,15 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 								<span className="sr-only">Buka menu</span>
 							</Button>
 						</SheetTrigger>
-											<SheetContent side="left" className="w-80 p-0">
-						<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-						<SidebarContent
-							session={session}
-							chatSessions={chatSessions || []}
-							sessionsLoading={sessionsLoading}
-							onLinkClick={handleMobileLinkClick}
-						/>
-					</SheetContent>
+						<SheetContent side="left" className="w-80 p-0">
+							<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+							<SidebarContent
+								session={session}
+								chatSessions={chatSessions || []}
+								sessionsLoading={sessionsLoading}
+								onLinkClick={handleMobileLinkClick}
+							/>
+						</SheetContent>
 					</Sheet>
 
 					<div className="flex items-center gap-2">

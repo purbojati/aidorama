@@ -5,25 +5,31 @@ import { useEffect, useState } from "react";
  * This prevents hydration mismatches between server and client
  */
 export function useClientDate() {
-  const [isClient, setIsClient] = useState(false);
+	const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
 
-  const formatDate = (date: string | Date, options?: Intl.DateTimeFormatOptions) => {
-    if (!isClient) return ""; // Return empty string during SSR
-    
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return dateObj.toLocaleDateString("id-ID", options);
-  };
+	const formatDate = (
+		date: string | Date,
+		options?: Intl.DateTimeFormatOptions,
+	) => {
+		if (!isClient) return ""; // Return empty string during SSR
 
-  const formatTime = (date: string | Date, options?: Intl.DateTimeFormatOptions) => {
-    if (!isClient) return ""; // Return empty string during SSR
-    
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return dateObj.toLocaleTimeString("id-ID", options);
-  };
+		const dateObj = typeof date === "string" ? new Date(date) : date;
+		return dateObj.toLocaleDateString("id-ID", options);
+	};
 
-  return { formatDate, formatTime, isClient };
-} 
+	const formatTime = (
+		date: string | Date,
+		options?: Intl.DateTimeFormatOptions,
+	) => {
+		if (!isClient) return ""; // Return empty string during SSR
+
+		const dateObj = typeof date === "string" ? new Date(date) : date;
+		return dateObj.toLocaleTimeString("id-ID", options);
+	};
+
+	return { formatDate, formatTime, isClient };
+}

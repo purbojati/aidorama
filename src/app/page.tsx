@@ -222,8 +222,6 @@ export default function PublicCharactersPage() {
 														)}
 													</div>
 												)}
-
-
 										</CardContent>
 									</Card>
 								))}

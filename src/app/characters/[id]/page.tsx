@@ -8,8 +8,8 @@ import SidebarLayout from "@/components/sidebar-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/utils/trpc";
 import { useClientDate } from "@/hooks/use-client-date";
+import { trpc } from "@/utils/trpc";
 
 export default function CharacterDetailPage() {
 	const params = useParams();
@@ -232,16 +232,12 @@ export default function CharacterDetailPage() {
 
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Dibuat:</span>
-										<span>
-											{formatDate(character.createdAt)}
-										</span>
+										<span>{formatDate(character.createdAt)}</span>
 									</div>
 
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Diperbarui:</span>
-										<span>
-											{formatDate(character.updatedAt)}
-										</span>
+										<span>{formatDate(character.updatedAt)}</span>
 									</div>
 								</CardContent>
 							</Card>

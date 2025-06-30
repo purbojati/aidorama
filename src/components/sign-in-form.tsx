@@ -30,7 +30,11 @@ export default function SignInForm({
 			const result = await queryClient.fetchQuery({
 				queryKey: ["user", "getEmailByUsername", identifier],
 				queryFn: async () => {
-					const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+					const serverUrl =
+						process.env.NEXT_PUBLIC_SERVER_URL ||
+						(typeof window !== "undefined"
+							? window.location.origin
+							: "http://localhost:3000");
 					const response = await fetch(
 						`${serverUrl}/trpc/user.getEmailByUsername`,
 						{

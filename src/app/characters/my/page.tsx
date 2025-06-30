@@ -36,7 +36,11 @@ export default function MyCharactersPage() {
 
 	const deleteCharacterMutation = useMutation({
 		mutationFn: async (input: { id: number }) => {
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
 			const response = await fetch(
 				`${serverUrl}/trpc/characters.deleteCharacter`,
 				{

@@ -1,0 +1,13 @@
+[install]
+# Disable npm and yarn fallbacks
+fallback = false
+
+# Use exact versions for better reproducibility
+exact = true
+
+# Enable workspaces if needed
+workspace = true
+
+[run]
+# Use bun for scripts
+shell = "bun" 

@@ -223,7 +223,11 @@ export default function CharacterFormComponent({
 
 	const createCharacterMutation = useMutation({
 		mutationFn: async (input: any) => {
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
 			const response = await fetch(
 				`${serverUrl}/trpc/characters.createCharacter`,
 				{
@@ -253,7 +257,11 @@ export default function CharacterFormComponent({
 
 	const updateCharacterMutation = useMutation({
 		mutationFn: async (input: any) => {
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
 			const response = await fetch(
 				`${serverUrl}/trpc/characters.updateCharacter`,
 				{
@@ -281,7 +289,11 @@ export default function CharacterFormComponent({
 	// AI parsing mutation (only for create mode)
 	const parseUserInputMutation = useMutation({
 		mutationFn: async (input: { userInput: string }) => {
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
 			const response = await fetch(
 				`${serverUrl}/trpc/characters.parseUserInput`,
 				{
@@ -509,15 +521,16 @@ export default function CharacterFormComponent({
 			const formData = new FormData();
 			formData.append("avatar", clientCompressed.file);
 
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-			const response = await fetch(
-				`${serverUrl}/api/upload/avatar`,
-				{
-					method: "POST",
-					body: formData,
-					credentials: "include",
-				},
-			);
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
+			const response = await fetch(`${serverUrl}/api/upload/avatar`, {
+				method: "POST",
+				body: formData,
+				credentials: "include",
+			});
 
 			if (!response.ok) {
 				const error = await response.json();
@@ -791,7 +804,6 @@ export default function CharacterFormComponent({
 								className="hidden"
 							/>
 						</div>
-
 					</CardContent>
 				</Card>
 

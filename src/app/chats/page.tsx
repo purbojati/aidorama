@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/utils/trpc";
 import { useClientDate } from "@/hooks/use-client-date";
+import { trpc } from "@/utils/trpc";
 
 type ChatSession = {
 	id: number;
@@ -43,18 +43,19 @@ export default function ChatsPage() {
 
 	const deleteSessionMutation = useMutation({
 		mutationFn: async (input: { sessionId: number }) => {
-			const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-			const response = await fetch(
-				`${serverUrl}/trpc/chat.deleteSession`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					credentials: "include",
-					body: JSON.stringify(input),
+			const serverUrl =
+				process.env.NEXT_PUBLIC_SERVER_URL ||
+				(typeof window !== "undefined"
+					? window.location.origin
+					: "http://localhost:3000");
+			const response = await fetch(`${serverUrl}/trpc/chat.deleteSession`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
 				},
-			);
+				credentials: "include",
+				body: JSON.stringify(input),
+			});
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => null);

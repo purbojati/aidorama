@@ -25,7 +25,11 @@ export default function SignUpForm({
 			const result = await queryClient.fetchQuery({
 				queryKey: ["user", "generateUsername"],
 				queryFn: async () => {
-					const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+					const serverUrl =
+						process.env.NEXT_PUBLIC_SERVER_URL ||
+						(typeof window !== "undefined"
+							? window.location.origin
+							: "http://localhost:3000");
 					const response = await fetch(
 						`${serverUrl}/trpc/user.generateUsername`,
 						{

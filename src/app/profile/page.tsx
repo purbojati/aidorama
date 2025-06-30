@@ -32,18 +32,19 @@ export default function ProfilePage() {
 			const result = await queryClient.fetchQuery({
 				queryKey: ["user", "updateProfile", input],
 				queryFn: async () => {
-					const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-					const response = await fetch(
-						`${serverUrl}/trpc/user.updateProfile`,
-						{
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(input),
-							credentials: "include",
+					const serverUrl =
+						process.env.NEXT_PUBLIC_SERVER_URL ||
+						(typeof window !== "undefined"
+							? window.location.origin
+							: "http://localhost:3000");
+					const response = await fetch(`${serverUrl}/trpc/user.updateProfile`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
 						},
-					);
+						body: JSON.stringify(input),
+						credentials: "include",
+					});
 
 					if (!response.ok) {
 						const error = await response.json();

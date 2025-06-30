@@ -27,11 +27,16 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetContent,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
-import { useClientDate } from "@/hooks/use-client-date";
 
 interface Message {
 	id: number;
@@ -308,7 +313,11 @@ export default function ChatPage() {
 		trpc.chat.getUserSessions.queryOptions(),
 	);
 
-	const { data: character, isLoading: characterLoading, error: characterError } = useQuery({
+	const {
+		data: character,
+		isLoading: characterLoading,
+		error: characterError,
+	} = useQuery({
 		...trpc.characters.getCharacter.queryOptions({ id: characterId }),
 		enabled: !isNaN(characterId),
 	});
@@ -468,12 +477,12 @@ export default function ChatPage() {
 			// Redirect to existing session
 			const newUrl = `/chat/${characterId}?sessionId=${existingSession.id}`;
 			router.replace(newUrl);
-			
+
 			// Reset checking state after a short delay to prevent infinite loading
 			const timer = setTimeout(() => {
 				setIsCheckingSession(false);
 			}, 2000);
-			
+
 			return () => clearTimeout(timer);
 		}
 	}, [
@@ -543,7 +552,7 @@ export default function ChatPage() {
 
 		// Add user message immediately for better UX
 		const userMessage: Message = {
-			id: -(++tempIdRef.current), // Use negative IDs for temporary messages
+			id: -++tempIdRef.current, // Use negative IDs for temporary messages
 			content: newMessage.trim(),
 			role: "user",
 			createdAt: new Date().toISOString(),
@@ -668,20 +677,24 @@ export default function ChatPage() {
 						{session && (
 							<Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
 								<SheetTrigger asChild>
-									<Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+									<Button
+										variant="ghost"
+										size="sm"
+										className="text-white hover:bg-white/20"
+									>
 										<Menu className="h-5 w-5" />
 										<span className="sr-only">Open menu</span>
 									</Button>
 								</SheetTrigger>
-															<SheetContent side="left" className="w-80 p-0">
-								<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-								<MobileSidebarContent
-									session={session}
-									chatSessions={chatSessions || []}
-									sessionsLoading={sessionsLoading}
-									onLinkClick={handleMobileLinkClick}
-								/>
-							</SheetContent>
+								<SheetContent side="left" className="w-80 p-0">
+									<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+									<MobileSidebarContent
+										session={session}
+										chatSessions={chatSessions || []}
+										sessionsLoading={sessionsLoading}
+										onLinkClick={handleMobileLinkClick}
+									/>
+								</SheetContent>
 							</Sheet>
 						)}
 
@@ -690,7 +703,9 @@ export default function ChatPage() {
 								<h1 className="max-w-[200px] truncate bg-gradient-to-r from-white to-white/80 bg-clip-text font-bold text-transparent text-xl leading-tight">
 									{character.name}
 								</h1>
-								<span className="font-medium text-white/80 text-xs opacity-80">Chat Pribadi</span>
+								<span className="font-medium text-white/80 text-xs opacity-80">
+									Chat Pribadi
+								</span>
 							</div>
 						</div>
 
@@ -718,14 +733,14 @@ export default function ChatPage() {
 								← Kembali
 							</Button>
 						</Link>
-						
 						<div className="text-center">
 							<h1 className="bg-gradient-to-r from-white via-white to-white/90 bg-clip-text font-bold text-transparent text-2xl leading-tight">
 								{character.name}
 							</h1>
-							<span className="font-medium text-white/80 text-xs">Obrolan Pribadi</span>
+							<span className="font-medium text-white/80 text-xs">
+								Obrolan Pribadi
+							</span>
 						</div>
-						
 						<div className="w-20" /> {/* Spacer for balance */}
 					</div>
 				</div>
@@ -766,7 +781,9 @@ export default function ChatPage() {
 											: `Mulai obrolan pribadi dengan ${character.name}!`}
 									</p>
 									<div className="mt-4 flex items-center justify-center gap-2 text-white/60">
-										<span className="text-sm">Ini adalah ruang pribadi kalian berdua</span>
+										<span className="text-sm">
+											Ini adalah ruang pribadi kalian berdua
+										</span>
 									</div>
 								</div>
 							</div>
@@ -787,7 +804,9 @@ export default function ChatPage() {
 											<div className="whitespace-pre-wrap font-normal text-base leading-relaxed tracking-wide">
 												{message.content}
 											</div>
-											<div className={`mt-3 font-medium text-xs ${message.role === "user" ? "opacity-70" : "text-white/60"}`}>
+											<div
+												className={`mt-3 font-medium text-xs ${message.role === "user" ? "opacity-70" : "text-white/60"}`}
+											>
 												{formatTime(message.createdAt, {
 													hour: "2-digit",
 													minute: "2-digit",
@@ -836,53 +855,55 @@ export default function ChatPage() {
 				{/* Message Input - Enhanced floating style */}
 				<div className="sticky bottom-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-t border-white/20">
 					<div className="mx-auto max-w-4xl px-4 py-6 lg:px-6">
-							<form onSubmit={handleSendMessage} className="flex items-end space-x-3">
-								<textarea
-									value={newMessage}
-									onChange={(e) => setNewMessage(e.target.value)}
-									placeholder={`Kirim pesan ke ${character.name}...`}
-									disabled={isLoading || isStreaming}
-									rows={1}
-									className="flex-1 resize-none rounded-2xl border-white/30 bg-white/10 px-6 py-4 font-normal text-base text-white placeholder:text-white/60 leading-relaxed focus:bg-white/20 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20 max-h-32 overflow-y-auto"
-									maxLength={200}
-									style={{
-										minHeight: '56px',
-										height: 'auto',
-									}}
-									onInput={(e) => {
-										const target = e.target as HTMLTextAreaElement;
-										target.style.height = 'auto';
-										target.style.height = Math.min(target.scrollHeight, 128) + 'px';
-									}}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' && !e.shiftKey) {
-											e.preventDefault();
-											handleSendMessage(e);
-										}
-									}}
-								/>
-								<Button
-									type="submit"
-									disabled={isLoading || isStreaming || !newMessage.trim()}
-									className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 px-8 py-4 font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 min-h-[56px]"
-								>
-									{isLoading || isStreaming ? (
-										<div className="flex items-center gap-2">
-											<div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-											<span>Kirim</span>
-										</div>
-									) : (
-										<div className="flex items-center gap-2">
-											
-											<span>Kirim</span>
-										</div>
-									)}
-								</Button>
-							</form>
-						</div>
+						<form
+							onSubmit={handleSendMessage}
+							className="flex items-end space-x-3"
+						>
+							<textarea
+								value={newMessage}
+								onChange={(e) => setNewMessage(e.target.value)}
+								placeholder={`Kirim pesan ke ${character.name}...`}
+								disabled={isLoading || isStreaming}
+								rows={1}
+								className="flex-1 resize-none rounded-2xl border-white/30 bg-white/10 px-6 py-4 font-normal text-base text-white placeholder:text-white/60 leading-relaxed focus:bg-white/20 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20 max-h-32 overflow-y-auto"
+								maxLength={200}
+								style={{
+									minHeight: "56px",
+									height: "auto",
+								}}
+								onInput={(e) => {
+									const target = e.target as HTMLTextAreaElement;
+									target.style.height = "auto";
+									target.style.height =
+										Math.min(target.scrollHeight, 128) + "px";
+								}}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" && !e.shiftKey) {
+										e.preventDefault();
+										handleSendMessage(e);
+									}
+								}}
+							/>
+							<Button
+								type="submit"
+								disabled={isLoading || isStreaming || !newMessage.trim()}
+								className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 px-8 py-4 font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 min-h-[56px]"
+							>
+								{isLoading || isStreaming ? (
+									<div className="flex items-center gap-2">
+										<div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+										<span>Kirim</span>
+									</div>
+								) : (
+									<div className="flex items-center gap-2">
+										<span>Kirim</span>
+									</div>
+								)}
+							</Button>
+						</form>
 					</div>
 				</div>
 			</div>
-
+		</div>
 	);
 }

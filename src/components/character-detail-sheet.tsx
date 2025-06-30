@@ -27,8 +27,8 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/utils/trpc";
 import { useClientDate } from "@/hooks/use-client-date";
+import { trpc } from "@/utils/trpc";
 
 interface CharacterDetailSheetProps {
 	characterId: number | null;
@@ -49,7 +49,10 @@ export function CharacterDetailSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="w-full overflow-y-auto p-4 sm:max-w-lg sm:p-6">
+			<SheetContent
+				side="right"
+				className="w-full overflow-y-auto p-4 sm:max-w-lg sm:p-6"
+			>
 				{isLoading ? (
 					<div className="space-y-6">
 						<SheetHeader>
