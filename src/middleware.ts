@@ -16,6 +16,6 @@ export const config = {
 	// Only run middleware on API routes if needed
 	matcher: [
 		// Skip all internal paths (_next) and image files
-		"/((?!_next/static|_next/image|.*\\.(jpg|jpeg|png|gif|webp|svg|ico|bmp|tiff|tif|avif|heic|heif)$).*)",
+		"/((?!_next/static|_next/image|.*\\.(?:jpg|jpeg|png|gif|webp|svg|ico|bmp|tiff|tif|avif|heic|heif)$).*)",
 	],
 };
