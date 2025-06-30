@@ -353,10 +353,7 @@ export default function ChatPage() {
 
 	const createSessionMutation = useMutation({
 		mutationFn: async (input: { characterId: number; forceNew?: boolean }) => {
-			const serverUrl =
-				process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-
-			const response = await fetch(`${serverUrl}/trpc/chat.getOrCreateSession`, {
+			const response = await fetch("/trpc/chat.getOrCreateSession", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -398,12 +395,9 @@ export default function ChatPage() {
 			setIsStreaming(true);
 			setStreamingMessage("");
 
-			// Use the correct server URL from environment
-			const serverUrl =
-				process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-			console.log("Streaming to:", `${serverUrl}/api/chat/stream`);
+			console.log("Streaming to:", "/api/chat/stream");
 
-			const response = await fetch(`${serverUrl}/api/chat/stream`, {
+			const response = await fetch("/api/chat/stream", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
