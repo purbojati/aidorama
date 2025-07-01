@@ -9,6 +9,7 @@ import {
 } from "../db/schema/characters";
 import { protectedProcedure, publicProcedure, router } from "../lib/trpc";
 import { ensureUniqueUsername, generateUsername } from "../lib/utils";
+import { getCharacterCreationPrompt, getChatSystemPrompt, getPromptVersion, logTokenUsage } from "../lib/prompts";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -452,47 +453,8 @@ export const appRouter = router({
 					throw new Error("OpenRouter API key not configured");
 				}
 
-				const systemPrompt = `Anda adalah assistant yang membantu menganalisis deskripsi karakter dari user dan mengonversinya menjadi data terstruktur untuk form pembuatan karakter.
-
-Analisis input user dan ekstrak informasi berikut jika tersedia. Buat perspektif interaktif dimana USER akan berinteraksi langsung dengan KARAKTER dalam berbagai situasi.
-
-PENTING: Berikan respons dalam format JSON MURNI tanpa markdown, komentar, atau text tambahan. Jangan gunakan \`\`\`json atau markup lainnya.
-
-PANDUAN PERSPEKTIF INTERAKTIF:
-- "greetings": Buat sapaan dari sudut pandang karakter langsung kepada user (gunakan "kamu" untuk user)
-- "defaultUserRoleName": Tentukan peran user dalam interaksi (contoh: "Teman dekat", "Fan", "Rekan kerja", "Teman masa kecil")
-- "defaultUserRoleDetails": Jelaskan hubungan user dengan karakter secara spesifik
-- "defaultSituationName": Buat nama situasi dimana user dan karakter bertemu
-- "initialSituationDetails": Deskripsi detail situasi pertemuan, gunakan {{user}} untuk menyebut user
-
-Struktur JSON yang diharapkan:
-{
-  "name": "string (nama karakter)",
-  "synopsis": "string (ringkasan singkat tentang karakter)",
-  "description": "string (deskripsi detail karakter dari sudut pandang observasi)",
-  "greetings": "string (sapaan langsung dari karakter kepada user, gunakan 'kamu')",
-  "characterHistory": "string (sejarah karakter)",
-  "personality": "string (kepribadian karakter dan cara berinteraksi)",
-  "backstory": "string (latar belakang karakter)",
-  "defaultUserRoleName": "string (peran user dalam interaksi dengan karakter)",
-  "defaultUserRoleDetails": "string (detail hubungan user dengan karakter)",
-  "defaultSituationName": "string (nama situasi pertemuan)",
-  "initialSituationDetails": "string (deskripsi situasi dimana {{user}} bertemu karakter)",
-  "characterTags": ["array of strings (pilih dari tags yang tersedia)"],
-  "isPublic": false
-}
-
-CONTOH PERSPEKTIF:
-Input: "Jisoo dari BLACKPINK"
-Output greetings: "Hai! Aku Jisoo dari BLACKPINK! Senang banget bisa ketemu kamu hari ini. Gimana kabarnya?"
-Output defaultUserRoleName: "BLINK"
-Output defaultUserRoleDetails: "Seorang penggemar setia BLACKPINK yang sudah mendukung grup sejak debut"
-Output defaultSituationName: "Meet & Greet Backstage"
-Output initialSituationDetails: "{{user}} bertemu Jisoo di backstage setelah konser BLACKPINK selesai. Jisoo terlihat senang dan bersemangat meski baru selesai perform di atas panggung."
-
-Tags yang tersedia: anime, manga, video-games, movies, series, western-cartoon, meme-characters, original, actor, singer, idol, sportsperson, businessperson, politician, historical-figure, youtuber, streamer, influencer, mafia, teknisi, doctor, teacher, artist, chef, pilot, musician, ojek-online, romantic, gentle, funny, horror, thriller, drama, mysterious, clever, shy, serious, cheerful, clumsy, enigma, alpha, beta, omega, adventure, fantasy, action, daily-life, sweetheart, married, male-and-female, male, female, femboy, friend, roommate, close-friend, teenager, adult, devil, angel, spirit, satan, witch, wizard, elf
-
-Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada text lain.`;
+				const systemPrompt = getCharacterCreationPrompt();
+				const promptVersion = getPromptVersion();
 
 				try {
 					const response = await fetch(
@@ -526,6 +488,17 @@ Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada
 
 					const result = await response.json();
 					const aiResponse = result.choices?.[0]?.message?.content;
+
+					// Log token usage for optimization tracking
+					if (result.usage) {
+						logTokenUsage({
+							prompt_tokens: result.usage.prompt_tokens || 0,
+							completion_tokens: result.usage.completion_tokens || 0,
+							total_tokens: result.usage.total_tokens || 0,
+							prompt_version: promptVersion,
+							request_type: 'character_creation',
+						});
+					}
 
 					if (!aiResponse) {
 						throw new Error("Tidak ada respons dari AI");
@@ -839,12 +812,8 @@ Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada
 					throw new Error("Karakter tidak ditemukan");
 				}
 
-				const systemPrompt = `Anda adalah ${character.name}.
-${character.description ? `Deskripsi: ${character.description}` : ""}
-${character.personality ? `Kepribadian: ${character.personality}` : ""}
-${character.backstory ? `Latar belakang: ${character.backstory}` : ""}
-
-Berikan respons sebagai karakter ini dengan konsisten. Gunakan Bahasa Indonesia.`;
+				const systemPrompt = getChatSystemPrompt(character);
+				const promptVersion = getPromptVersion();
 
 				const messages = [
 					{ role: "system", content: systemPrompt },
@@ -891,6 +860,17 @@ Berikan respons sebagai karakter ini dengan konsisten. Gunakan Bahasa Indonesia.
 					}
 
 					const aiResponse = await response.json();
+
+					// Log token usage for optimization tracking
+					if (aiResponse.usage) {
+						logTokenUsage({
+							prompt_tokens: aiResponse.usage.prompt_tokens || 0,
+							completion_tokens: aiResponse.usage.completion_tokens || 0,
+							total_tokens: aiResponse.usage.total_tokens || 0,
+							prompt_version: promptVersion,
+							request_type: 'chat',
+						});
+					}
 
 					// Validate response structure
 					if (

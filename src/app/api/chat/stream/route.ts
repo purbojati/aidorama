@@ -7,6 +7,7 @@ import {
 	chatSessions,
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
+import { getChatSystemPrompt, getPromptVersion, logTokenUsage } from "../../../../lib/prompts";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -77,12 +78,8 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const systemPrompt = `Anda adalah ${character.name}.
-${character.description ? `Deskripsi: ${character.description}` : ""}
-${character.personality ? `Kepribadian: ${character.personality}` : ""}
-${character.backstory ? `Latar belakang: ${character.backstory}` : ""}
-
-Berikan respons sebagai karakter ini dengan konsisten. Gunakan Bahasa Indonesia.`;
+		const systemPrompt = getChatSystemPrompt(character);
+		const promptVersion = getPromptVersion();
 
 		const messages = [
 			{ role: "system", content: systemPrompt },
