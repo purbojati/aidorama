@@ -73,25 +73,25 @@ export default function SignUpForm({
 					name: value.name,
 				},
 				{
-					onSuccess: async (context) => {
-						try {
-							// Wait a moment for session to be established
-							await new Promise((resolve) => setTimeout(resolve, 1000));
+											onSuccess: async (context) => {
+							try {
+								// Wait a moment for session to be established
+								await new Promise((resolve) => setTimeout(resolve, 1000));
 
-							// Generate username after successful signup
-							await generateUsernameMutation.mutateAsync();
+								// Generate username after successful signup
+								await generateUsernameMutation.mutateAsync();
 
-							toast.success(
-								"Berhasil mendaftar! Username telah dibuat otomatis.",
-							);
-							router.push("/dashboard");
-						} catch (error) {
-							// Even if username generation fails, user is created successfully
-							console.warn("Username generation failed:", error);
-							toast.success("Berhasil mendaftar! Selamat datang!");
-							router.push("/dashboard");
-						}
-					},
+								toast.success(
+									"Berhasil mendaftar! Username telah dibuat otomatis.",
+								);
+								router.push("/");
+							} catch (error) {
+								// Even if username generation fails, user is created successfully
+								console.warn("Username generation failed:", error);
+								toast.success("Berhasil mendaftar! Selamat datang!");
+								router.push("/");
+							}
+						},
 					onError: (error) => {
 						toast.error(
 							error.error.message || "Gagal mendaftar. Silakan coba lagi.",
