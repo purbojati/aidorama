@@ -100,14 +100,6 @@ function SidebarContent({
 							{session && (
 								<>
 									<Link
-										href="/characters"
-										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
-										onClick={onLinkClick}
-									>
-										<Users className="h-4 w-4" />
-										<span className="text-sm">Karakter Publik</span>
-									</Link>
-									<Link
 										href="/characters/my"
 										className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
 										onClick={onLinkClick}
