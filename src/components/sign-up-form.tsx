@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod/v4";
@@ -320,13 +321,9 @@ export default function SignUpForm({
 			</Card>
 			<div className="text-muted-foreground text-center text-xs text-balance">
 				Dengan mendaftar, Anda menyetujui{" "}
-				<a href="#" className="underline underline-offset-4 hover:text-primary">
-					Syarat Layanan
-				</a>{" "}
-				dan{" "}
-				<a href="#" className="underline underline-offset-4 hover:text-primary">
+				<Link href="/privacy" className="underline underline-offset-4 hover:text-primary">
 					Kebijakan Privasi
-				</a>{" "}
+				</Link>{" "}
 				kami.
 			</div>
 		</div>
