@@ -694,7 +694,7 @@ export default function CharacterFormComponent({
 						</h1>
 						<p className="text-muted-foreground text-sm lg:text-base">
 							{mode === "create"
-								? "Bikin karakter AI dengan kepribadian dan cerita yang seru"
+								? "Bikin karakter imajiner dengan kepribadian dan cerita yang seru"
 								: `Perbarui informasi karakter "${character?.name || ""}"`}
 						</p>
 					</div>

@@ -9,6 +9,7 @@ import {
 	Menu,
 	MessageCircle,
 	Plus,
+	Send,
 	Settings,
 	Sparkles,
 	User,
@@ -63,20 +64,20 @@ function MobileSidebarContent({
 	const recentSessions = chatSessions?.slice(0, 4) || [];
 
 	return (
-		<div className="flex h-full flex-col">
+		<div className="flex h-full flex-col bg-background">
 			{/* Header */}
-			<div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 p-6">
+			<div className="border-b p-6">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
-							<Sparkles className="h-6 w-6 text-primary-foreground" />
+						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+							<Sparkles className="h-5 w-5 text-primary-foreground" />
 						</div>
 						<div>
-							<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold text-transparent text-xl">
-								AiDorama
+							<h1 className="font-bold text-lg">
+								AiDorama - Karakter Imajiner
 							</h1>
-							<p className="font-medium text-muted-foreground text-xs">
-								Platform Karakter AI
+							<p className="text-muted-foreground text-sm">
+								Platform Roleplay Indonesia | Ngobrol dengan karakter imajiner yang seru.
 							</p>
 						</div>
 					</div>
@@ -86,17 +87,14 @@ function MobileSidebarContent({
 
 			<div className="flex-1 overflow-hidden p-6">
 				{/* Quick Actions */}
-				<div className="mb-8">
-					<div className="mb-4 flex items-center gap-2">
-						<h3 className="font-semibold text-sm">Aksi Cepat</h3>
-						<div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-					</div>
+				<div className="mb-6">
+					<h3 className="mb-3 font-medium text-sm text-muted-foreground">Aksi Cepat</h3>
 					<div className="grid grid-cols-2 gap-2">
 						<Link href="/characters/create" onClick={onLinkClick}>
 							<Button
 								variant="outline"
 								size="sm"
-								className="w-full justify-start bg-background/50 font-medium hover:bg-muted/50"
+								className="w-full justify-start"
 							>
 								<Plus className="mr-2 h-4 w-4" />
 								Buat Karakter
@@ -106,7 +104,7 @@ function MobileSidebarContent({
 							<Button
 								variant="outline"
 								size="sm"
-								className="w-full justify-start bg-background/50 font-medium hover:bg-muted/50"
+								className="w-full justify-start"
 							>
 								<Sparkles className="mr-2 h-4 w-4" />
 								Jelajahi
@@ -117,16 +115,13 @@ function MobileSidebarContent({
 
 				{/* Recent Chat History */}
 				<div className="flex-1">
-					<div className="mb-4 flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<Clock className="h-4 w-4 text-muted-foreground" />
-							<h3 className="font-semibold text-sm">Chat Terbaru</h3>
-						</div>
+					<div className="mb-3 flex items-center justify-between">
+						<h3 className="font-medium text-sm text-muted-foreground">Chat Terbaru</h3>
 						<Link href="/chats" onClick={onLinkClick}>
 							<Button
 								variant="ghost"
 								size="sm"
-								className="font-medium text-xs hover:bg-muted/50"
+								className="text-xs"
 							>
 								Lihat Semua
 							</Button>
@@ -134,38 +129,34 @@ function MobileSidebarContent({
 					</div>
 
 					{sessionsLoading ? (
-						<div className="space-y-3">
+						<div className="space-y-2">
 							{[1, 2, 3].map((i) => (
 								<div
 									key={i}
-									className="flex items-center gap-3 rounded-lg border bg-background/50 p-3"
+									className="flex items-center gap-3 rounded-lg p-3"
 								>
-									<Skeleton className="h-10 w-10 rounded-full" />
+									<Skeleton className="h-8 w-8 rounded-full" />
 									<div className="flex-1">
-										<Skeleton className="mb-2 h-4 w-full" />
-										<Skeleton className="h-3 w-2/3" />
+										<Skeleton className="mb-1 h-3 w-full" />
+										<Skeleton className="h-3 w-16" />
 									</div>
 								</div>
 							))}
 						</div>
 					) : recentSessions.length === 0 ? (
-						<div className="rounded-xl border border-dashed bg-muted/20 py-8 text-center">
-							<MessageCircle className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
-							<p className="mb-3 font-medium text-muted-foreground text-sm">
+						<div className="rounded-lg border border-dashed p-6 text-center">
+							<MessageCircle className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
+							<p className="mb-3 text-muted-foreground text-sm">
 								Belum ada chat
 							</p>
 							<Link href="/characters" onClick={onLinkClick}>
-								<Button
-									size="sm"
-									className="bg-primary/90 font-medium hover:bg-primary"
-								>
-									<Sparkles className="mr-2 h-4 w-4" />
+								<Button size="sm">
 									Mulai Chat
 								</Button>
 							</Link>
 						</div>
 					) : (
-						<div className="space-y-2">
+						<div className="space-y-1">
 							{recentSessions.map((session: any) => (
 								<Link
 									key={session.id}
@@ -173,34 +164,33 @@ function MobileSidebarContent({
 									className="block"
 									onClick={onLinkClick}
 								>
-									<div className="group flex items-center gap-3 rounded-lg border bg-background/50 p-3 transition-all hover:bg-muted/50 hover:shadow-sm">
+									<div className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
 										{session.character?.avatarUrl ? (
 											<img
 												src={session.character.avatarUrl}
 												alt={session.character.name}
-												className="h-10 w-10 rounded-full object-cover ring-2 ring-background"
+												className="h-8 w-8 rounded-full object-cover"
 											/>
 										) : (
-											<div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
-												<span className="font-semibold text-primary text-sm">
+											<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+												<span className="text-muted-foreground text-xs">
 													{session.character?.name?.charAt(0)?.toUpperCase() ||
 														"?"}
 												</span>
 											</div>
 										)}
 										<div className="min-w-0 flex-1">
-											<p className="truncate font-medium text-sm leading-relaxed group-hover:text-foreground">
+											<p className="truncate text-sm">
 												{session.title ||
 													`Chat dengan ${session.character?.name}`}
 											</p>
-											<p className="font-medium text-muted-foreground text-xs">
+											<p className="text-muted-foreground text-xs">
 												{new Date(session.updatedAt).toLocaleDateString(
 													"id-ID",
 													{ day: "numeric", month: "short" },
 												)}
 											</p>
 										</div>
-										<ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
 									</div>
 								</Link>
 							))}
@@ -209,20 +199,17 @@ function MobileSidebarContent({
 				</div>
 			</div>
 
-			{/* Bottom Section - User Account Only */}
-			<div className="border-t bg-muted/20 p-4">
-				<div className="flex items-center gap-3 rounded-lg bg-background/50 p-3">
-					<div className="relative">
-						<div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10">
-							<User className="h-4 w-4 text-primary" />
-						</div>
-						<div className="-bottom-0.5 -right-0.5 absolute h-3 w-3 rounded-full bg-green-500 ring-2 ring-background" />
+			{/* Bottom Section - User Account */}
+			<div className="border-t p-4">
+				<div className="flex items-center gap-3">
+					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+						<User className="h-4 w-4" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="truncate font-semibold text-sm leading-relaxed">
+						<p className="truncate text-sm font-medium">
 							{session.user.name}
 						</p>
-						<p className="truncate font-medium text-muted-foreground text-xs">
+						<p className="truncate text-muted-foreground text-xs">
 							{session.user.email}
 						</p>
 					</div>
@@ -231,23 +218,18 @@ function MobileSidebarContent({
 							<Button
 								variant="ghost"
 								size="sm"
-								className="h-8 w-8 rounded-full p-0"
+								className="h-8 w-8 p-0"
 							>
 								<Settings className="h-4 w-4" />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							className="bg-card/95 backdrop-blur-sm"
-							align="end"
-						>
-							<DropdownMenuLabel className="font-semibold">
-								Akun Saya
-							</DropdownMenuLabel>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild>
 								<Link
 									href="/profile"
-									className="w-full cursor-pointer font-medium"
+									className="w-full cursor-pointer"
 									onClick={onLinkClick}
 								>
 									<User className="mr-2 h-4 w-4" />
@@ -256,7 +238,7 @@ function MobileSidebarContent({
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								className="cursor-pointer font-medium text-destructive focus:text-destructive"
+								className="cursor-pointer text-destructive focus:text-destructive"
 								onClick={() => {
 									authClient.signOut({
 										fetchOptions: {
@@ -557,8 +539,6 @@ export default function ChatPage() {
 		setIsMobileMenuOpen(false);
 	}, []);
 
-
-
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -594,17 +574,28 @@ export default function ChatPage() {
 		setIsMobileMenuOpen(false);
 	};
 
+	// Helper function to check if messages should be grouped
+	const shouldGroupMessage = (currentIndex: number, messages: Message[]) => {
+		if (currentIndex === 0) return false;
+		const currentMessage = messages[currentIndex];
+		const previousMessage = messages[currentIndex - 1];
+		
+		// Group if same role and within 5 minutes
+		const timeDiff = new Date(currentMessage.createdAt).getTime() - new Date(previousMessage.createdAt).getTime();
+		return currentMessage.role === previousMessage.role && timeDiff < 5 * 60 * 1000;
+	};
+
 	// Check if character ID is valid
 	if (params.characterId === "undefined" || isNaN(characterId)) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background">
 				<div className="text-center">
 					<h2 className="mb-2 font-semibold text-xl">URL Tidak Valid</h2>
-					<p className="mb-4 text-muted-foreground leading-relaxed">
+					<p className="mb-4 text-muted-foreground">
 						Silakan pilih karakter dari galeri untuk memulai chat.
 					</p>
 					<Link href="/characters">
-						<Button className="font-medium">Kembali ke Galeri Karakter</Button>
+						<Button>Kembali ke Galeri Karakter</Button>
 					</Link>
 				</div>
 			</div>
@@ -616,8 +607,8 @@ export default function ChatPage() {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background">
 				<div className="text-center">
-					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-					<p className="font-medium text-muted-foreground leading-relaxed">
+					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-b-transparent" />
+					<p className="text-muted-foreground">
 						Memuat karakter...
 					</p>
 				</div>
@@ -633,11 +624,11 @@ export default function ChatPage() {
 					<h2 className="mb-2 font-semibold text-xl">
 						Karakter Tidak Ditemukan
 					</h2>
-					<p className="mb-4 text-muted-foreground leading-relaxed">
+					<p className="mb-4 text-muted-foreground">
 						Karakter yang Anda cari tidak ditemukan atau tidak dapat diakses.
 					</p>
 					<Link href="/characters">
-						<Button className="font-medium">Kembali ke Galeri Karakter</Button>
+						<Button>Kembali ke Galeri Karakter</Button>
 					</Link>
 				</div>
 			</div>
@@ -649,8 +640,8 @@ export default function ChatPage() {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background">
 				<div className="text-center">
-					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-					<p className="font-medium text-muted-foreground leading-relaxed">
+					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-b-transparent" />
+					<p className="text-muted-foreground">
 						{existingSession
 							? "Melanjutkan percakapan sebelumnya..."
 							: "Memuat percakapan..."}
@@ -665,8 +656,8 @@ export default function ChatPage() {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background">
 				<div className="text-center">
-					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-					<p className="font-medium text-muted-foreground leading-relaxed">
+					<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-b-transparent" />
+					<p className="text-muted-foreground">
 						Memuat karakter...
 					</p>
 				</div>
@@ -675,39 +666,17 @@ export default function ChatPage() {
 	}
 
 	return (
-		<div className="relative flex min-h-screen flex-col">
-			{/* Background with character avatar */}
-			{character.avatarUrl && (
-				<div className="fixed inset-0 z-0">
-					<div
-						className="h-full w-full bg-cover bg-center bg-no-repeat"
-						style={{
-							backgroundImage: `url(${character.avatarUrl})`,
-						}}
-					/>
-					{/* Multiple overlay layers for depth and readability */}
-					<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
-					<div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10" />
-					<div className="absolute inset-0 backdrop-blur-sm" />
-					<div className="absolute inset-0 bg-background/20" />
-				</div>
-			)}
-
-			{/* Content overlay */}
-			<div className="relative z-10 flex min-h-screen flex-col">
-				{/* Mobile Header - Minimal full width */}
-				<div className="sticky top-0 z-50 bg-black/30 backdrop-blur-xl border-b border-white/10 lg:hidden">
-					<div className="flex items-center justify-between px-4 py-3">
+		<div className="flex min-h-screen flex-col bg-background">
+			{/* Header - iMessage style */}
+			<div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+				<div className="flex h-14 items-center px-4 lg:px-6">
+					{/* Mobile menu button */}
+					<div className="lg:hidden">
 						{session && (
 							<Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
 								<SheetTrigger asChild>
-									<Button
-										variant="ghost"
-										size="sm"
-										className="text-white hover:bg-white/20"
-									>
+									<Button variant="ghost" size="sm" className="mr-2">
 										<Menu className="h-5 w-5" />
-										<span className="sr-only">Open menu</span>
 									</Button>
 								</SheetTrigger>
 								<SheetContent side="left" className="w-80 p-0">
@@ -721,153 +690,135 @@ export default function ChatPage() {
 								</SheetContent>
 							</Sheet>
 						)}
-
-						<div className="flex flex-1 items-center justify-center">
-							<div className="text-center">
-								<h1 className="max-w-[200px] truncate bg-gradient-to-r from-white to-white/80 bg-clip-text font-bold text-transparent text-xl leading-tight">
-									{character.name}
-								</h1>
-								<span className="font-medium text-white/80 text-xs opacity-80">
-									Chat Pribadi
-								</span>
-							</div>
-						</div>
-
-						<Link href="/characters">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="text-white hover:bg-white/20"
-							>
-								<ArrowLeft className="h-4 w-4" />
-							</Button>
-						</Link>
 					</div>
-				</div>
 
-				{/* Desktop Header - Minimal full width */}
-				<div className="sticky top-0 z-50 hidden bg-black/30 backdrop-blur-xl border-b border-white/10 lg:block">
-					<div className="flex items-center justify-between px-6 py-3">
-						<Link href="/characters">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="font-medium text-white hover:bg-white/20"
-							>
-								← Kembali
-							</Button>
-						</Link>
-						<div className="text-center">
-							<h1 className="bg-gradient-to-r from-white via-white to-white/90 bg-clip-text font-bold text-transparent text-2xl leading-tight">
+					{/* Back button */}
+					<Link href="/characters" className="mr-3">
+						<Button variant="ghost" size="sm">
+							<ArrowLeft className="h-4 w-4" />
+						</Button>
+					</Link>
+
+					{/* Character info */}
+					<div className="flex min-w-0 flex-1 items-center gap-3">
+						{character.avatarUrl && (
+							<img
+								src={character.avatarUrl}
+								alt={character.name}
+								className="h-8 w-8 rounded-full object-cover"
+							/>
+						)}
+						<div className="min-w-0 flex-1">
+							<h1 className="truncate font-semibold text-base">
 								{character.name}
 							</h1>
-							<span className="font-medium text-white/80 text-xs">
-								Obrolan Pribadi
-							</span>
+							<p className="text-muted-foreground text-xs">Online</p>
 						</div>
-						<div className="w-20" /> {/* Spacer for balance */}
 					</div>
 				</div>
+			</div>
 
-				{/* Chat Messages - Enhanced styling */}
-				<div className="flex-1 overflow-y-auto px-4 pt-4 pb-32 lg:px-6 lg:pb-24">
-					<div className="mx-auto max-w-4xl space-y-6">
-						{messagesLoading ? (
-							<div className="py-12 text-center">
-								<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-								<p className="font-medium text-white/80 leading-relaxed">
-									Memuat percakapan...
-								</p>
-							</div>
-						) : (
-							<>
-								{messages.map((message) => (
+			{/* Messages area - iMessage style */}
+			<div className="flex-1 overflow-y-auto px-4 pb-4 lg:px-6">
+				<div className="mx-auto max-w-2xl space-y-1 py-4">
+					{messagesLoading ? (
+						<div className="py-8 text-center">
+							<div className="mx-auto mb-4 h-6 w-6 animate-spin rounded-full border-2 border-primary border-b-transparent" />
+							<p className="text-muted-foreground text-sm">
+								Memuat percakapan...
+							</p>
+						</div>
+					) : (
+						<>
+							{messages.map((message, index) => {
+								const isGrouped = shouldGroupMessage(index, messages);
+								const isUser = message.role === "user";
+								
+								return (
 									<div
 										key={message.id}
-										className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+										className={`flex ${isUser ? "justify-end" : "justify-start"} ${isGrouped ? "mt-0.5" : "mt-4"}`}
 									>
 										<div
-											className={`max-w-[85%] rounded-2xl px-6 py-4 shadow-lg sm:max-w-[75%] md:max-w-[70%] ${
-												message.role === "user"
-													? "ml-8 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground shadow-primary/25 sm:ml-16"
-													: "mr-8 bg-black/60 text-white shadow-black/25 backdrop-blur-sm sm:mr-16"
+											className={`group relative max-w-[70%] rounded-2xl px-4 py-2 ${
+												isUser
+													? "bg-blue-500 text-white"
+													: "bg-muted text-foreground"
+											} ${
+												isUser
+													? isGrouped
+														? "rounded-br-md"
+														: ""
+													: isGrouped
+													? "rounded-bl-md"
+													: ""
 											}`}
 										>
-											<div className="whitespace-pre-wrap font-normal text-base leading-relaxed tracking-wide">
+											<p className="text-sm leading-relaxed whitespace-pre-wrap">
 												{message.content}
-											</div>
-											<div
-												className={`mt-3 font-medium text-xs ${message.role === "user" ? "opacity-70" : "text-white/60"}`}
-											>
-												{formatTime(message.createdAt, {
-													hour: "2-digit",
-													minute: "2-digit",
-												})}
-											</div>
+											</p>
+											{!isGrouped && (
+												<p className={`mt-1 text-xs opacity-70 ${isUser ? "text-blue-100" : "text-muted-foreground"}`}>
+													{formatTime(message.createdAt, {
+														hour: "2-digit",
+														minute: "2-digit",
+													})}
+												</p>
+											)}
 										</div>
 									</div>
-								))}
+								);
+							})}
 
-								{/* Streaming message */}
-								{isStreaming && (
-									<div className="flex justify-start">
-										<div className="mr-8 max-w-[85%] rounded-2xl bg-black/60 px-6 py-4 text-white shadow-lg shadow-black/25 backdrop-blur-sm sm:mr-16 sm:max-w-[75%] md:max-w-[70%]">
-											<div className="whitespace-pre-wrap font-normal text-base leading-relaxed tracking-wide">
-												{streamingMessage}
-												<span className="animate-pulse text-primary">|</span>
-											</div>
+							{/* Streaming message */}
+							{isStreaming && (
+								<div className="flex justify-start mt-4">
+									<div className="max-w-[70%] rounded-2xl bg-muted px-4 py-2 text-foreground">
+										<p className="text-sm leading-relaxed whitespace-pre-wrap">
+											{streamingMessage}
+											<span className="animate-pulse text-primary">|</span>
+										</p>
+									</div>
+								</div>
+							)}
+
+							{/* Loading indicator */}
+							{isLoading && !isStreaming && (
+								<div className="flex justify-start mt-4">
+									<div className="rounded-2xl bg-muted px-4 py-2">
+										<div className="flex items-center space-x-1">
+											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
+											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.1s]" />
+											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.2s]" />
 										</div>
 									</div>
-								)}
+								</div>
+							)}
 
-								{/* Loading indicator when not streaming */}
-								{isLoading && !isStreaming && (
-									<div className="flex justify-start">
-										<div className="mr-8 max-w-[85%] rounded-2xl bg-black/60 px-6 py-4 text-white shadow-lg shadow-black/25 backdrop-blur-sm sm:mr-16 sm:max-w-[75%] md:max-w-[70%]">
-											<div className="flex items-center space-x-3">
-												<div className="flex space-x-1">
-													<div className="h-2 w-2 animate-bounce rounded-full bg-primary" />
-													<div className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:0.1s]" />
-													<div className="h-2 w-2 animate-bounce rounded-full bg-primary [animation-delay:0.2s]" />
-												</div>
-												<span className="font-medium text-white/80 text-sm">
-													{character.name} sedang berpikir...
-												</span>
-											</div>
-										</div>
-									</div>
-								)}
-
-								<div ref={messagesEndRef} />
-							</>
-						)}
-					</div>
+							<div ref={messagesEndRef} />
+						</>
+					)}
 				</div>
+			</div>
 
-				{/* Message Input - Enhanced floating style */}
-				<div className="sticky bottom-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-t border-white/20">
-					<div className="mx-auto max-w-4xl px-4 py-6 lg:px-6">
-						<form
-							onSubmit={handleSendMessage}
-							className="flex items-end space-x-3"
-						>
+			{/* Input area - iMessage style */}
+			<div className="sticky bottom-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+				<div className="mx-auto max-w-2xl px-4 py-3 lg:px-6">
+					<form onSubmit={handleSendMessage} className="flex items-end gap-3">
+						<div className="flex-1 rounded-full border bg-muted/50 px-4 py-3">
 							<textarea
 								value={newMessage}
 								onChange={(e) => setNewMessage(e.target.value)}
-								placeholder={`Ketik disini...`}
+								placeholder="Ketik pesan..."
 								disabled={isLoading || isStreaming}
 								rows={1}
-								className="flex-1 resize-none rounded-2xl border-white/30 bg-white/10 px-6 py-4 font-normal text-base text-white placeholder:text-white/60 leading-relaxed focus:bg-white/20 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20 max-h-32 overflow-y-auto"
-								maxLength={200}
-								style={{
-									minHeight: "56px",
-									height: "auto",
-								}}
+								className="w-full resize-none bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none max-h-20"
+								maxLength={500}
+								style={{ minHeight: "20px" }}
 								onInput={(e) => {
 									const target = e.target as HTMLTextAreaElement;
 									target.style.height = "auto";
-									target.style.height =
-										Math.min(target.scrollHeight, 128) + "px";
+									target.style.height = Math.min(target.scrollHeight, 80) + "px";
 								}}
 								onKeyDown={(e) => {
 									if (e.key === "Enter" && !e.shiftKey) {
@@ -876,24 +827,19 @@ export default function ChatPage() {
 									}
 								}}
 							/>
-							<Button
-								type="submit"
-								disabled={isLoading || isStreaming || !newMessage.trim()}
-								className="rounded-2xl bg-gradient-to-r from-primary to-primary/80 px-8 py-4 font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 min-h-[56px]"
-							>
-								{isLoading || isStreaming ? (
-									<div className="flex items-center gap-2">
-										<div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-										<span>Kirim</span>
-									</div>
-								) : (
-									<div className="flex items-center gap-2">
-										<span>Kirim</span>
-									</div>
-								)}
-							</Button>
-						</form>
-					</div>
+						</div>
+						<Button
+							type="submit"
+							disabled={isLoading || isStreaming || !newMessage.trim()}
+							className="h-11 w-11 rounded-full p-0 flex-shrink-0"
+						>
+							{isLoading || isStreaming ? (
+								<div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-b-transparent" />
+							) : (
+								<Send className="h-5 w-5" />
+							)}
+						</Button>
+					</form>
 				</div>
 			</div>
 		</div>

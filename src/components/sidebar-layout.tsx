@@ -113,7 +113,7 @@ function SidebarContent({
 										onClick={onLinkClick}
 									>
 										<Bot className="h-4 w-4" />
-										<span className="text-sm">Karakter Saya</span>
+										<span className="text-sm">Karakterku</span>
 									</Link>
 									<Link
 										href="/characters/create"

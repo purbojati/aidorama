@@ -67,13 +67,10 @@ export default function PublicCharactersPage() {
 								</div>
 							</div> */}
 							<h1 className="mb-3 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text font-bold font-sans text-xl lg:text-2xl">
-								Jelajahi Karakter AI
+								Jelajahi Karakter Imajiner
 							</h1>
 							<p className="mx-auto max-w-2xl px-4 text-muted-foreground text-sm">
-								Temukan dan berinteraksi dengan karakter AI yang menakjubkan
-								yang dibuat oleh komunitas
-								{filteredCharacters.length > 0 &&
-									` • ${filteredCharacters.length} karakter tersedia`}
+								Temukan dan berinteraksi dengan karakter imajiner yang seru dibuat oleh pengguna lain.
 							</p>
 						</div>
 
@@ -87,15 +84,6 @@ export default function PublicCharactersPage() {
 									onChange={(e) => setSearchTerm(e.target.value)}
 									className="w-full border-primary/20 bg-background/50 pl-10 backdrop-blur-sm focus:border-primary/40 focus:ring-primary/20 sm:w-80"
 								/>
-							</div>
-							<div className="flex w-full gap-2 sm:w-auto">
-								<Button
-									variant="outline"
-									className="flex-1 border-primary/20 bg-background/50 backdrop-blur-sm hover:bg-muted/50 sm:flex-none"
-									onClick={() => setSearchTerm("")}
-								>
-									Reset Filter
-								</Button>
 							</div>
 						</div>
 

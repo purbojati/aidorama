@@ -83,20 +83,20 @@ export default function MyCharactersPage() {
 		return (
 			<SidebarLayout>
 				<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10">
-					<div className="container mx-auto px-4 py-8">
-						<div className="mb-8 flex items-center justify-between">
+					<div className="container mx-auto px-4 py-6 lg:py-8">
+						<div className="mb-6 flex flex-col justify-between gap-4 lg:mb-8 lg:flex-row lg:items-center">
 							<div className="flex items-center gap-4">
 								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 ring-1 ring-primary/20">
 									<User className="h-6 w-6 text-primary" />
 								</div>
 								<div>
-									<h1 className="font-bold text-3xl">Karakter Saya</h1>
-									<p className="text-muted-foreground">
+									<h1 className="font-bold text-2xl lg:text-3xl">Karakter Saya</h1>
+									<p className="text-muted-foreground text-sm lg:text-base">
 										Kelola karakter AI yang Anda buat
 									</p>
 								</div>
 							</div>
-							<Skeleton className="h-10 w-32" />
+							<Skeleton className="h-10 w-full lg:h-10 lg:w-32" />
 						</div>
 
 						<div className="mb-6">
@@ -140,10 +140,10 @@ export default function MyCharactersPage() {
 							</div>
 							<div>
 								<h1 className="font-bold text-2xl lg:text-3xl">
-									Karakter Saya
+									Karakterku
 								</h1>
 								<p className="text-muted-foreground text-sm lg:text-base">
-									Kelola karakter AI yang Anda buat ({filteredCharacters.length}{" "}
+									Kelola karakter imajiner yang Anda buat ({filteredCharacters.length}{" "}
 									karakter)
 								</p>
 							</div>
