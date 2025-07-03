@@ -120,19 +120,6 @@ function SidebarContent({
 						</nav>
 					</div>
 
-					{/* Legal Links */}
-					<div className="space-y-2">
-						<h2 className="font-semibold text-foreground text-sm">Legal</h2>
-						<nav className="space-y-1">
-							<Link
-								href="/privacy"
-								className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
-								onClick={onLinkClick}
-							>
-								<span className="text-sm">Kebijakan Privasi</span>
-							</Link>
-						</nav>
-					</div>
 
 					{/* Chat Sessions - Only show for authenticated users */}
 					{session && (

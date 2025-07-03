@@ -40,7 +40,7 @@ export default function LoginPage() {
 						alt="Aidorama" 
 						className="h-8 w-8" 
 					/>
-					<h1 className="font-bold text-xl lg:text-2xl">aidorama</h1>
+					<h1 className="font-bold text-xl lg:text-2xl">AiDorama</h1>
 				</div>
 				<ModeToggle />
 			</div>

@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
 		<div className="min-h-screen bg-background">
 			{/* Header */}
 			<header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-				<div className="container flex h-14 items-center">
+				<div className="container flex h-14 items-center px-4 md:px-6">
 					<Link href="/" className="mr-4">
 						<Button variant="ghost" size="sm">
 							<ArrowLeft className="mr-2 h-4 w-4" />
@@ -26,11 +26,11 @@ export default function PrivacyPolicyPage() {
 			</header>
 
 			{/* Content */}
-			<main className="container py-8">
+			<main className="container px-4 py-8 md:px-6">
 				<div className="mx-auto max-w-4xl space-y-6">
 					{/* Hero Section */}
-					<div className="text-center space-y-4 pb-8">
-						<h1 className="font-bold text-4xl">Kebijakan Privasi AiDorama</h1>
+					<div className="text-center space-y-4 pb-8 px-4">
+						<h1 className="font-bold text-3xl md:text-4xl">Kebijakan Privasi AiDorama</h1>
 						<p className="text-muted-foreground text-lg">
 							Terakhir diperbarui: {new Date().toLocaleDateString("id-ID", { 
 								day: "numeric", 
@@ -53,8 +53,8 @@ export default function PrivacyPolicyPage() {
 							</p>
 							
 							<div className="mt-6 rounded-lg bg-primary/10 p-4">
-								<p className="font-semibold text-primary mb-2">🔒 Komitmen Utama Kami:</p>
-								<ul className="list-disc list-inside space-y-2 text-sm">
+								<p className="font-semibold text-primary mb-2 text-sm md:text-base">🔒 Komitmen Utama Kami:</p>
+								<ul className="list-disc list-inside space-y-2 text-xs md:text-sm">
 									<li>Kami TIDAK menjual data Anda kepada siapa pun</li>
 									<li>Kami TIDAK menghasilkan uang dari data pengguna</li>
 									<li>Data Anda hanya digunakan untuk memberikan layanan terbaik</li>
@@ -74,7 +74,7 @@ export default function PrivacyPolicyPage() {
 								<p className="text-muted-foreground mb-2">
 									Saat Anda mendaftar di AiDorama, kami mengumpulkan:
 								</p>
-								<ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+								<ul className="list-disc list-inside space-y-1 text-sm md:text-base text-muted-foreground ml-2 md:ml-4">
 									<li>Nama lengkap atau nama pengguna</li>
 									<li>Alamat email</li>
 									<li>Foto profil (opsional)</li>
@@ -87,7 +87,7 @@ export default function PrivacyPolicyPage() {
 								<p className="text-muted-foreground mb-2">
 									Untuk memberikan layanan roleplay AI:
 								</p>
-								<ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+								<ul className="list-disc list-inside space-y-1 text-sm md:text-base text-muted-foreground ml-2 md:ml-4">
 									<li>Karakter yang Anda buat (nama, deskripsi, kepribadian, avatar)</li>
 									<li>Riwayat percakapan dengan karakter AI</li>
 									<li>Preferensi pengaturan karakter</li>
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
 								<p className="text-muted-foreground mb-2">
 									Informasi yang dikumpulkan secara otomatis:
 								</p>
-								<ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+								<ul className="list-disc list-inside space-y-1 text-sm md:text-base text-muted-foreground ml-2 md:ml-4">
 									<li>Alamat IP (untuk keamanan sesi)</li>
 									<li>Informasi browser (user agent)</li>
 									<li>Waktu akses dan aktivitas</li>
@@ -120,49 +120,49 @@ export default function PrivacyPolicyPage() {
 							
 							<div className="space-y-3">
 								<div className="flex gap-3">
-									<span className="text-2xl">✨</span>
-									<div>
-										<h4 className="font-semibold">Menyediakan Layanan</h4>
-										<p className="text-muted-foreground text-sm">
+									<span className="text-xl md:text-2xl flex-shrink-0">✨</span>
+									<div className="min-w-0">
+										<h4 className="font-semibold text-sm md:text-base">Menyediakan Layanan</h4>
+										<p className="text-muted-foreground text-xs md:text-sm">
 											Memungkinkan Anda membuat karakter dan melakukan percakapan roleplay dengan AI
 										</p>
 									</div>
 								</div>
 
 								<div className="flex gap-3">
-									<span className="text-2xl">🔐</span>
-									<div>
-										<h4 className="font-semibold">Keamanan & Autentikasi</h4>
-										<p className="text-muted-foreground text-sm">
+									<span className="text-xl md:text-2xl flex-shrink-0">🔐</span>
+									<div className="min-w-0">
+										<h4 className="font-semibold text-sm md:text-base">Keamanan & Autentikasi</h4>
+										<p className="text-muted-foreground text-xs md:text-sm">
 											Menjaga keamanan akun Anda dan mencegah akses tidak sah
 										</p>
 									</div>
 								</div>
 
 								<div className="flex gap-3">
-									<span className="text-2xl">🚀</span>
-									<div>
-										<h4 className="font-semibold">Peningkatan Layanan</h4>
-										<p className="text-muted-foreground text-sm">
+									<span className="text-xl md:text-2xl flex-shrink-0">🚀</span>
+									<div className="min-w-0">
+										<h4 className="font-semibold text-sm md:text-base">Peningkatan Layanan</h4>
+										<p className="text-muted-foreground text-xs md:text-sm">
 											Memahami cara pengguna berinteraksi dengan platform untuk meningkatkan pengalaman
 										</p>
 									</div>
 								</div>
 
 								<div className="flex gap-3">
-									<span className="text-2xl">📧</span>
-									<div>
-										<h4 className="font-semibold">Komunikasi Penting</h4>
-										<p className="text-muted-foreground text-sm">
+									<span className="text-xl md:text-2xl flex-shrink-0">📧</span>
+									<div className="min-w-0">
+										<h4 className="font-semibold text-sm md:text-base">Komunikasi Penting</h4>
+										<p className="text-muted-foreground text-xs md:text-sm">
 											Mengirim email terkait akun, keamanan, atau perubahan layanan (bukan iklan)
 										</p>
 									</div>
 								</div>
 							</div>
 
-							<div className="mt-6 rounded-lg bg-destructive/10 p-4">
-								<p className="font-semibold text-destructive mb-2">❌ Kami TIDAK Pernah:</p>
-								<ul className="list-disc list-inside space-y-1 text-sm text-destructive/80">
+							<div className="mt-6 rounded-lg bg-primary/10 p-3 md:p-4">
+								<p className="font-semibold text-primary mb-2 text-sm md:text-base">❌ Kami TIDAK Pernah:</p>
+								<ul className="list-disc list-inside space-y-1 text-xs md:text-sm text-white/80">
 									<li>Menjual atau menyewakan data Anda</li>
 									<li>Membagikan data Anda untuk iklan pihak ketiga</li>
 									<li>Menggunakan data Anda untuk tujuan selain yang disebutkan</li>
@@ -187,7 +187,7 @@ export default function PrivacyPolicyPage() {
 
 							<div>
 								<h3 className="font-semibold text-lg mb-2">Langkah Keamanan</h3>
-								<ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+								<ul className="list-disc list-inside space-y-1 text-sm md:text-base text-muted-foreground ml-2 md:ml-4">
 									<li>Enkripsi data saat transit (HTTPS)</li>
 									<li>Enkripsi data saat disimpan</li>
 									<li>Akses terbatas hanya untuk tim yang berwenang</li>
@@ -217,31 +217,31 @@ export default function PrivacyPolicyPage() {
 								Sebagai pengguna AiDorama, Anda memiliki hak penuh atas data Anda:
 							</p>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="rounded-lg border p-4">
-									<h4 className="font-semibold mb-2">📋 Akses Data</h4>
-									<p className="text-muted-foreground text-sm">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+								<div className="rounded-lg border p-3 md:p-4">
+									<h4 className="font-semibold mb-2 text-sm md:text-base">📋 Akses Data</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Anda dapat meminta salinan lengkap data yang kami miliki tentang Anda
 									</p>
 								</div>
 
-								<div className="rounded-lg border p-4">
-									<h4 className="font-semibold mb-2">✏️ Koreksi Data</h4>
-									<p className="text-muted-foreground text-sm">
+								<div className="rounded-lg border p-3 md:p-4">
+									<h4 className="font-semibold mb-2 text-sm md:text-base">✏️ Koreksi Data</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Anda dapat memperbarui atau memperbaiki informasi yang tidak akurat
 									</p>
 								</div>
 
-								<div className="rounded-lg border p-4">
-									<h4 className="font-semibold mb-2">🗑️ Penghapusan Data</h4>
-									<p className="text-muted-foreground text-sm">
+								<div className="rounded-lg border p-3 md:p-4">
+									<h4 className="font-semibold mb-2 text-sm md:text-base">🗑️ Penghapusan Data</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Anda dapat meminta penghapusan akun dan semua data terkait
 									</p>
 								</div>
 
-								<div className="rounded-lg border p-4">
-									<h4 className="font-semibold mb-2">📦 Portabilitas Data</h4>
-									<p className="text-muted-foreground text-sm">
+								<div className="rounded-lg border p-3 md:p-4">
+									<h4 className="font-semibold mb-2 text-sm md:text-base">📦 Portabilitas Data</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Anda dapat meminta data Anda dalam format yang dapat dibaca mesin
 									</p>
 								</div>
@@ -262,9 +262,9 @@ export default function PrivacyPolicyPage() {
 							<CardTitle>5. Model Berlangganan</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="rounded-lg bg-primary/10 p-4">
-								<p className="font-semibold mb-2">💎 Rencana Monetisasi Kami</p>
-								<p className="text-muted-foreground text-sm">
+							<div className="rounded-lg bg-primary/10 p-3 md:p-4">
+								<p className="font-semibold mb-2 text-sm md:text-base">💎 Rencana Monetisasi Kami</p>
+								<p className="text-muted-foreground text-xs md:text-sm">
 									AiDorama berencana meluncurkan layanan berlangganan premium untuk mendanai 
 									biaya operasional LLM (Large Language Model) dan pengembangan platform.
 								</p>
@@ -272,7 +272,7 @@ export default function PrivacyPolicyPage() {
 
 							<div>
 								<h3 className="font-semibold text-lg mb-2">Prinsip Berlangganan:</h3>
-								<ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+								<ul className="list-disc list-inside space-y-2 text-sm md:text-base text-muted-foreground ml-2 md:ml-4">
 									<li>Langganan bersifat opsional - fitur dasar tetap gratis</li>
 									<li>Pembayaran hanya untuk akses fitur premium</li>
 									<li>Tidak ada biaya tersembunyi atau penjualan data</li>
@@ -303,32 +303,32 @@ export default function PrivacyPolicyPage() {
 
 							<div className="space-y-3">
 								<div className="rounded-lg border p-3">
-									<h4 className="font-semibold mb-1">🤖 Penyedia AI/LLM</h4>
-									<p className="text-muted-foreground text-sm">
+									<h4 className="font-semibold mb-1 text-sm md:text-base">🤖 Penyedia AI/LLM</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Untuk menghasilkan respons karakter AI. Percakapan dikirim ke penyedia 
 										LLM dengan enkripsi dan tanpa informasi identitas pribadi.
 									</p>
 								</div>
 
 								<div className="rounded-lg border p-3">
-									<h4 className="font-semibold mb-1">☁️ Cloud Storage</h4>
-									<p className="text-muted-foreground text-sm">
+									<h4 className="font-semibold mb-1 text-sm md:text-base">☁️ Cloud Storage</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Untuk menyimpan avatar karakter dan file media. Semua file disimpan 
 										dengan akses terbatas dan enkripsi.
 									</p>
 								</div>
 
 								<div className="rounded-lg border p-3">
-									<h4 className="font-semibold mb-1">📊 Analytics (PostHog)</h4>
-									<p className="text-muted-foreground text-sm">
+									<h4 className="font-semibold mb-1 text-sm md:text-base">📊 Analytics (PostHog)</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Untuk memahami penggunaan platform dan meningkatkan pengalaman pengguna. 
 										Data yang dikumpulkan bersifat anonim dan agregat.
 									</p>
 								</div>
 
 								<div className="rounded-lg border p-3">
-									<h4 className="font-semibold mb-1">🔐 Autentikasi</h4>
-									<p className="text-muted-foreground text-sm">
+									<h4 className="font-semibold mb-1 text-sm md:text-base">🔐 Autentikasi</h4>
+									<p className="text-muted-foreground text-xs md:text-sm">
 										Untuk login yang aman dan manajemen sesi. Password dienkripsi dengan 
 										standar industri.
 									</p>
@@ -354,30 +354,30 @@ export default function PrivacyPolicyPage() {
 								Kami menggunakan cookies dan teknologi serupa untuk:
 							</p>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 								<div className="rounded-lg bg-muted p-3">
-									<h4 className="font-semibold text-sm mb-1">🔑 Cookies Esensial</h4>
+									<h4 className="font-semibold text-xs md:text-sm mb-1">🔑 Cookies Esensial</h4>
 									<p className="text-muted-foreground text-xs">
 										Untuk autentikasi dan menjaga sesi login Anda
 									</p>
 								</div>
 
 								<div className="rounded-lg bg-muted p-3">
-									<h4 className="font-semibold text-sm mb-1">⚙️ Cookies Preferensi</h4>
+									<h4 className="font-semibold text-xs md:text-sm mb-1">⚙️ Cookies Preferensi</h4>
 									<p className="text-muted-foreground text-xs">
 										Untuk menyimpan pengaturan tema (terang/gelap) dan preferensi lainnya
 									</p>
 								</div>
 
 								<div className="rounded-lg bg-muted p-3">
-									<h4 className="font-semibold text-sm mb-1">📈 Cookies Analitik</h4>
+									<h4 className="font-semibold text-xs md:text-sm mb-1">📈 Cookies Analitik</h4>
 									<p className="text-muted-foreground text-xs">
 										Untuk memahami bagaimana Anda menggunakan platform (anonim)
 									</p>
 								</div>
 
 								<div className="rounded-lg bg-muted p-3">
-									<h4 className="font-semibold text-sm mb-1">🛡️ Cookies Keamanan</h4>
+									<h4 className="font-semibold text-xs md:text-sm mb-1">🛡️ Cookies Keamanan</h4>
 									<p className="text-muted-foreground text-xs">
 										Untuk melindungi dari serangan CSRF dan ancaman keamanan lainnya
 									</p>
@@ -447,13 +447,13 @@ export default function PrivacyPolicyPage() {
 								untuk menghubungi kami:
 							</p>
 
-							<div className="rounded-lg bg-primary/10 p-6 text-center">
-								<h3 className="font-bold text-xl mb-2">Tim Privasi AiDorama</h3>
+							<div className="rounded-lg bg-primary/10 p-4 md:p-6 text-center">
+								<h3 className="font-bold text-lg md:text-xl mb-2">Tim Privasi AiDorama</h3>
 								<div className="space-y-2">
-									<p className="text-muted-foreground">
+									<p className="text-muted-foreground text-sm md:text-base">
 										📧 Email: hello@aidorama.com
 									</p>
-									<p className="text-muted-foreground">
+									<p className="text-muted-foreground text-sm md:text-base">
 										📮 Alamat: Yogyakarta, Indonesia
 									</p>
 								</div>
