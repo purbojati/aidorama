@@ -3,6 +3,7 @@ import { JetBrains_Mono, Outfit } from "next/font/google";
 import "../index.css";
 import Providers from "@/components/providers";
 import { ClientLayout } from "@/components/client-layout";
+import { ThemeColor } from "@/components/theme-color";
 
 const outfit = Outfit({
 	variable: "--font-sans",
@@ -51,6 +52,7 @@ export default function RootLayout({
 				className={`${outfit.variable} ${jetBrainsMono.variable} antialiased`}
 			>
 				<Providers>
+					<ThemeColor />
 					<ClientLayout>{children}</ClientLayout>
 				</Providers>
 			</body>
