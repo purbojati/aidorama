@@ -204,7 +204,7 @@ export const appRouter = router({
 			}),
 
 		// Get character by ID
-		getCharacter: protectedProcedure
+		getCharacter: publicProcedure
 			.input(
 				z.object({
 					id: z.number(),
@@ -221,15 +221,23 @@ export const appRouter = router({
 					throw new Error("Karakter tidak ditemukan");
 				}
 
-				// Check if user owns character or character is public
-				if (
-					character[0].userId !== ctx.session.user.id &&
-					!character[0].isPublic
-				) {
+				const char = character[0];
+
+				// If character is public, anyone can view it
+				if (char.isPublic) {
+					return char;
+				}
+
+				// For private characters, user must be logged in and be the owner
+				if (!ctx.session?.user) {
+					throw new Error("Anda harus login untuk melihat karakter ini.");
+				}
+
+				if (char.userId !== ctx.session.user.id) {
 					throw new Error("Anda tidak memiliki akses ke karakter ini");
 				}
 
-				return character[0];
+				return char;
 			}),
 
 		// Create character
