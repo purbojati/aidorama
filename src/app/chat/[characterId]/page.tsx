@@ -742,7 +742,7 @@ export default function ChatPage() {
 										<div
 											className={`group relative max-w-[70%] rounded-2xl px-4 py-2 ${
 												isUser
-													? "bg-blue-500 text-white"
+													? "bg-primary text-primary-foreground"
 													: "bg-muted text-foreground"
 											} ${
 												isUser
@@ -758,7 +758,7 @@ export default function ChatPage() {
 												{message.content}
 											</p>
 											{!isGrouped && (
-												<p className={`mt-1 text-xs opacity-70 ${isUser ? "text-blue-100" : "text-muted-foreground"}`}>
+												<p className={`mt-1 text-xs opacity-70 ${isUser ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
 													{formatTime(message.createdAt, {
 														hour: "2-digit",
 														minute: "2-digit",
