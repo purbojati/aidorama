@@ -74,10 +74,10 @@ function MobileSidebarContent({
 						</div>
 						<div>
 							<h1 className="font-bold text-lg">
-								AiDorama - Karakter Imajiner
+								AiDorama
 							</h1>
 							<p className="text-muted-foreground text-sm">
-								Platform Roleplay Indonesia | Ngobrol dengan karakter imajiner yang seru.
+								Ngobrol dengan karakter imajinermu.
 							</p>
 						</div>
 					</div>

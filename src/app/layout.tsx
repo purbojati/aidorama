@@ -15,8 +15,8 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "AiDorama",
-	description: "Roleplay AI Indonesia",
+	title: "AiDorama - Roleplay AI Indonesia",
+	description: "Ngobrol dengan karakter imajiner yang seru. Buat roleplaymu lebih seru dengan AI.",
 	icons: {
 		icon: [
 			{ url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
