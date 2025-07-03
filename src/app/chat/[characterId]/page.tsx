@@ -345,7 +345,7 @@ export default function ChatPage() {
 	// Use the actual sessionId we have, either from state or URL
 	const actualSessionId = sessionId || (existingSessionId ? Number.parseInt(existingSessionId) : null);
 	
-	const { data: sessionMessages, refetch: refetchMessages } = useQuery({
+	const { data: sessionMessages, refetch: refetchMessages, isLoading: messagesLoading } = useQuery({
 		...trpc.chat.getSessionMessages.queryOptions({ 
 			sessionId: actualSessionId || 0  // Provide a default value instead of assertion
 		}),
@@ -772,60 +772,12 @@ export default function ChatPage() {
 				{/* Chat Messages - Enhanced styling */}
 				<div className="flex-1 overflow-y-auto px-4 pt-4 pb-32 lg:px-6 lg:pb-24">
 					<div className="mx-auto max-w-4xl space-y-6">
-						{messages.length === 0 ? (
+						{messagesLoading ? (
 							<div className="py-12 text-center">
-								<div className="mx-auto mb-6 max-w-md">
-									<div className="relative mb-8">
-										{character.avatarUrl && (
-											<div className="relative mx-auto h-32 w-32">
-												<img
-													src={character.avatarUrl}
-													alt={character.name}
-													className="h-full w-full rounded-full object-cover shadow-2xl ring-4 ring-white/30"
-												/>
-												<div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500 ring-4 ring-background/20">
-													<div className="h-3 w-3 rounded-full bg-white" />
-												</div>
-											</div>
-										)}
-									</div>
-									<h2 className="mb-6 bg-gradient-to-r from-white via-white to-white/90 bg-clip-text font-bold text-transparent text-5xl leading-tight">
-										{character.name}
-									</h2>
-									{character.description && (
-										<p className="mb-8 font-medium text-white/80 text-lg leading-relaxed">
-											{character.description}
-										</p>
-									)}
-								</div>
-								<div className="rounded-2xl border border-white/20 bg-black/30 p-6 backdrop-blur-sm">
-									<p className="font-medium text-white/90 text-lg leading-relaxed">
-										{existingSessionId
-											? `Selamat datang kembali! Lanjutkan obrolan intim dengan ${character.name}.`
-											: `Mulai obrolan pribadi dengan ${character.name}!`}
-									</p>
-									<div className="mt-4 flex items-center justify-center gap-2 text-white/60">
-										<span className="text-sm">
-											Ini adalah ruang pribadi kalian berdua
-										</span>
-									</div>
-									{/* Show refresh button if we have a sessionId but no messages loaded */}
-									{existingSessionId && (
-										<div className="mt-6">
-											<Button
-												onClick={() => {
-													refetchMessages();
-													toast.success("Memuat ulang percakapan...");
-												}}
-												variant="outline"
-												className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50"
-											>
-												<MessageCircle className="mr-2 h-4 w-4" />
-												Muat Percakapan Sebelumnya
-											</Button>
-										</div>
-									)}
-								</div>
+								<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
+								<p className="font-medium text-white/80 leading-relaxed">
+									Memuat percakapan...
+								</p>
 							</div>
 						) : (
 							<>
