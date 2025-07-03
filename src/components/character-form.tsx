@@ -843,14 +843,14 @@ export default function CharacterFormComponent({
 								<Label htmlFor="name" className="font-medium text-sm">
 									Nama Karakter <span className="text-red-500">*</span>
 								</Label>
-								<Input
-									id="name"
-									value={form.name}
-									onChange={(e) => handleInputChange("name", e.target.value)}
-									placeholder="Contoh: Jisoo Kim"
-									maxLength={50}
-									className={`transition-colors ${errors.name ? "border-red-500 focus:border-red-500" : "focus:border-primary"}`}
-								/>
+															<Input
+								id="name"
+								value={form.name}
+								onChange={(e) => handleInputChange("name", e.target.value)}
+								placeholder="Contoh: Kirana Bulanasih"
+								maxLength={50}
+								className={`transition-colors ${errors.name ? "border-red-500 focus:border-red-500" : "focus:border-primary"}`}
+							/>
 								{errors.name && (
 									<p className="flex items-center gap-1 text-red-500 text-sm">
 										<span className="text-xs">⚠️</span> {errors.name}
@@ -872,7 +872,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("synopsis", e.target.value)
 									}
-									placeholder="Contoh: Jisoo adalah vokalis utama BLACKPINK yang terkenal dengan suara merdu dan kepribadian yang hangat."
+									placeholder="Contoh: Kirana adalah penyihir muda yang menguasai sihir bulan dan bintang. Dia dikenal dengan kemampuan magisnya yang luar biasa dan kepribadian yang lembut namun penuh misteri."
 									maxLength={300}
 									rows={3}
 									className={`w-full resize-none rounded-md border px-3 py-2 transition-colors ${
@@ -902,7 +902,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("description", e.target.value)
 									}
-									placeholder="Contoh: Jisoo punya kepribadian yang ceria, perhatian, dan sayang banget sama teman-temannya. Dia sering jadi mood maker di grup."
+									placeholder="Contoh: Kirana punya kepribadian yang tenang, bijaksana, dan selalu siap membantu sesama penyihir. Dia sering jadi tempat curhat teman-temannya di akademi sihir karena kemampuannya yang empatik."
 									maxLength={500}
 									rows={4}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -928,7 +928,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("greetings", e.target.value)
 									}
-									placeholder="Contoh: Annyeonghaseyo! Aku Jisoo dari BLACKPINK! 😊 Seneng banget bisa ketemu kamu hari ini."
+									placeholder="Contoh: Selamat datang, traveler! Aku Kirana, penjaga perpustakaan sihir di menara bulan. ✨ Ada mantra atau ramuan yang ingin kamu pelajari hari ini?"
 									maxLength={200}
 									rows={3}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -970,7 +970,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("characterHistory", e.target.value)
 									}
-									placeholder="Contoh: Jisoo gabung sama YG Entertainment tahun 2011 sebagai trainee. Setelah 5 tahun training, dia debut jadi vokalis utama BLACKPINK bulan Agustus 2016."
+									placeholder="Contoh: Kirana mulai belajar sihir di Akademi Astraluna sejak usia 16 tahun. Setelah 3 tahun belajar, dia dipercaya jadi penjaga perpustakaan kuno karena kemampuan luar biasanya dalam memahami mantra-mantra purba."
 									maxLength={800}
 									rows={4}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -996,7 +996,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("personality", e.target.value)
 									}
-									placeholder="Contoh: Jisoo punya kepribadian yang hangat dan gampang akrab. Dia suka ngomong dengan nada yang lembut tapi ekspresif."
+									placeholder="Contoh: Kirana punya kepribadian yang misterius namun ramah. Dia suka berbicara dengan nada lembut yang menenangkan, tapi matanya selalu berkilau penuh rasa ingin tahu tentang sihir kuno."
 									maxLength={500}
 									rows={4}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -1020,7 +1020,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("backstory", e.target.value)
 									}
-									placeholder="Contoh: Jisoo lahir di Seoul, Korea Selatan, dalam keluarga yang support banget mimpinya jadi artis. Dari kecil dia udah suka musik dan sering ikut kompetisi."
+									placeholder="Contoh: Kirana lahir di desa kecil di kaki gunung mistis, dalam keluarga penjaga kristal purba. Dari kecil dia udah bisa melihat aura magis dan sering bermain dengan peri-peri hutan."
 									maxLength={800}
 									rows={5}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -1063,7 +1063,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("defaultUserRoleName", e.target.value)
 									}
-									placeholder="Contoh: BLINK, Fan, Temen Deket"
+									placeholder="Contoh: Apprentice, Traveler, Fellow Mage"
 									maxLength={50}
 									className={errors.defaultUserRoleName ? "border-red-500" : ""}
 								/>
@@ -1088,7 +1088,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("defaultUserRoleDetails", e.target.value)
 									}
-									placeholder="Contoh: Seorang BLINK yang setia dan support BLACKPINK dari debut. Ngefans banget sama Jisoo dan sering ngikutin update terbaru."
+									placeholder="Contoh: Seorang murid baru di akademi sihir yang haus akan pengetahuan. Sangat tertarik dengan sihir bulan dan sering mencari Kirana untuk belajar mantra-mantra kuno."
 									maxLength={200}
 									rows={3}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -1135,7 +1135,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("defaultSituationName", e.target.value)
 									}
-									placeholder="Contoh: Backstage Konser, Cafe di Seoul"
+									placeholder="Contoh: Perpustakaan Sihir, Menara Bulan"
 									maxLength={50}
 									className={
 										errors.defaultSituationName ? "border-red-500" : ""
@@ -1162,7 +1162,7 @@ export default function CharacterFormComponent({
 									onChange={(e) =>
 										handleInputChange("initialSituationDetails", e.target.value)
 									}
-									placeholder="Contoh: {{user}} ketemu sama Jisoo di backstage setelah konser BLACKPINK selesai. Jisoo lagi istirahat dan keliatan seneng."
+									placeholder="Contoh: {{user}} menemukan Kirana di perpustakaan sihir tengah malam saat dia sedang membaca gulungan mantra kuno di bawah sinar bulan purnama."
 									maxLength={300}
 									rows={3}
 									className={`w-full resize-none rounded-md border px-3 py-2 ${
@@ -1287,7 +1287,7 @@ export default function CharacterFormComponent({
 						<DialogHeader>
 							<DialogTitle className="flex items-center gap-2">
 								<span>🤖</span>
-								Auto-Fill Form dengan AI
+								Buat Karakter Pake AI
 							</DialogTitle>
 							<DialogDescription>
 								Tuliskan deskripsi karakter yang mau kamu buat.
@@ -1300,7 +1300,7 @@ export default function CharacterFormComponent({
 									id="ai-input"
 									value={aiInput}
 									onChange={(e) => setAiInput(e.target.value)}
-									placeholder="Contoh: Aku mau bikin karakter namanya Jisoo dari BLACKPINK. Dia vokalis utama yang punya suara merdu dan kepribadian hangat. Lahir di Korea Selatan, suka musik dan akting. Orangnya ceria, care sama teman-teman, jadi mood maker di grup. Suka bikin dad jokes dan punya selera humor unik..."
+									placeholder="Contoh: Aku mau bikin karakter namanya Luna, seorang penyihir muda berusia 19 tahun yang tinggal di akademi sihir di pegunungan. Dia ahli dalam sihir elemen air dan punya kepribadian pemalu tapi penasaran. Latar belakangnya dia dari keluarga petani biasa, tapi punya bakat sihir yang luar biasa. Dia suka membaca buku kuno dan mengoleksi kristal. Untuk situasinya, kita ketemu pertama kali di perpustakaan akademi tengah malam saat dia lagi nyari buku rahasia. Hubungan kita sebagai sesama murid akademi yang jadi teman study partner. Dia sering gugup kalau ngomong sama orang baru, tapi kalau udah akrab bisa jadi cerewet dan suka berbagi pengetahuan sihir..."
 									rows={8}
 									className="w-full resize-none rounded-md border border-border px-3 py-2 focus:border-primary"
 								/>
@@ -1332,7 +1332,7 @@ export default function CharacterFormComponent({
 								) : (
 									<>
 										<span className="mr-2">✨</span>
-										Isi Form
+										Buat
 									</>
 								)}
 							</Button>
