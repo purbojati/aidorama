@@ -90,9 +90,9 @@ export default function MyCharactersPage() {
 									<User className="h-6 w-6 text-primary" />
 								</div>
 								<div>
-									<h1 className="font-bold text-2xl lg:text-3xl">Karakter Saya</h1>
+									<h1 className="font-bold text-2xl lg:text-3xl">Karakterku</h1>
 									<p className="text-muted-foreground text-sm lg:text-base">
-										Kelola karakter AI yang Anda buat
+										Kelola karakter imajiner yang Anda buat
 									</p>
 								</div>
 							</div>
@@ -143,8 +143,7 @@ export default function MyCharactersPage() {
 									Karakterku
 								</h1>
 								<p className="text-muted-foreground text-sm lg:text-base">
-									Kelola karakter imajiner yang Anda buat ({filteredCharacters.length}{" "}
-									karakter)
+									Kelola karakter imajiner yang Anda buat
 								</p>
 							</div>
 						</div>
