@@ -812,9 +812,9 @@ export default function ChatPage() {
 								placeholder="Ketik pesan..."
 								disabled={isLoading || isStreaming}
 								rows={1}
-								className="w-full resize-none bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none max-h-20"
+								className="w-full resize-none bg-transparent text-base placeholder:text-muted-foreground focus:outline-none max-h-20"
 								maxLength={500}
-								style={{ minHeight: "20px" }}
+								style={{ minHeight: "20px", fontSize: "16px" }}
 								onInput={(e) => {
 									const target = e.target as HTMLTextAreaElement;
 									target.style.height = "auto";
