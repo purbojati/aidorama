@@ -1,12 +1,8 @@
-"use client";
-
 import type { Metadata } from "next";
 import { JetBrains_Mono, Outfit } from "next/font/google";
 import "../index.css";
 import Providers from "@/components/providers";
-import { useEffect } from "react";
-import posthog from "posthog-js";
-import { authClient } from "@/lib/auth-client";
+import { ClientLayout } from "@/components/client-layout";
 
 const outfit = Outfit({
 	variable: "--font-sans",
@@ -49,27 +45,14 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const { data: session } = authClient.useSession();
-
-	// PostHog user identification
-	useEffect(() => {
-		if (session?.user) {
-			posthog.identify(session.user.id, {
-				email: session.user.email,
-				name: session.user.name,
-				email_verified: session.user.emailVerified,
-				has_image: !!session.user.image,
-				image_url: session.user.image || null
-			});
-		}
-	}, [session]);
-
 	return (
 		<html lang="id" suppressHydrationWarning>
 			<body
 				className={`${outfit.variable} ${jetBrainsMono.variable} antialiased`}
 			>
-				<Providers>{children}</Providers>
+				<Providers>
+					<ClientLayout>{children}</ClientLayout>
+				</Providers>
 			</body>
 		</html>
 	);
