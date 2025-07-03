@@ -32,6 +32,9 @@ export const characters = pgTable("characters", {
 	// Character tags stored as JSON array
 	characterTags: json("character_tags").$type<string[]>().default([]),
 
+	// Compliance mode for character behavior
+	complianceMode: text("compliance_mode").default("standard").notNull(), // "standard", "obedient", "strict"
+
 	isPublic: boolean("is_public").default(false).notNull(),
 	userId: text("user_id")
 		.notNull()

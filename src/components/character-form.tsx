@@ -26,6 +26,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	compressImage,
@@ -49,6 +56,7 @@ interface CharacterForm {
 	defaultSituationName: string;
 	initialSituationDetails: string;
 	characterTags: string[];
+	complianceMode: string;
 	isPublic: boolean;
 }
 
@@ -173,6 +181,7 @@ export default function CharacterFormComponent({
 		defaultSituationName: "",
 		initialSituationDetails: "",
 		characterTags: [],
+		complianceMode: "standard",
 		isPublic: false,
 	});
 	const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -215,6 +224,7 @@ export default function CharacterFormComponent({
 				defaultSituationName: character.defaultSituationName || "",
 				initialSituationDetails: character.initialSituationDetails || "",
 				characterTags: character.characterTags || [],
+				complianceMode: character.complianceMode || "standard",
 				isPublic: character.isPublic || false,
 			});
 			if (character.avatarUrl) {
@@ -464,6 +474,7 @@ export default function CharacterFormComponent({
 			defaultSituationName: form.defaultSituationName.trim() || undefined,
 			initialSituationDetails: form.initialSituationDetails.trim() || undefined,
 			characterTags: form.characterTags,
+			complianceMode: form.complianceMode,
 			isPublic: form.isPublic,
 		};
 
@@ -1212,6 +1223,67 @@ export default function CharacterFormComponent({
 								<p className="text-muted-foreground text-xs">
 									Pilih satu atau lebih tag yang menggambarin karakter kamu.
 									Tags bantu user lain nemuin karakter kamu dengan gampang.
+								</p>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Compliance Mode */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<span>🎭</span>
+							Mode Kepatuhan Karakter
+						</CardTitle>
+						<CardDescription>
+							Atur seberapa patuh karakter terhadap permintaan user saat roleplay.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-3">
+							<Label htmlFor="complianceMode" className="font-medium text-sm">
+								Mode Kepatuhan
+							</Label>
+							<Select
+								value={form.complianceMode}
+								onValueChange={(value) => handleInputChange("complianceMode", value)}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Pilih mode kepatuhan" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="strict">
+										<div className="flex flex-col text-left">
+											<span className="font-medium">🚫 Mode Ketat</span>
+											<span className="text-muted-foreground text-xs">
+												Karakter punya batasan, bisa menolak permintaan
+											</span>
+										</div>
+									</SelectItem>
+									<SelectItem value="standard">
+										<div className="flex flex-col text-left">
+											<span className="font-medium">⚖️ Mode Standar</span>
+											<span className="text-muted-foreground text-xs">
+												Seimbang antara kepatuhan dan konsistensi karakter
+											</span>
+										</div>
+									</SelectItem>
+									<SelectItem value="obedient">
+										<div className="flex flex-col text-left">
+											<span className="font-medium">✅ Mode Patuh</span>
+											<span className="text-muted-foreground text-xs">
+												Karakter sangat patuh dan mengikuti semua permintaan
+											</span>
+										</div>
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<div className="flex items-start gap-2">
+								<span className="text-xs">💡</span>
+								<p className="text-muted-foreground text-xs">
+									Mode ini mengatur bagaimana karakter merespon permintaan user. 
+									Mode patuh membuat karakter lebih kooperatif dan mengikuti arahan user.
 								</p>
 							</div>
 						</div>

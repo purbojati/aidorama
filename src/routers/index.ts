@@ -299,6 +299,7 @@ export const appRouter = router({
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
 					characterTags: z.array(z.string()).default([]),
+					complianceMode: z.enum(["strict", "standard", "obedient"]).default("standard"),
 					isPublic: z.boolean().default(false),
 				}),
 			)
@@ -374,6 +375,7 @@ export const appRouter = router({
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
 					characterTags: z.array(z.string()).default([]),
+					complianceMode: z.enum(["strict", "standard", "obedient"]).default("standard"),
 					isPublic: z.boolean(),
 				}),
 			)
@@ -410,6 +412,7 @@ export const appRouter = router({
 						defaultSituationName: input.defaultSituationName,
 						initialSituationDetails: input.initialSituationDetails,
 						characterTags: input.characterTags,
+						complianceMode: input.complianceMode,
 						isPublic: input.isPublic,
 						updatedAt: new Date(),
 					})

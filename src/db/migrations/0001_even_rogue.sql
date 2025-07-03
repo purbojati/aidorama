@@ -1,0 +1,1 @@
+ALTER TABLE "characters" ADD COLUMN "compliance_mode" text DEFAULT 'standard' NOT NULL;
