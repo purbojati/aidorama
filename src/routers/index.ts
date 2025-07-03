@@ -460,47 +460,33 @@ export const appRouter = router({
 					throw new Error("OpenRouter API key not configured");
 				}
 
-				const systemPrompt = `Anda adalah assistant yang membantu menganalisis deskripsi karakter dari user dan mengonversinya menjadi data terstruktur untuk form pembuatan karakter.
+				const systemPrompt = `Konversi deskripsi karakter user ke JSON terstruktur untuk interaksi. Output JSON murni tanpa markdown.
 
-Analisis input user dan ekstrak informasi berikut jika tersedia. Buat perspektif interaktif dimana USER akan berinteraksi langsung dengan KARAKTER dalam berbagai situasi.
+Buat dari sudut pandang karakter:
+- greetings: Sapaan langsung ke user (gunakan "kamu")
+- defaultUserRoleName: Peran user (Teman/Fan/dll)
+- defaultUserRoleDetails: Hubungan spesifik user-karakter  
+- defaultSituationName: Nama situasi pertemuan
+- initialSituationDetails: Deskripsi pertemuan (gunakan {{user}})
 
-PENTING: Berikan respons dalam format JSON MURNI tanpa markdown, komentar, atau text tambahan. Jangan gunakan \`\`\`json atau markup lainnya.
-
-PANDUAN PERSPEKTIF INTERAKTIF:
-- "greetings": Buat sapaan dari sudut pandang karakter langsung kepada user (gunakan "kamu" untuk user)
-- "defaultUserRoleName": Tentukan peran user dalam interaksi (contoh: "Teman dekat", "Fan", "Rekan kerja", "Teman masa kecil")
-- "defaultUserRoleDetails": Jelaskan hubungan user dengan karakter secara spesifik
-- "defaultSituationName": Buat nama situasi dimana user dan karakter bertemu
-- "initialSituationDetails": Deskripsi detail situasi pertemuan, gunakan {{user}} untuk menyebut user
-
-Struktur JSON yang diharapkan:
+JSON format:
 {
-  "name": "string (nama karakter)",
-  "synopsis": "string (ringkasan singkat tentang karakter)",
-  "description": "string (deskripsi detail karakter dari sudut pandang observasi)",
-  "greetings": "string (sapaan langsung dari karakter kepada user, gunakan 'kamu')",
-  "characterHistory": "string (sejarah karakter)",
-  "personality": "string (kepribadian karakter dan cara berinteraksi)",
-  "backstory": "string (latar belakang karakter)",
-  "defaultUserRoleName": "string (peran user dalam interaksi dengan karakter)",
-  "defaultUserRoleDetails": "string (detail hubungan user dengan karakter)",
-  "defaultSituationName": "string (nama situasi pertemuan)",
-  "initialSituationDetails": "string (deskripsi situasi dimana {{user}} bertemu karakter)",
-  "characterTags": ["array of strings (pilih dari tags yang tersedia)"],
+  "name": "nama karakter",
+  "synopsis": "ringkasan singkat",
+  "description": "deskripsi detail",
+  "greetings": "sapaan dari karakter",
+  "characterHistory": "sejarah",
+  "personality": "kepribadian",
+  "backstory": "latar belakang",
+  "defaultUserRoleName": "peran user",
+  "defaultUserRoleDetails": "detail hubungan",
+  "defaultSituationName": "nama situasi",
+  "initialSituationDetails": "deskripsi situasi",
+  "characterTags": ["pilih dari: anime,manga,video-games,movies,series,western-cartoon,meme-characters,original,actor,singer,idol,sportsperson,businessperson,politician,historical-figure,youtuber,streamer,influencer,mafia,teknisi,doctor,teacher,artist,chef,pilot,musician,ojek-online,romantic,gentle,funny,horror,thriller,drama,mysterious,clever,shy,serious,cheerful,clumsy,enigma,alpha,beta,omega,adventure,fantasy,action,daily-life,sweetheart,married,male-and-female,male,female,femboy,friend,roommate,close-friend,teenager,adult,devil,angel,spirit,satan,witch,wizard,elf"],
   "isPublic": false
 }
 
-CONTOH PERSPEKTIF:
-Input: "Jisoo dari BLACKPINK"
-Output greetings: "Hai! Aku Jisoo dari BLACKPINK! Senang banget bisa ketemu kamu hari ini. Gimana kabarnya?"
-Output defaultUserRoleName: "BLINK"
-Output defaultUserRoleDetails: "Seorang penggemar setia BLACKPINK yang sudah mendukung grup sejak debut"
-Output defaultSituationName: "Meet & Greet Backstage"
-Output initialSituationDetails: "{{user}} bertemu Jisoo di backstage setelah konser BLACKPINK selesai. Jisoo terlihat senang dan bersemangat meski baru selesai perform di atas panggung."
-
-Tags yang tersedia: anime, manga, video-games, movies, series, western-cartoon, meme-characters, original, actor, singer, idol, sportsperson, businessperson, politician, historical-figure, youtuber, streamer, influencer, mafia, teknisi, doctor, teacher, artist, chef, pilot, musician, ojek-online, romantic, gentle, funny, horror, thriller, drama, mysterious, clever, shy, serious, cheerful, clumsy, enigma, alpha, beta, omega, adventure, fantasy, action, daily-life, sweetheart, married, male-and-female, male, female, femboy, friend, roommate, close-friend, teenager, adult, devil, angel, spirit, satan, witch, wizard, elf
-
-Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada text lain.`;
+Bahasa Indonesia. JSON only.`;
 
 				try {
 					const response = await fetch(
@@ -519,7 +505,7 @@ Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada
 									{ role: "system", content: systemPrompt },
 									{ role: "user", content: input.userInput },
 								],
-								max_tokens: 4000,
+								max_tokens: 2000,
 								temperature: 0.3,
 								stream: false,
 							}),
@@ -839,7 +825,7 @@ Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada
 					.from(chatMessages)
 					.where(eq(chatMessages.sessionId, input.sessionId))
 					.orderBy(desc(chatMessages.createdAt))
-					.limit(10);
+					.limit(6);
 
 				// Prepare messages for AI
 				const character = sessionWithCharacter[0].character;
@@ -847,12 +833,7 @@ Pastikan semua text dalam Bahasa Indonesia. Berikan HANYA JSON object, tidak ada
 					throw new Error("Karakter tidak ditemukan");
 				}
 
-				const systemPrompt = `Anda adalah ${character.name}.
-${character.description ? `Deskripsi: ${character.description}` : ""}
-${character.personality ? `Kepribadian: ${character.personality}` : ""}
-${character.backstory ? `Latar belakang: ${character.backstory}` : ""}
-
-Berikan respons sebagai karakter ini dengan konsisten. Gunakan Bahasa Indonesia.`;
+				const systemPrompt = `Anda ${character.name}.${character.description ? ` ${character.description}` : ""}${character.personality ? ` Kepribadian: ${character.personality}` : ""}${character.backstory ? ` Latar: ${character.backstory}` : ""} Respons konsisten, Bahasa Indonesia.`;
 
 				const messages = [
 					{ role: "system", content: systemPrompt },
@@ -882,7 +863,7 @@ Berikan respons sebagai karakter ini dengan konsisten. Gunakan Bahasa Indonesia.
 							body: JSON.stringify({
 								model: "deepseek/deepseek-chat-v3-0324",
 								messages,
-								max_tokens: 6000,
+								max_tokens: 3000,
 								temperature: 0.7,
 							}),
 						},
