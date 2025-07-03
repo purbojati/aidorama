@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -249,6 +250,12 @@ export default function CharacterFormComponent({
 			return result.result?.data;
 		},
 		onSuccess: (character: any) => {
+			// Track character creation event
+			posthog.capture('character_created', {
+				character_name: character.name,
+				is_public: character.isPublic
+			});
+			
 			toast.success("Karakter udah jadi nih! 🎉");
 			router.push(`/chat/${character.id}`);
 		},

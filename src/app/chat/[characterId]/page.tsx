@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import posthog from "posthog-js";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -380,6 +381,11 @@ export default function ChatPage() {
 			return result.result?.data;
 		},
 		onSuccess: (session: { id: number }) => {
+			// Track start chat event
+			posthog.capture('chat_started', {
+				character_id: characterId
+			});
+			
 			setSessionId(session.id);
 			// Update URL to include the session ID
 			const newUrl = `/chat/${characterId}?sessionId=${session.id}`;
@@ -571,6 +577,12 @@ export default function ChatPage() {
 		};
 
 		setMessages((prev) => [...prev, userMessage]);
+
+		// Track send message event
+		posthog.capture('message_sent', {
+			character_id: characterId,
+			session_id: sessionId
+		});
 
 		sendMessageMutation.mutate({
 			sessionId,

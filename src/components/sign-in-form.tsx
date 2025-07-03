@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod/v4";
+import posthog from "posthog-js";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import Loader from "./loader";
@@ -81,6 +82,12 @@ export default function SignInForm({
 					},
 					{
 						onSuccess: () => {
+							// Track login event
+							posthog.capture('user_login', {
+								login_method: 'email',
+								login_identifier_type: value.email.includes('@') ? 'email' : 'username'
+							});
+							
 							router.push("/");
 							toast.success("Berhasil masuk!");
 						},
