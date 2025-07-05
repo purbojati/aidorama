@@ -510,6 +510,11 @@ export default function CharacterFormComponent({
 			return;
 		}
 
+		// Clean up previous preview if it was a blob
+		if (avatarPreview && avatarPreview.startsWith("blob:")) {
+			URL.revokeObjectURL(avatarPreview);
+		}
+
 		// Create initial preview
 		const previewUrl = URL.createObjectURL(file);
 		setAvatarPreview(previewUrl);
@@ -531,8 +536,12 @@ export default function CharacterFormComponent({
 				`🗜️ Client compressed: ${formatFileSize(clientCompressed.compressedSize)} (${clientCompressed.compressionRatio}% reduction)`,
 			);
 
+			// Clean up previous preview if it was a blob (again, in case compression is async and user uploads again quickly)
+			if (avatarPreview && avatarPreview.startsWith("blob:")) {
+				URL.revokeObjectURL(avatarPreview);
+			}
+
 			// Update preview with compressed version
-			URL.revokeObjectURL(previewUrl);
 			const compressedPreviewUrl = URL.createObjectURL(clientCompressed.file);
 			setAvatarPreview(compressedPreviewUrl);
 			setAvatarFile(clientCompressed.file);
@@ -562,8 +571,12 @@ export default function CharacterFormComponent({
 			// Update form with R2 URL
 			setForm((prev) => ({ ...prev, avatarUrl: result.url }));
 
-			// Clean up preview URL and use R2 URL
-			URL.revokeObjectURL(compressedPreviewUrl);
+			// Clean up preview URL if it was a blob (compressedPreviewUrl)
+			if (compressedPreviewUrl.startsWith("blob:")) {
+				URL.revokeObjectURL(compressedPreviewUrl);
+			}
+
+			// Use R2 URL for preview
 			setAvatarPreview(result.url);
 
 			// Store compression statistics

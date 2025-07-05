@@ -59,7 +59,7 @@ function SidebarContent({
 	const { formatDate } = useClientDate();
 
 	return (
-		<div className="flex h-full flex-col bg-card/50 backdrop-blur-sm">
+		<div className="flex h-full flex-col overflow-hidden bg-card/50 backdrop-blur-sm">
 			{/* Header */}
 			<div className="flex-shrink-0 border-b bg-gradient-to-r from-background/90 to-muted/30 p-6">
 				<div className="flex items-center justify-between gap-3">
