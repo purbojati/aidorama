@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
 				port: '',
 				pathname: '/**',
 			},
+			{
+				protocol: "https",
+				hostname: "s3.aidorama.app",
+				port: "",
+				pathname: "/**",
+			},
 		],
 	},
 	async rewrites() {
