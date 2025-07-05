@@ -422,12 +422,12 @@ export default function CharacterFormComponent({
 
 		if (form.defaultUserRoleName.length > 50) {
 			newErrors.defaultUserRoleName =
-				"Nama role kepanjangan, maksimal 50 karakter";
+				"Nama peran kepanjangan, maksimal 50 karakter";
 		}
 
 		if (form.defaultUserRoleDetails.length > 200) {
 			newErrors.defaultUserRoleDetails =
-				"Detail role kepanjangan, maksimal 200 karakter";
+				"Detail peran kepanjangan, maksimal 200 karakter";
 		}
 
 		if (form.defaultSituationName.length > 50) {
@@ -1063,11 +1063,10 @@ export default function CharacterFormComponent({
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<span>👤</span>
-							Role User Default (Opsional)
+							Peran Kamu (Opsional)
 						</CardTitle>
 						<CardDescription>
-							Setting default buat role dan identitas user waktu ngobrol sama
-							karakter.
+							Setting buat peran dan identitas user waktu ngobrol sama karakter.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
@@ -1075,7 +1074,7 @@ export default function CharacterFormComponent({
 							{/* Default User Role Name */}
 							<div className="space-y-2">
 								<Label htmlFor="defaultUserRoleName">
-									Nama Role User Default
+									Nama Peran Kamu (Opsional)
 								</Label>
 								<Input
 									id="defaultUserRoleName"
@@ -1100,7 +1099,7 @@ export default function CharacterFormComponent({
 							{/* Default User Role Details */}
 							<div className="space-y-2">
 								<Label htmlFor="defaultUserRoleDetails">
-									Detail Role User Default
+									Detail Peran Kamu (Opsional)
 								</Label>
 								<textarea
 									id="defaultUserRoleDetails"
@@ -1135,7 +1134,7 @@ export default function CharacterFormComponent({
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<span>🎬</span>
-							Situasi Default (Opsional)
+							Situasi (Opsional)
 						</CardTitle>
 						<CardDescription>
 							Setting situasi dan konteks awal waktu mulai ngobrol sama
@@ -1147,7 +1146,7 @@ export default function CharacterFormComponent({
 							{/* Default Situation Name */}
 							<div className="space-y-2">
 								<Label htmlFor="defaultSituationName">
-									Nama Situasi Default
+									Nama Situasi (Opsional)
 								</Label>
 								<Input
 									id="defaultSituationName"
@@ -1174,7 +1173,7 @@ export default function CharacterFormComponent({
 							{/* Initial Situation Details */}
 							<div className="space-y-2">
 								<Label htmlFor="initialSituationDetails">
-									Detail Situasi Awal
+									Detail Situasi Awal (Opsional)
 								</Label>
 								<textarea
 									id="initialSituationDetails"
@@ -1227,13 +1226,6 @@ export default function CharacterFormComponent({
 								searchPlaceholder="Cari tags (contoh: idol, female, kpop)..."
 								className="w-full"
 							/>
-							<div className="flex items-start gap-2">
-								<span className="text-xs">💡</span>
-								<p className="text-muted-foreground text-xs">
-									Pilih satu atau lebih tag yang menggambarin karakter kamu.
-									Tags bantu user lain nemuin karakter kamu dengan gampang.
-								</p>
-							</div>
 						</div>
 					</CardContent>
 				</Card>

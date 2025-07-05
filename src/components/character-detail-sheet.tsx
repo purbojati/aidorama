@@ -254,14 +254,14 @@ export function CharacterDetailSheet({
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-base">
 											<UserCircle className="h-4 w-4" />
-											Role User Default
+											Peran Kamu
 										</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-2">
 										{character.defaultUserRoleName && (
 											<div>
 												<span className="text-muted-foreground text-sm">
-													Nama Role:
+													Nama Peran:
 												</span>
 												<p className="font-medium text-sm">
 													{character.defaultUserRoleName}
@@ -271,7 +271,7 @@ export function CharacterDetailSheet({
 										{character.defaultUserRoleDetails && (
 											<div>
 												<span className="text-muted-foreground text-sm">
-													Detail:
+													Detail Peran:
 												</span>
 												<p className="text-sm leading-relaxed">
 													{character.defaultUserRoleDetails}
@@ -289,7 +289,7 @@ export function CharacterDetailSheet({
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-base">
 											<MapPin className="h-4 w-4" />
-											Situasi Default
+											Situasi
 										</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-2">
@@ -317,46 +317,7 @@ export function CharacterDetailSheet({
 								</Card>
 							)}
 
-							{/* Character Info */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="text-base">Informasi</CardTitle>
-								</CardHeader>
-								<CardContent className="space-y-3">
-									<div className="flex justify-between text-sm">
-										<span className="text-muted-foreground">Status:</span>
-										<span
-											className={
-												character.isPublic ? "text-green-600" : "text-gray-600"
-											}
-										>
-											{character.isPublic ? "Publik" : "Privat"}
-										</span>
-									</div>
-
-									<div className="flex justify-between text-sm">
-										<span className="text-muted-foreground">Dibuat:</span>
-										<span>
-											{formatDate(character.createdAt, {
-												day: "numeric",
-												month: "short",
-												year: "numeric",
-											})}
-										</span>
-									</div>
-
-									<div className="flex justify-between text-sm">
-										<span className="text-muted-foreground">Diperbarui:</span>
-										<span>
-											{formatDate(character.updatedAt, {
-												day: "numeric",
-												month: "short",
-												year: "numeric",
-											})}
-										</span>
-									</div>
-								</CardContent>
-							</Card>
+							
 						</div>
 					</div>
 				) : (
