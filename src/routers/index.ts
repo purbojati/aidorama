@@ -9,6 +9,8 @@ import {
 } from "../db/schema/characters";
 import { protectedProcedure, publicProcedure, router } from "../lib/trpc";
 import { ensureUniqueUsername, generateUsername } from "../lib/utils";
+import { TRPCError } from "@trpc/server";
+import { CHARACTER_TAG_OPTIONS } from "@/lib/character-tags";
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -463,33 +465,28 @@ export const appRouter = router({
 					throw new Error("OpenRouter API key not configured");
 				}
 
-				const systemPrompt = `Konversi deskripsi karakter user ke JSON terstruktur untuk interaksi. Output JSON murni tanpa markdown.
+				const systemPrompt = `Konversi deskripsi karakter user ke JSON. Output JSON murni tanpa markdown. Bahasa Indonesia.
 
-Buat dari sudut pandang karakter:
-- greetings: Sapaan langsung ke user (gunakan "kamu")
-- defaultUserRoleName: Peran user (Teman/Fan/dll)
-- defaultUserRoleDetails: Hubungan spesifik user-karakter  
-- defaultSituationName: Nama situasi pertemuan
-- initialSituationDetails: Deskripsi pertemuan (gunakan {{user}})
+- Sudut pandang karakter untuk: greetings, defaultUserRoleName, defaultUserRoleDetails, defaultSituationName, initialSituationDetails.
+- 'initialSituationDetails' pakai placeholder {{user}}.
+- 'characterTags' harus berupa array string singkat dan relevan dari deskripsi.
 
-JSON format:
+JSON format (hanya field yang ada nilainya):
 {
-  "name": "nama karakter",
-  "synopsis": "ringkasan singkat",
-  "description": "deskripsi detail",
-  "greetings": "sapaan dari karakter",
-  "characterHistory": "sejarah",
-  "personality": "kepribadian",
-  "backstory": "latar belakang",
-  "defaultUserRoleName": "peran user",
-  "defaultUserRoleDetails": "detail hubungan",
-  "defaultSituationName": "nama situasi",
-  "initialSituationDetails": "deskripsi situasi",
-  "characterTags": ["pilih dari: anime,manga,video-games,movies,series,western-cartoon,meme-characters,original,actor,singer,idol,sportsperson,businessperson,politician,historical-figure,youtuber,streamer,influencer,mafia,teknisi,doctor,teacher,artist,chef,pilot,musician,ojek-online,romantic,gentle,funny,horror,thriller,drama,mysterious,clever,shy,serious,cheerful,clumsy,enigma,alpha,beta,omega,adventure,fantasy,action,daily-life,sweetheart,married,male-and-female,male,female,femboy,friend,roommate,close-friend,teenager,adult,devil,angel,spirit,satan,witch,wizard,elf"],
-  "isPublic": false
-}
-
-Bahasa Indonesia. JSON only.`;
+  "name": "string",
+  "synopsis": "string",
+  "description": "string",
+  "greetings": "string",
+  "characterHistory": "string",
+  "personality": "string",
+  "backstory": "string",
+  "defaultUserRoleName": "string",
+  "defaultUserRoleDetails": "string",
+  "defaultSituationName": "string",
+  "initialSituationDetails": "string",
+  "characterTags": ["string"],
+  "isPublic": boolean
+}`;
 
 				try {
 					const response = await fetch(
@@ -559,6 +556,18 @@ Bahasa Indonesia. JSON only.`;
 						// Validate that we have an object
 						if (typeof parsedData !== "object" || parsedData === null) {
 							throw new Error("Response is not a valid object");
+						}
+
+						// Filter characterTags to only include valid tags
+						if (
+							parsedData.characterTags &&
+							Array.isArray(parsedData.characterTags)
+						) {
+							const validTags = CHARACTER_TAG_OPTIONS.map((t) => t.value);
+							parsedData.characterTags = parsedData.characterTags.filter(
+								(tag: unknown) =>
+									typeof tag === "string" && validTags.includes(tag),
+							);
 						}
 
 						return parsedData;
