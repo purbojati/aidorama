@@ -469,7 +469,6 @@ export const appRouter = router({
 
 - Sudut pandang karakter untuk: greetings, defaultUserRoleName, defaultUserRoleDetails, defaultSituationName, initialSituationDetails.
 - 'initialSituationDetails' pakai placeholder {{user}}.
-- 'characterTags' harus berupa array string singkat dan relevan dari deskripsi.
 
 JSON format (hanya field yang ada nilainya):
 {
@@ -484,7 +483,6 @@ JSON format (hanya field yang ada nilainya):
   "defaultUserRoleDetails": "string",
   "defaultSituationName": "string",
   "initialSituationDetails": "string",
-  "characterTags": ["string"],
   "isPublic": boolean
 }`;
 
@@ -556,18 +554,6 @@ JSON format (hanya field yang ada nilainya):
 						// Validate that we have an object
 						if (typeof parsedData !== "object" || parsedData === null) {
 							throw new Error("Response is not a valid object");
-						}
-
-						// Filter characterTags to only include valid tags
-						if (
-							parsedData.characterTags &&
-							Array.isArray(parsedData.characterTags)
-						) {
-							const validTags = CHARACTER_TAG_OPTIONS.map((t) => t.value);
-							parsedData.characterTags = parsedData.characterTags.filter(
-								(tag: unknown) =>
-									typeof tag === "string" && validTags.includes(tag),
-							);
 						}
 
 						return parsedData;

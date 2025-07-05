@@ -1113,22 +1113,24 @@ export default function CharacterFormComponent({
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<span>🏷️</span>
-							Tag Karakter <span className="text-red-500">*</span>
+							Label Karakter (Opsional)
 						</CardTitle>
 						<CardDescription>
-							Pilih tag yang cocok sama karakter kamu buat bantu kategorisasi
+							Pilih label yang cocok sama karakter kamu buat bantu kategorisasi
 							dan pencarian.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-3">
-							<Label className="font-medium text-sm">Tags</Label>
+							<Label className="font-medium text-sm">
+								Label Karakter (Opsional)
+							</Label>
 							<MultiSelect
 								options={CHARACTER_TAG_OPTIONS}
 								selected={form.characterTags}
 								onChange={(tags) => handleInputChange("characterTags", tags)}
-								placeholder="Pilih tags yang cocok sama karakter kamu..."
-								searchPlaceholder="Cari tags (contoh: idol, female, kpop)..."
+								placeholder="Pilih label yang cocok sama karakter kamu..."
+								searchPlaceholder="Cari label (contoh: idol, female, kpop)..."
 								className="w-full"
 							/>
 						</div>

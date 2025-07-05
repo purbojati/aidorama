@@ -94,11 +94,6 @@ ${character.personality ? `- Sifat: ${character.personality}` : ""}
 ${character.backstory ? `- Latar: ${character.backstory}` : ""}
 ${character.characterHistory ? `- Sejarah: ${character.characterHistory}` : ""}
 ${character.greetings ? `- Sapaan: ${character.greetings}` : ""}
-${
-	character.characterTags?.length
-		? `- Tags: ${character.characterTags.join(", ")}`
-		: ""
-}
 
 Skenario:
 - Situasi: ${character.defaultSituationName || "Percakapan biasa"}. ${
