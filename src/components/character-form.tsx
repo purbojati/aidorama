@@ -745,10 +745,6 @@ export default function CharacterFormComponent({
 							<span>🖼️</span>
 							Avatar Karakter
 						</CardTitle>
-						<CardDescription>
-							Upload gambar avatar untuk karakter kamu. File akan dikompresi
-							otomatis untuk menghemat storage.
-						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="flex flex-col items-center space-y-4">
