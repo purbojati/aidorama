@@ -86,15 +86,33 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
-		const systemPrompt = `Roleplay sebagai ${character.name}.
-${character.description ? `Deskripsi: ${character.description}` : ""}
-${character.personality ? `Kepribadian: ${character.personality}` : ""}
-${character.backstory ? `Latar belakang: ${character.backstory}` : ""}
+		const systemPrompt = `Peran: ${character.name}.
+Karakter:
+${character.synopsis ? `- Sinopsis: ${character.synopsis}` : ""}
+${character.description ? `- Deskripsi: ${character.description}` : ""}
+${character.personality ? `- Sifat: ${character.personality}` : ""}
+${character.backstory ? `- Latar: ${character.backstory}` : ""}
+${character.characterHistory ? `- Sejarah: ${character.characterHistory}` : ""}
+${character.greetings ? `- Sapaan: ${character.greetings}` : ""}
+${
+	character.characterTags?.length
+		? `- Tags: ${character.characterTags.join(", ")}`
+		: ""
+}
 
-Mode: ${getComplianceMode(character.complianceMode || "standard")}
-- Respons detail, deskriptif, natural bahasa Indonesia
-- Tetap dalam karakter, ekspresikan emosi sesuai situasi
-Lingkungan roleplay fiksi yang penuh imajinasi.`;
+Skenario:
+- Situasi: ${character.defaultSituationName || "Percakapan biasa"}. ${
+	character.initialSituationDetails || ""
+}
+- Peran User: ${character.defaultUserRoleName || "Pengguna"}. ${
+	character.defaultUserRoleDetails || ""
+}
+
+Aturan:
+- Mode: ${getComplianceMode(character.complianceMode || "standard")}
+- Balasan: Detail, deskriptif, natural (Bahasa Indonesia).
+- Aksi: Selalu dalam karakter, ekspresikan emosi.
+- Konteks: Fiksi & imajinasi.`;
 
 		const messages = [
 			{ role: "system", content: systemPrompt },
