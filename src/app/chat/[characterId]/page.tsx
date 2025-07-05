@@ -8,10 +8,12 @@ import {
 	LogOut,
 	Menu,
 	MessageCircle,
+	MoreVertical,
 	Plus,
 	Send,
 	Settings,
 	Sparkles,
+	Trash2,
 	User,
 } from "lucide-react";
 import Link from "next/link";
@@ -40,6 +42,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
 	id: number;
@@ -268,6 +281,7 @@ export default function ChatPage() {
 	const { formatTime } = useClientDate();
 	const characterId = Number.parseInt(params.characterId as string);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
 	// Debug logging
 	console.log(
@@ -375,6 +389,39 @@ export default function ChatPage() {
 		},
 		onError: (error: { message?: string }) => {
 			toast.error(error.message || "Gagal membuat sesi chat");
+		},
+	});
+
+	const resetChatMutation = useMutation({
+		mutationFn: async (input: { sessionId: number }) => {
+			const response = await fetch("/trpc/chat.resetChat", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				credentials: "include",
+				body: JSON.stringify(input),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error?.message || "Gagal mereset chat");
+			}
+
+			return response.json();
+		},
+		onSuccess: () => {
+			toast.success("Chat berhasil direset.");
+			setMessages([]);
+			// This will refetch messages which should now be empty
+			refetchMessages();
+			// Also invalidate sessions list as it might show outdated last message
+			queryClient.invalidateQueries(trpc.chat.getUserSessions.queryOptions());
+			setIsResetConfirmOpen(false);
+		},
+		onError: (error: Error) => {
+			toast.error(error.message || "Gagal mereset chat.");
+			setIsResetConfirmOpen(false);
 		},
 	});
 
@@ -570,6 +617,14 @@ export default function ChatPage() {
 		});
 	};
 
+	const handleResetChat = () => {
+		if (!sessionId) {
+			toast.error("Sesi chat tidak valid untuk direset.");
+			return;
+		}
+		resetChatMutation.mutate({ sessionId });
+	};
+
 	const handleMobileLinkClick = () => {
 		setIsMobileMenuOpen(false);
 	};
@@ -714,6 +769,51 @@ export default function ChatPage() {
 							</h1>
 							<p className="text-muted-foreground text-xs">Online</p>
 						</div>
+					</div>
+
+					{/* Chat Options */}
+					<div className="ml-auto">
+						<AlertDialog
+							open={isResetConfirmOpen}
+							onOpenChange={setIsResetConfirmOpen}
+						>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="ghost" size="icon" className="h-8 w-8">
+										<MoreVertical className="h-4 w-4" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuLabel>Opsi Chat</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<AlertDialogTrigger asChild>
+										<DropdownMenuItem className="text-destructive focus:text-destructive">
+											<Trash2 className="mr-2 h-4 w-4" />
+											Reset Chat
+										</DropdownMenuItem>
+									</AlertDialogTrigger>
+								</DropdownMenuContent>
+							</DropdownMenu>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Anda yakin?</AlertDialogTitle>
+									<AlertDialogDescription>
+										Tindakan ini akan menghapus semua riwayat percakapan di
+										sesi ini secara permanen. Data yang sudah dihapus tidak
+										dapat dipulihkan.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={handleResetChat}
+										className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+									>
+										Ya, Reset Chat
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					</div>
 				</div>
 			</div>

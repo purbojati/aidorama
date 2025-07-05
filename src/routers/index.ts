@@ -966,7 +966,37 @@ Bahasa Indonesia. JSON only.`;
 
 				return { success: true };
 			}),
+
+		// Reset chat session
+		resetChat: protectedProcedure
+			.input(
+				z.object({
+					sessionId: z.number(),
+				}),
+			)
+			.mutation(async ({ ctx, input }) => {
+				// Verify user owns the session
+				const session = await db
+					.select()
+					.from(chatSessions)
+					.where(eq(chatSessions.id, input.sessionId))
+					.limit(1);
+
+				if (!session[0] || session[0].userId !== ctx.session.user.id) {
+					throw new Error(
+						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
+					);
+				}
+
+				await db
+					.delete(chatMessages)
+					.where(eq(chatMessages.sessionId, input.sessionId));
+
+				return { success: true, message: "Chat berhasil direset." };
+			}),
 	}),
+
+	// AI chat stream (this is not a tRPC procedure, but handled via a custom route)
 });
 
 export type AppRouter = typeof appRouter;
