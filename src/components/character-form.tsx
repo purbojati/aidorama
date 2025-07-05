@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import posthog from "posthog-js";
@@ -89,15 +89,8 @@ export default function CharacterFormComponent({
 		complianceMode: "standard",
 		isPublic: false,
 	});
-	const [avatarFile, setAvatarFile] = useState<File | null>(null);
 	const [avatarPreview, setAvatarPreview] = useState<string>("");
 	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-	const [compressionStats, setCompressionStats] = useState<{
-		clientCompression?: number;
-		serverCompression?: number;
-		originalSize?: number;
-		finalSize?: number;
-	} | null>(null);
 
 	const [errors, setErrors] = useState<Partial<CharacterForm>>({});
 	const [isInitialized, setIsInitialized] = useState(false);
@@ -424,7 +417,6 @@ export default function CharacterFormComponent({
 		const previewUrl = URL.createObjectURL(file);
 		setAvatarPreview(previewUrl);
 		setIsUploadingAvatar(true);
-		setCompressionStats(null);
 
 		try {
 			// Client-side compression first
@@ -449,7 +441,6 @@ export default function CharacterFormComponent({
 			// Update preview with compressed version
 			const compressedPreviewUrl = URL.createObjectURL(clientCompressed.file);
 			setAvatarPreview(compressedPreviewUrl);
-			setAvatarFile(clientCompressed.file);
 
 			// Upload compressed file to R2
 			const formData = new FormData();
@@ -484,15 +475,6 @@ export default function CharacterFormComponent({
 			// Use R2 URL for preview
 			setAvatarPreview(result.url);
 
-			// Store compression statistics
-			setCompressionStats({
-				clientCompression: clientCompressed.compressionRatio,
-				serverCompression: result.compression?.compressionRatio || 0,
-				originalSize: file.size,
-				finalSize:
-					result.compression?.compressedSize || clientCompressed.compressedSize,
-			});
-
 			console.log(
 				`🌩️ Server compressed: ${formatFileSize(result.compression?.compressedSize || 0)} (${result.compression?.compressionRatio || 0}% reduction)`,
 			);
@@ -504,13 +486,12 @@ export default function CharacterFormComponent({
 			toast.error(error.message || "Gagal upload avatar");
 
 			// Reset on error
-			setAvatarFile(null);
 			setAvatarPreview("");
 			setForm((prev) => ({ ...prev, avatarUrl: "" }));
-			setCompressionStats(null);
 			if (previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
 		} finally {
 			setIsUploadingAvatar(false);
+			URL.revokeObjectURL(avatarPreview);
 		}
 	};
 
@@ -524,7 +505,6 @@ export default function CharacterFormComponent({
 			URL.revokeObjectURL(avatarPreview);
 		}
 
-		setAvatarFile(null);
 		setAvatarPreview("");
 		setForm((prev) => ({ ...prev, avatarUrl: "" }));
 		if (fileInputRef.current) {
