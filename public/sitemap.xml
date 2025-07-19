@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage - Main character discovery page -->
+  <url>
+    <loc>https://aidorama.app/</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Login page -->
+  <url>
+    <loc>https://aidorama.app/login</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- Privacy policy page -->
+  <url>
+    <loc>https://aidorama.app/privacy</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <!-- Note: Individual character pages (/characters/[id]) would be dynamically generated -->
+  <!-- This sitemap covers the main static routes only -->
+</urlset> 

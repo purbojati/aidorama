@@ -16,8 +16,62 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "AiDorama - Roleplay AI Indonesia",
-	description: "Ngobrol dengan karakter imajiner yang seru. Buat roleplaymu lebih seru dengan AI.",
+	metadataBase: new URL('https://aidorama.app'),
+	title: {
+		default: "AiDorama - Roleplay AI Indonesia",
+		template: "%s | AiDorama"
+	},
+	description: "Ngobrol dengan karakter imajiner yang seru. Buat roleplaymu lebih seru dengan AI. Platform roleplay AI terbaik di Indonesia untuk berinteraksi dengan karakter virtual.",
+	keywords: [
+		"AI roleplay",
+		"karakter AI",
+		"roleplay Indonesia", 
+		"chat AI",
+		"karakter imajiner",
+		"AI Indonesia",
+		"virtual character",
+		"AI companion",
+		"Indonesian AI",
+		"chatbot Indonesia"
+	],
+	authors: [{ name: "AiDorama Team" }],
+	creator: "AiDorama",
+	publisher: "AiDorama",
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			'max-video-preview': -1,
+			'max-image-preview': 'large',
+			'max-snippet': -1,
+		},
+	},
+	openGraph: {
+		type: 'website',
+		locale: 'id_ID',
+		url: 'https://aidorama.app',
+		siteName: 'AiDorama',
+		title: 'AiDorama - Roleplay AI Indonesia',
+		description: 'Ngobrol dengan karakter imajiner yang seru. Buat roleplaymu lebih seru dengan AI. Platform roleplay AI terbaik di Indonesia.',
+		images: [
+			{
+				url: '/aidorama-logo-trans.png',
+				width: 1200,
+				height: 630,
+				alt: 'AiDorama - Roleplay AI Indonesia',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		site: '@aidorama',
+		creator: '@aidorama',
+		title: 'AiDorama - Roleplay AI Indonesia',
+		description: 'Ngobrol dengan karakter imajiner yang seru. Buat roleplaymu lebih seru dengan AI.',
+		images: ['/aidorama-logo-trans.png'],
+	},
 	icons: {
 		icon: [
 			{ url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -39,6 +93,38 @@ export const metadata: Metadata = {
 		],
 	},
 	manifest: "/site.webmanifest",
+	alternates: {
+		canonical: 'https://aidorama.app',
+	},
+	category: 'Technology',
+};
+
+// Structured Data Schema
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "WebApplication",
+	"name": "AiDorama",
+	"description": "Platform roleplay AI terbaik di Indonesia untuk berinteraksi dengan karakter imajiner yang seru",
+	"url": "https://aidorama.app",
+	"applicationCategory": "Entertainment",
+	"operatingSystem": "Web Browser",
+	"offers": {
+		"@type": "Offer",
+		"price": "0",
+		"priceCurrency": "IDR"
+	},
+	"creator": {
+		"@type": "Organization",
+		"name": "AiDorama Team"
+	},
+	"inLanguage": "id-ID",
+	"audience": {
+		"@type": "Audience",
+		"geographicArea": {
+			"@type": "Country",
+			"name": "Indonesia"
+		}
+	}
 };
 
 export default function RootLayout({
@@ -48,6 +134,17 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="id" suppressHydrationWarning>
+			<head>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify(structuredData),
+					}}
+				/>
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta name="theme-color" content="#000000" />
+				<link rel="canonical" href="https://aidorama.app" />
+			</head>
 			<body
 				className={`${outfit.variable} ${jetBrainsMono.variable} antialiased`}
 			>

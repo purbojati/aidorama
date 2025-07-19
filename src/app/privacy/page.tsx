@@ -3,11 +3,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { generatePageSEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-	title: "Kebijakan Privasi - AiDorama",
-	description: "Kebijakan privasi dan perlindungan data pengguna AiDorama",
-};
+export const metadata = generatePageSEO("privacy");
 
 export default function PrivacyPolicyPage() {
 	return (

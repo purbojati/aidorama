@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /trpc/
+Disallow: /_next/
+Disallow: /profile
+Disallow: /characters/my
+Disallow: /characters/edit/
+Disallow: /chat/
+Disallow: /chats
+
+# Allow crawling of public character pages
+Allow: /characters/*/
+
+# Sitemap location
+Sitemap: https://aidorama.app/sitemap.xml
+
+# Crawl delay (optional - helps reduce server load)
+Crawl-delay: 1 

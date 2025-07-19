@@ -53,224 +53,13 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import SidebarLayout from "@/components/sidebar-layout";
 
 interface Message {
 	id: number;
 	content: string;
 	role: "user" | "assistant";
 	createdAt: string;
-}
-
-// Sidebar content for mobile menu
-function MobileSidebarContent({
-	session,
-	chatSessions,
-	sessionsLoading,
-	onLinkClick,
-}: {
-	session: any;
-	chatSessions: any[];
-	sessionsLoading: boolean;
-	onLinkClick?: () => void;
-}) {
-	const router = useRouter();
-	const recentSessions = chatSessions?.slice(0, 4) || [];
-
-	return (
-		<div className="flex h-full flex-col bg-background">
-			{/* Header */}
-			<div className="border-b p-6">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-							<Sparkles className="h-5 w-5 text-primary-foreground" />
-						</div>
-						<div>
-							<h1 className="font-bold text-lg">
-								AiDorama
-							</h1>
-							<p className="text-muted-foreground text-sm">
-								Ngobrol dengan karakter imajinermu.
-							</p>
-						</div>
-					</div>
-					<ModeToggle />
-				</div>
-			</div>
-
-			<div className="flex-1 overflow-hidden p-6">
-				{/* Quick Actions */}
-				<div className="mb-6">
-					<h3 className="mb-3 font-medium text-sm text-muted-foreground">Aksi Cepat</h3>
-					<div className="grid grid-cols-2 gap-2">
-						<Link href="/characters/create" onClick={onLinkClick}>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full justify-start"
-							>
-								<Plus className="mr-2 h-4 w-4" />
-								Buat Karakter
-							</Button>
-						</Link>
-						<Link href="/" onClick={onLinkClick}>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full justify-start"
-							>
-								<Sparkles className="mr-2 h-4 w-4" />
-								Jelajahi
-							</Button>
-						</Link>
-					</div>
-				</div>
-
-				{/* Recent Chat History */}
-				<div className="flex-1">
-					<div className="mb-3 flex items-center justify-between">
-						<h3 className="font-medium text-sm text-muted-foreground">Chat Terbaru</h3>
-						<Link href="/chats" onClick={onLinkClick}>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="text-xs"
-							>
-								Lihat Semua
-							</Button>
-						</Link>
-					</div>
-
-					{sessionsLoading ? (
-						<div className="space-y-2">
-							{[1, 2, 3].map((i) => (
-								<div
-									key={i}
-									className="flex items-center gap-3 rounded-lg p-3"
-								>
-									<Skeleton className="h-8 w-8 rounded-full" />
-									<div className="flex-1">
-										<Skeleton className="mb-1 h-3 w-full" />
-										<Skeleton className="h-3 w-16" />
-									</div>
-								</div>
-							))}
-						</div>
-					) : recentSessions.length === 0 ? (
-						<div className="rounded-lg border border-dashed p-6 text-center">
-							<MessageCircle className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-							<p className="mb-3 text-muted-foreground text-sm">
-								Belum ada chat
-							</p>
-							<Link href="/characters" onClick={onLinkClick}>
-								<Button size="sm">
-									Mulai Chat
-								</Button>
-							</Link>
-						</div>
-					) : (
-						<div className="space-y-1">
-							{recentSessions.map((session: any) => (
-								<Link
-									key={session.id}
-									href={`/chat/${session.character?.id}?sessionId=${session.id}`}
-									className="block"
-									onClick={onLinkClick}
-								>
-									<div className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
-										{session.character?.avatarUrl ? (
-											<img
-												src={session.character.avatarUrl}
-												alt={session.character.name}
-												className="h-8 w-8 rounded-full object-cover"
-											/>
-										) : (
-											<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-												<span className="text-muted-foreground text-xs">
-													{session.character?.name?.charAt(0)?.toUpperCase() ||
-														"?"}
-												</span>
-											</div>
-										)}
-										<div className="min-w-0 flex-1">
-											<p className="truncate text-sm">
-												{session.title ||
-													`Chat dengan ${session.character?.name}`}
-											</p>
-											<p className="text-muted-foreground text-xs">
-												{new Date(session.updatedAt).toLocaleDateString(
-													"id-ID",
-													{ day: "numeric", month: "short" },
-												)}
-											</p>
-										</div>
-									</div>
-								</Link>
-							))}
-						</div>
-					)}
-				</div>
-			</div>
-
-			{/* Bottom Section - User Account */}
-			<div className="border-t p-4">
-				<div className="flex items-center gap-3">
-					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-						<User className="h-4 w-4" />
-					</div>
-					<div className="min-w-0 flex-1">
-						<p className="truncate text-sm font-medium">
-							{session.user.name}
-						</p>
-						<p className="truncate text-muted-foreground text-xs">
-							{session.user.email}
-						</p>
-					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								size="sm"
-								className="h-8 w-8 p-0"
-							>
-								<Settings className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem asChild>
-								<Link
-									href="/profile"
-									className="w-full cursor-pointer"
-									onClick={onLinkClick}
-								>
-									<User className="mr-2 h-4 w-4" />
-									Pengaturan Profil
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								className="cursor-pointer text-destructive focus:text-destructive"
-								onClick={() => {
-									authClient.signOut({
-										fetchOptions: {
-											onSuccess: () => {
-												window.location.href = "/";
-											},
-										},
-									});
-								}}
-							>
-								<LogOut className="mr-2 h-4 w-4" />
-								Keluar
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-			</div>
-		</div>
-	);
 }
 
 export default function ChatPage() {
@@ -618,26 +407,19 @@ export default function ChatPage() {
 	};
 
 	const handleResetChat = () => {
-		if (!sessionId) {
-			toast.error("Sesi chat tidak valid untuk direset.");
-			return;
+		if (sessionId) {
+			resetChatMutation.mutate({ sessionId });
 		}
-		resetChatMutation.mutate({ sessionId });
-	};
-
-	const handleMobileLinkClick = () => {
-		setIsMobileMenuOpen(false);
 	};
 
 	// Helper function to check if messages should be grouped
 	const shouldGroupMessage = (currentIndex: number, messages: Message[]) => {
-		if (currentIndex === 0) return false;
-		const currentMessage = messages[currentIndex];
-		const previousMessage = messages[currentIndex - 1];
-		
-		// Group if same role and within 5 minutes
-		const timeDiff = new Date(currentMessage.createdAt).getTime() - new Date(previousMessage.createdAt).getTime();
-		return currentMessage.role === previousMessage.role && timeDiff < 5 * 60 * 1000;
+		if (currentIndex === 0) {
+			return false;
+		}
+		return (
+			messages[currentIndex].role === messages[currentIndex - 1].role
+		);
 	};
 
 	// Check if character ID is valid
@@ -721,106 +503,95 @@ export default function ChatPage() {
 	}
 
 	return (
-		<div className="flex min-h-screen flex-col bg-background">
-			{/* Header - iMessage style */}
-			<div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-				<div className="flex h-14 items-center px-4 lg:px-6">
-					{/* Mobile menu button */}
-					<div className="lg:hidden">
-						{session && (
-							<Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-								<SheetTrigger asChild>
-									<Button variant="ghost" size="sm" className="mr-2">
-										<Menu className="h-5 w-5" />
-									</Button>
-								</SheetTrigger>
-								<SheetContent side="left" className="w-80 p-0">
-									<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-									<MobileSidebarContent
-										session={session}
-										chatSessions={chatSessions || []}
-										sessionsLoading={sessionsLoading}
-										onLinkClick={handleMobileLinkClick}
-									/>
-								</SheetContent>
-							</Sheet>
-						)}
-					</div>
-
-					{/* Back button */}
-					<Link href="/characters" className="mr-3">
-						<Button variant="ghost" size="sm">
-							<ArrowLeft className="h-4 w-4" />
+		<SidebarLayout>
+			<div className="flex h-screen flex-col bg-background">
+				{/* Header */}
+				<div className="flex items-center justify-between border-b p-4">
+					<div className="flex items-center gap-3">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="lg:hidden"
+							onClick={() => setIsMobileMenuOpen(true)}
+						>
+							<Menu className="h-5 w-5" />
 						</Button>
-					</Link>
-
-					{/* Character info */}
-					<div className="flex min-w-0 flex-1 items-center gap-3">
-						{character.avatarUrl && (
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => router.back()}
+							className="hidden lg:flex"
+						>
+							<ArrowLeft className="h-5 w-5" />
+						</Button>
+						{character.avatarUrl ? (
 							<img
 								src={character.avatarUrl}
 								alt={character.name}
-								className="h-8 w-8 rounded-full object-cover"
+								className="h-10 w-10 rounded-full object-cover"
 							/>
+						) : (
+							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+								<User className="h-5 w-5 text-muted-foreground" />
+							</div>
 						)}
-						<div className="min-w-0 flex-1">
-							<h1 className="truncate font-semibold text-base">
-								{character.name}
-							</h1>
-							<p className="text-muted-foreground text-xs">Online</p>
+						<div className="min-w-0">
+							<h1 className="truncate font-bold">{character.name}</h1>
+							<p className="truncate text-muted-foreground text-sm">
+								Oleh {character.name}
+							</p>
 						</div>
 					</div>
-
-					{/* Chat Options */}
-					<div className="ml-auto">
-						<AlertDialog
-							open={isResetConfirmOpen}
-							onOpenChange={setIsResetConfirmOpen}
-						>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" size="icon" className="h-8 w-8">
-										<MoreVertical className="h-4 w-4" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
-									<DropdownMenuLabel>Opsi Chat</DropdownMenuLabel>
-									<DropdownMenuSeparator />
+					<div className="flex items-center gap-2">
+						<ModeToggle />
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost" size="icon">
+									<MoreVertical className="h-5 w-5" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem onClick={() => router.push(`/characters/edit/${characterId}`)}>
+									Edit Karakter
+								</DropdownMenuItem>
+								<AlertDialog
+									open={isResetConfirmOpen}
+									onOpenChange={setIsResetConfirmOpen}
+								>
 									<AlertDialogTrigger asChild>
-										<DropdownMenuItem className="text-destructive focus:text-destructive">
-											<Trash2 className="mr-2 h-4 w-4" />
+										<DropdownMenuItem
+											onSelect={(e) => e.preventDefault()}
+											className="text-destructive focus:text-destructive"
+										>
 											Reset Chat
 										</DropdownMenuItem>
 									</AlertDialogTrigger>
-								</DropdownMenuContent>
-							</DropdownMenu>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Anda yakin?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Tindakan ini akan menghapus semua riwayat percakapan di
-										sesi ini secara permanen. Data yang sudah dihapus tidak
-										dapat dipulihkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={handleResetChat}
-										className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-									>
-										Ya, Reset Chat
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle>Yakin mau reset chat?</AlertDialogTitle>
+											<AlertDialogDescription>
+												Semua history chat dengan karakter ini akan dihapus permanen.
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>Batal</AlertDialogCancel>
+											<AlertDialogAction onClick={handleResetChat}>
+												Ya, Reset
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</div>
-			</div>
 
-			{/* Messages area - iMessage style */}
-			<div className="flex-1 overflow-y-auto px-4 pb-4 lg:px-6">
-				<div className="mx-auto max-w-2xl space-y-1 py-4">
+				{/* Chat Area */}
+				<div
+					ref={messagesEndRef}
+					className="flex-1 overflow-y-auto p-6"
+					key={sessionId} // Force re-render on session change
+				>
 					{messagesLoading ? (
 						<div className="py-8 text-center">
 							<div className="mx-auto mb-4 h-6 w-6 animate-spin rounded-full border-2 border-primary border-b-transparent" />
@@ -828,120 +599,103 @@ export default function ChatPage() {
 								Memuat percakapan...
 							</p>
 						</div>
+					) : messages.length === 0 ? (
+						<div className="flex h-full flex-col items-center justify-center text-center">
+							<div className="mb-4 rounded-full bg-muted p-4">
+								<MessageCircle className="h-10 w-10 text-muted-foreground" />
+							</div>
+							<h2 className="text-xl font-semibold">
+								Mulai percakapan dengan {character.name}
+							</h2>
+							<p className="text-muted-foreground">
+								{character.greetings}
+							</p>
+						</div>
 					) : (
-						<>
+						<div className="mx-auto max-w-3xl space-y-4">
 							{messages.map((message, index) => {
-								const isGrouped = shouldGroupMessage(index, messages);
 								const isUser = message.role === "user";
-								
+								const showAvatar =
+									!shouldGroupMessage(index, messages) || index === 0;
 								return (
 									<div
 										key={message.id}
-										className={`flex ${isUser ? "justify-end" : "justify-start"} ${isGrouped ? "mt-0.5" : "mt-4"}`}
+										className={`flex items-end gap-3 ${
+											isUser ? "justify-end" : "justify-start"
+										}`}
 									>
+										{!isUser && (
+											<div className="h-8 w-8 flex-shrink-0">
+												{showAvatar && (
+													<img
+														src={character.avatarUrl || "/placeholder.jpg"}
+														alt={character.name}
+														className="h-full w-full rounded-full object-cover"
+													/>
+												)}
+											</div>
+										)}
 										<div
-											className={`group relative max-w-[70%] rounded-2xl px-4 py-2 ${
+											className={`max-w-md rounded-2xl px-4 py-2.5 ${
 												isUser
-													? "bg-primary text-primary-foreground"
-													: "bg-muted text-foreground"
-											} ${
-												isUser
-													? isGrouped
-														? "rounded-br-md"
-														: ""
-													: isGrouped
-													? "rounded-bl-md"
-													: ""
+													? "rounded-br-none bg-primary text-primary-foreground"
+													: "rounded-bl-none bg-muted"
 											}`}
 										>
-											<p className="text-sm leading-relaxed whitespace-pre-wrap">
+											<p className="whitespace-pre-wrap text-sm">
 												{message.content}
 											</p>
-											{!isGrouped && (
-												<p className={`mt-1 text-xs opacity-70 ${isUser ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-													{formatTime(message.createdAt, {
-														hour: "2-digit",
-														minute: "2-digit",
-													})}
-												</p>
-											)}
 										</div>
 									</div>
 								);
 							})}
-
-							{/* Streaming message */}
 							{isStreaming && (
-								<div className="flex justify-start mt-4">
-									<div className="max-w-[70%] rounded-2xl bg-muted px-4 py-2 text-foreground">
-										<p className="text-sm leading-relaxed whitespace-pre-wrap">
-											{streamingMessage}
-											<span className="animate-pulse text-primary">|</span>
-										</p>
+								<div className="flex items-end gap-3 justify-start">
+									<div className="h-8 w-8 flex-shrink-0">
+										<img
+											src={character.avatarUrl || "/placeholder.jpg"}
+											alt={character.name}
+											className="h-full w-full animate-pulse rounded-full object-cover"
+										/>
 									</div>
-								</div>
-							)}
-
-							{/* Loading indicator */}
-							{isLoading && !isStreaming && (
-								<div className="flex justify-start mt-4">
-									<div className="rounded-2xl bg-muted px-4 py-2">
-										<div className="flex items-center space-x-1">
-											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
-											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.1s]" />
-											<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.2s]" />
+									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5">
+										<div className="flex items-center gap-1.5">
+											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground" />
+											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-75" />
+											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-150" />
 										</div>
 									</div>
 								</div>
 							)}
-
-							<div ref={messagesEndRef} />
-						</>
+						</div>
 					)}
 				</div>
-			</div>
 
-			{/* Input area - iMessage style */}
-			<div className="sticky bottom-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-				<div className="mx-auto max-w-2xl px-4 py-3 lg:px-6">
-					<form onSubmit={handleSendMessage} className="flex items-end gap-3">
-						<div className="flex-1 rounded-full border bg-muted/50 px-4 py-3">
-							<textarea
-								value={newMessage}
-								onChange={(e) => setNewMessage(e.target.value)}
-								placeholder="Ketik pesan..."
-								disabled={isLoading || isStreaming}
-								rows={1}
-								className="w-full resize-none bg-transparent text-base placeholder:text-muted-foreground focus:outline-none max-h-20"
-								maxLength={500}
-								style={{ minHeight: "20px", fontSize: "16px" }}
-								onInput={(e) => {
-									const target = e.target as HTMLTextAreaElement;
-									target.style.height = "auto";
-									target.style.height = Math.min(target.scrollHeight, 80) + "px";
-								}}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" && !e.shiftKey) {
-										e.preventDefault();
-										handleSendMessage(e);
-									}
-								}}
-							/>
-						</div>
+				{/* Input Form */}
+				<div className="border-t bg-background p-4">
+					<form
+						onSubmit={handleSendMessage}
+						className="mx-auto flex max-w-3xl items-center gap-3"
+					>
+						<Input
+							value={newMessage}
+							onChange={(e) => setNewMessage(e.target.value)}
+							placeholder={`Kirim pesan ke ${character.name}...`}
+							className="flex-1 rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50"
+							disabled={isLoading || isStreaming}
+							autoComplete="off"
+						/>
 						<Button
 							type="submit"
-							disabled={isLoading || isStreaming || !newMessage.trim()}
-							className="h-11 w-11 rounded-full p-0 flex-shrink-0"
+							size="icon"
+							className="rounded-full"
+							disabled={!newMessage.trim() || isLoading || isStreaming}
 						>
-							{isLoading || isStreaming ? (
-								<div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-b-transparent" />
-							) : (
-								<Send className="h-5 w-5" />
-							)}
+							<Send className="h-5 w-5" />
 						</Button>
 					</form>
 				</div>
 			</div>
-		</div>
+		</SidebarLayout>
 	);
 }
