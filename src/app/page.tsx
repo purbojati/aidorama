@@ -1,10 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-	Search,
-	Sparkles,
-} from "lucide-react";
+import { Plus, Search, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CharacterDetailSheet } from "@/components/character-detail-sheet";
@@ -18,6 +15,12 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
@@ -242,6 +245,24 @@ export default function PublicCharactersPage() {
 					</div>
 				</div>
 			</div>
+
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							size="lg"
+							className="fixed bottom-8 right-8 z-50 rounded-full px-6 py-7 shadow-lg"
+							onClick={handleCreateCharacter}
+						>
+							<Plus className="mr-2 h-6 w-6" />
+							<span className="text-lg">Buat Karakter</span>
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Buat Karakter Baru</p>
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 
 			<CharacterDetailSheet
 				characterId={selectedCharacterId}
