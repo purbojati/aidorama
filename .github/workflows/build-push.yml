@@ -2,7 +2,7 @@ name: Build & Push to GHCR
 
 on:
   push:
-    branches: [ main ]   # 🔧 change if you deploy from another branch
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -22,8 +22,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}   # will be "purbojati"
-          password: ${{ secrets.GHCR_TOKEN }}        # 🔧 must have write:packages
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -32,7 +32,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/purbojati/aidorama:latest        # 🔧 must match server compose
+            ghcr.io/purbojati/aidorama:latest
             ghcr.io/purbojati/aidorama:${{ github.sha }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
