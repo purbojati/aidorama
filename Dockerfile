@@ -6,8 +6,6 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json bun.lockb ./
 RUN bun install --frozen-lockfile
-# Verify Neon is not installed
-RUN bun list | grep -v "@neondatabase" || echo "✅ No Neon dependencies found"
 
 # Build the Next.js app
 FROM base AS builder
@@ -22,8 +20,6 @@ RUN bun run build
 FROM base AS prod-deps
 COPY package.json bun.lockb ./
 RUN bun install --frozen-lockfile --production
-# Verify Neon is not installed in production
-RUN bun list | grep -v "@neondatabase" || echo "✅ No Neon dependencies found in production"
 
 # Runtime image
 FROM base AS runner
