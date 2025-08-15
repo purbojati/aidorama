@@ -141,7 +141,7 @@ export default function RootLayout({
 						__html: JSON.stringify(structuredData),
 					}}
 				/>
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 				<meta name="theme-color" content="#000000" />
 				<link rel="canonical" href="https://aidorama.app" />
 			</head>
