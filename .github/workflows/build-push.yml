@@ -31,11 +31,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          build-args: |
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
-            BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
           tags: |
             ghcr.io/purbojati/aidorama:latest
             ghcr.io/purbojati/aidorama:${{ github.sha }}
