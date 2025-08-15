@@ -316,13 +316,7 @@ export default function PrivacyPolicyPage() {
 									</p>
 								</div>
 
-								<div className="rounded-lg border p-3">
-									<h4 className="font-semibold mb-1 text-sm md:text-base">📊 Analytics (PostHog)</h4>
-									<p className="text-muted-foreground text-xs md:text-sm">
-										Untuk memahami penggunaan platform dan meningkatkan pengalaman pengguna. 
-										Data yang dikumpulkan bersifat anonim dan agregat.
-									</p>
-								</div>
+
 
 								<div className="rounded-lg border p-3">
 									<h4 className="font-semibold mb-1 text-sm md:text-base">🔐 Autentikasi</h4>

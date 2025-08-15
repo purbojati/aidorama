@@ -13,12 +13,21 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
-	socialProviders: {
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-		},
-	},
-	secret: process.env.BETTER_AUTH_SECRET,
+	// Only enable social providers when credentials are present
+	socialProviders: (() => {
+		const googleClientId = process.env.GOOGLE_CLIENT_ID;
+		const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+		const providers: Record<string, unknown> = {};
+		
+		if (googleClientId && googleClientSecret) {
+			providers.google = {
+				clientId: googleClientId,
+				clientSecret: googleClientSecret,
+			};
+		}
+		
+		return providers;
+	})(),
+	secret: process.env.BETTER_AUTH_SECRET || "fallback-build-secret-not-for-production",
 	baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 });

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod/v4";
-import posthog from "posthog-js";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/utils/trpc";
@@ -77,27 +76,11 @@ export default function SignUpForm({
 				{
 					onSuccess: async (context) => {
 						try {
-							// Track signup event with user details
-							posthog.capture('user_signup', {
-								signup_method: 'email',
-								user_name: value.name,
-								user_email: value.email
-							});
-							
 							// Wait a moment for session to be established
 							await new Promise((resolve) => setTimeout(resolve, 1000));
 
 							// Generate username after successful signup
 							await generateUsernameMutation.mutateAsync();
-
-							// Update PostHog user properties with generated username
-							const sessionData = await authClient.getSession();
-							if (sessionData?.data?.user) {
-								posthog.setPersonProperties({
-									username_generated: true,
-									signup_completed: true
-								});
-							}
 
 							toast.success(
 								"Berhasil mendaftar! Username telah dibuat otomatis.",
@@ -158,9 +141,6 @@ export default function SignUpForm({
 									variant="outline"
 									className="w-full"
 									onClick={() => {
-										posthog.capture('user_signup_attempt', {
-											signup_method: 'google'
-										});
 										authClient.signIn.social({
 											provider: "google",
 											callbackURL: "/",
