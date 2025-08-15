@@ -38,7 +38,3 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.repository }}
 
-      - name: Verify no Neon dependencies
-        run: |
-          echo "🔍 Verifying that Neon is not installed in the final image..."
-          docker run --rm ghcr.io/purbojati/aidorama:latest bun list | grep -v "@neondatabase" || echo "✅ No Neon dependencies found in production image"
