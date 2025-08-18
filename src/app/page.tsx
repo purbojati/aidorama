@@ -246,24 +246,7 @@ export default function PublicCharactersPage() {
 				</div>
 			</div>
 
-			{/* Floating Button - Mobile-friendly positioning */}
-			<TooltipProvider>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button
-							size="lg"
-							className="fixed bottom-4 right-4 z-50 rounded-full px-4 py-4 shadow-lg md:bottom-8 md:right-8 md:px-6 md:py-7"
-							onClick={handleCreateCharacter}
-						>
-							<Plus className="mr-2 h-5 w-5 md:h-6 md:mr-2 md:w-6" />
-							<span className="hidden md:inline text-lg">Buat Karakter</span>
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent>
-						<p>Buat Karakter Baru</p>
-					</TooltipContent>
-				</Tooltip>
-			</TooltipProvider>
+
 
 			<CharacterDetailSheet
 				characterId={selectedCharacterId}

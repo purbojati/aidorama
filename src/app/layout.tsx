@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Outfit } from "next/font/google";
+import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../index.css";
 import Providers from "@/components/providers";
 import { ClientLayout } from "@/components/client-layout";
 import { ThemeColor } from "@/components/theme-color";
 
-const outfit = Outfit({
+const jakartaSans = Plus_Jakarta_Sans({
 	variable: "--font-sans",
 	subsets: ["latin"],
 });
@@ -141,12 +141,12 @@ export default function RootLayout({
 						__html: JSON.stringify(structuredData),
 					}}
 				/>
-				<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<meta name="theme-color" content="#000000" />
 				<link rel="canonical" href="https://aidorama.app" />
 			</head>
 			<body
-				className={`${outfit.variable} ${jetBrainsMono.variable} antialiased`}
+				className={`${jakartaSans.variable} ${jetBrainsMono.variable} antialiased`}
 			>
 				<Providers>
 					<ThemeColor />

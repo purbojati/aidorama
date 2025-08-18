@@ -4,7 +4,7 @@
 
 @theme {
 	--font-sans:
-		var(--font-sans), "Outfit", ui-sans-serif, system-ui, sans-serif,
+		var(--font-sans), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
 		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
@@ -50,7 +50,7 @@ body {
 	--sidebar-accent-foreground: oklch(0.3963 0.0251 285.1962);
 	--sidebar-border: oklch(0.9383 0.0026 48.7178);
 	--sidebar-ring: oklch(0.5916 0.218 0.5844);
-	--font-sans: var(--font-sans), Outfit, sans-serif;
+	--font-sans: var(--font-sans), "Plus Jakarta Sans", sans-serif;
 	--font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 	--font-mono:
 		var(--font-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
