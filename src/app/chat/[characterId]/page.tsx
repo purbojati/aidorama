@@ -642,11 +642,13 @@ export default function ChatPage() {
 							{isStreaming && (
 								<div className="flex items-end gap-3 justify-start">
 									<div className="h-8 w-8 flex-shrink-0">
-										<img
-											src={character.avatarUrl || "/placeholder.jpg"}
-											alt={character.name}
-											className="h-full w-full animate-pulse rounded-full object-cover"
-										/>
+										{character.avatarUrl && (
+											<img
+												src={character.avatarUrl}
+												alt={character.name}
+												className="h-full w-full animate-pulse rounded-full object-cover"
+											/>
+										)}
 									</div>
 									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5">
 										<div className="flex items-center gap-1.5">
