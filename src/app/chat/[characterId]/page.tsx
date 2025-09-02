@@ -616,9 +616,9 @@ export default function ChatPage() {
 									>
 										{!isUser && (
 											<div className="h-8 w-8 flex-shrink-0">
-												{showAvatar && (
+												{showAvatar && character.avatarUrl && (
 													<img
-														src={character.avatarUrl || "/placeholder.jpg"}
+														src={character.avatarUrl}
 														alt={character.name}
 														className="h-full w-full rounded-full object-cover"
 													/>
