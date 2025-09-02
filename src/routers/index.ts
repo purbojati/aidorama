@@ -301,7 +301,9 @@ export const appRouter = router({
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
 					characterTags: z.array(z.string()).default([]),
-					complianceMode: z.enum(["strict", "standard", "obedient"]).default("standard"),
+					complianceMode: z
+						.enum(["strict", "standard", "obedient"])
+						.default("standard"),
 					isPublic: z.boolean().default(false),
 				}),
 			)
@@ -377,7 +379,9 @@ export const appRouter = router({
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
 					characterTags: z.array(z.string()).default([]),
-					complianceMode: z.enum(["strict", "standard", "obedient"]).default("standard"),
+					complianceMode: z
+						.enum(["strict", "standard", "obedient"])
+						.default("standard"),
 					isPublic: z.boolean(),
 				}),
 			)
@@ -498,7 +502,7 @@ JSON format (hanya field yang ada nilainya):
 								"X-Title": "AIDorama",
 							},
 							body: JSON.stringify({
-								model: "deepseek/deepseek-chat-v3-0324",
+								model: "deepseek/deepseek-chat-v3.1",
 								messages: [
 									{ role: "system", content: systemPrompt },
 									{ role: "user", content: input.userInput },
@@ -859,7 +863,7 @@ JSON format (hanya field yang ada nilainya):
 								"X-Title": "AIDorama",
 							},
 							body: JSON.stringify({
-								model: "deepseek/deepseek-chat-v3-0324",
+								model: "deepseek/deepseek-chat-v3.1",
 								messages,
 								max_tokens: 3000,
 								temperature: 0.7,
