@@ -329,43 +329,47 @@ export default function SidebarLayout({ children, requireAuth = true }: SidebarL
 		setIsMobileMenuOpen(false);
 	};
 
+	const isChatPage = pathname?.startsWith("/chat/") ?? false;
+
 	return (
-		<div className="flex h-screen bg-gradient-to-br from-background to-muted/20">
-			{/* Mobile Header */}
-			<div className="fixed top-0 right-0 left-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden">
-				<div className="flex items-center justify-between px-4 py-3">
-					<Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-						<SheetTrigger asChild>
-							<Button variant="ghost" size="sm">
-								<Menu className="h-5 w-5" />
-								<span className="sr-only">Buka menu</span>
-							</Button>
-						</SheetTrigger>
-						<SheetContent side="left" className="w-80 p-0">
-							<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-							<SidebarContent
-								session={session}
-								chatSessions={chatSessions || []}
-								sessionsLoading={sessionsLoading}
-								onLinkClick={handleMobileLinkClick}
+		<div className="flex min-h-[100dvh] bg-gradient-to-br from-background to-muted/20">
+			{/* Mobile Header (hidden on chat pages) */}
+			{!isChatPage && (
+				<div className="fixed top-0 right-0 left-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden">
+					<div className="flex items-center justify-between px-4 py-3">
+						<Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+							<SheetTrigger asChild>
+								<Button variant="ghost" size="sm">
+									<Menu className="h-5 w-5" />
+									<span className="sr-only">Buka menu</span>
+								</Button>
+							</SheetTrigger>
+							<SheetContent side="left" className="w-80 p-0">
+								<SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+								<SidebarContent
+									session={session}
+									chatSessions={chatSessions || []}
+									sessionsLoading={sessionsLoading}
+									onLinkClick={handleMobileLinkClick}
+								/>
+							</SheetContent>
+						</Sheet>
+
+						<div className="flex items-center gap-2">
+							<img 
+								src="/aidorama-logo-trans.png" 
+								alt="AiDorama Logo" 
+								className="h-8 w-8 object-contain"
 							/>
-						</SheetContent>
-					</Sheet>
+							<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
+								AiDorama
+							</h1>
+						</div>
 
-					<div className="flex items-center gap-2">
-						<img 
-							src="/aidorama-logo-trans.png" 
-							alt="AiDorama Logo" 
-							className="h-8 w-8 object-contain"
-						/>
-						<h1 className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text font-bold font-sans text-lg text-transparent">
-							AiDorama
-						</h1>
+						<ModeToggle />
 					</div>
-
-					<ModeToggle />
 				</div>
-			</div>
+			)}
 
 			{/* Desktop Sidebar */}
 			<div className="hidden w-80 flex-shrink-0 border-r bg-card/80 backdrop-blur-sm lg:flex">
@@ -377,7 +381,7 @@ export default function SidebarLayout({ children, requireAuth = true }: SidebarL
 			</div>
 
 			{/* Main Content */}
-			<div className="flex-1 overflow-y-auto pt-16 lg:pt-0">{children}</div>
+			<div className={`flex-1 ${!isChatPage ? "pt-16 lg:pt-0" : "pt-0"}`}>{children}</div>
 		</div>
 	);
 }

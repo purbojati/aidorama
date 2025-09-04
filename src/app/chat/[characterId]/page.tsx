@@ -6,7 +6,6 @@ import {
 	ChevronRight,
 	Clock,
 	LogOut,
-	Menu,
 	MessageCircle,
 	MoreVertical,
 	Plus,
@@ -68,7 +67,6 @@ export default function ChatPage() {
 	const queryClient = useQueryClient();
 	const { formatTime } = useClientDate();
 	const characterId = Number.parseInt(params.characterId as string);
-	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
 	// Debug logging
@@ -364,10 +362,7 @@ export default function ChatPage() {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages, streamingMessage]);
 
-	// Close mobile menu when route changes
-	useEffect(() => {
-		setIsMobileMenuOpen(false);
-	}, []);
+	// no-op
 
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -498,13 +493,10 @@ export default function ChatPage() {
 				{/* Header */}
 				<div className="flex items-center justify-between border-b p-4">
 					<div className="flex items-center gap-3">
-						<Button
-							variant="ghost"
-							size="icon"
-							className="lg:hidden"
-							onClick={() => setIsMobileMenuOpen(true)}
-						>
-							<Menu className="h-5 w-5" />
+						<Button asChild variant="ghost" size="icon" className="lg:hidden">
+							<Link href="/chats">
+								<ArrowLeft className="h-5 w-5" />
+							</Link>
 						</Button>
 						<Button
 							variant="ghost"
@@ -527,9 +519,6 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
-							<p className="truncate text-muted-foreground text-sm">
-								Oleh {character.name}
-							</p>
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
