@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import "../index.css";
 import Providers from "@/components/providers";
 import { ClientLayout } from "@/components/client-layout";
@@ -136,6 +137,11 @@ export default function RootLayout({
 		<html lang="id" suppressHydrationWarning>
 			<head>
 				<script
+					dangerouslySetInnerHTML={{
+						__html: `window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};`,
+					}}
+				/>
+				<script
 					type="application/ld+json"
 					dangerouslySetInnerHTML={{
 						__html: JSON.stringify(structuredData),
@@ -152,6 +158,7 @@ export default function RootLayout({
 					<ThemeColor />
 					<ClientLayout>{children}</ClientLayout>
 				</Providers>
+				<Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
 			</body>
 		</html>
 	);

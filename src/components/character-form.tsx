@@ -5,6 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+// Declare sa_event for Simple Analytics
+declare global {
+	interface Window {
+		sa_event?: (eventName: string) => void;
+	}
+}
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -159,6 +166,11 @@ export default function CharacterFormComponent({
 		onSuccess: (character: any) => {
 			toast.success("Karakter udah jadi nih! 🎉");
 			router.push(`/chat/${character.id}`);
+			
+			// Track create_character_save event
+			if (typeof window !== "undefined" && window.sa_event) {
+				window.sa_event("create_character_save");
+			}
 		},
 		onError: (error: any) => {
 			toast.error(error.message || "Waduh, gagal bikin karakter");
@@ -190,6 +202,11 @@ export default function CharacterFormComponent({
 		onSuccess: () => {
 			toast.success("Karakter berhasil diperbarui! ✨");
 			router.push("/");
+			
+			// Track create_character_save event
+			if (typeof window !== "undefined" && window.sa_event) {
+				window.sa_event("create_character_save");
+			}
 		},
 		onError: (error: any) => {
 			toast.error(error.message || "Gagal memperbarui karakter");

@@ -26,6 +26,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
+
+// Declare sa_event for Simple Analytics
+declare global {
+	interface Window {
+		sa_event?: (eventName: string) => void;
+	}
+}
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -223,6 +230,11 @@ export default function ChatPage() {
 			// Update URL to include the session ID
 			const newUrl = `/chat/${characterId}?sessionId=${session.id}`;
 			router.replace(newUrl);
+			
+			// Track start_chat event
+			if (typeof window !== "undefined" && window.sa_event) {
+				window.sa_event("start_chat");
+			}
 		},
 		onError: (error: { message?: string }) => {
 			toast.error(error.message || "Gagal membuat sesi chat");
@@ -341,6 +353,11 @@ export default function ChatPage() {
 			setIsLoading(false);
 			setIsStreaming(false);
 			setStreamingMessage("");
+			
+			// Track send_chat event
+			if (typeof window !== "undefined" && window.sa_event) {
+				window.sa_event("send_chat");
+			}
 		},
 		onError: (error: { message?: string }) => {
 			// Remove the temporary user message on error
