@@ -8,6 +8,13 @@ import {
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
 
+// Dev-only access bypass for debugging
+// Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
+// This is ignored in production regardless of the flag
+const BYPASS_ACCESS =
+	process.env.NODE_ENV !== "production" &&
+	process.env.AIDORAMA_DEBUG_BYPASS_ACCESS === "true";
+
 export async function POST(request: NextRequest) {
 	try {
 		// Get session from auth
@@ -42,7 +49,7 @@ export async function POST(request: NextRequest) {
 
 		if (
 			!sessionWithCharacter[0] ||
-			sessionWithCharacter[0].session.userId !== session.user.id
+			(!BYPASS_ACCESS && sessionWithCharacter[0].session.userId !== session.user.id)
 		) {
 			return NextResponse.json(
 				{ error: "Session not found or access denied" },
