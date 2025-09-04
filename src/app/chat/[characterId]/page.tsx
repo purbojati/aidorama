@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
+	ArrowDown,
 	MessageCircle,
 	Mic,
 	MoreVertical,
@@ -99,6 +100,9 @@ export default function ChatPage() {
 	const [hideInputBar, setHideInputBar] = useState(false);
 	const inputBarRef = useRef<HTMLDivElement | null>(null);
 	const [inputBarHeight, setInputBarHeight] = useState(0);
+	const [isUserScrolling, setIsUserScrolling] = useState(false);
+	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Voice input (SpeechRecognition)
 	const [isListening, setIsListening] = useState(false);
@@ -133,20 +137,45 @@ export default function ChatPage() {
 		return () => ro.disconnect();
 	}, []);
 
-	// Scroll behavior for showing/hiding input bar
+	// Scroll behavior for showing/hiding input bar and detecting user scroll
 	useEffect(() => {
 		const el = scrollContainerRef.current;
 		if (!el) return;
 		lastScrollTopRef.current = el.scrollTop;
 		const handleScroll = () => {
-			const currentTop = el.scrollTop;
-			const delta = currentTop - lastScrollTopRef.current;
-			lastScrollTopRef.current = currentTop;
-			const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) < 24;
-			if (atBottom) {
+			// Don't hide input bar during streaming or loading
+			if (isStreaming || isLoading) {
 				setHideInputBar(false);
 				return;
 			}
+			
+			const currentTop = el.scrollTop;
+			const delta = currentTop - lastScrollTopRef.current;
+			lastScrollTopRef.current = currentTop;
+			
+			// Detect user scrolling
+			if (Math.abs(delta) > 2) {
+				setIsUserScrolling(true);
+				// Clear existing timeout
+				if (scrollTimeoutRef.current) {
+					clearTimeout(scrollTimeoutRef.current);
+				}
+				// Reset user scrolling flag after 1 second of no scrolling
+				scrollTimeoutRef.current = setTimeout(() => {
+					setIsUserScrolling(false);
+				}, 1000);
+			}
+			
+			const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) < 24;
+			if (atBottom) {
+				setHideInputBar(false);
+				setIsUserScrolling(false);
+				setShowScrollToBottom(false);
+				return;
+			}
+			
+			// Show scroll to bottom button when not at bottom and streaming
+			setShowScrollToBottom(isStreaming && !atBottom);
 			if (delta > 2) {
 				// scrolling down
 				setHideInputBar(false);
@@ -156,13 +185,31 @@ export default function ChatPage() {
 			}
 		};
 		el.addEventListener("scroll", handleScroll, { passive: true });
-		return () => el.removeEventListener("scroll", handleScroll);
-	}, []);
+		return () => {
+			el.removeEventListener("scroll", handleScroll);
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+			}
+		};
+	}, [isStreaming, isLoading]);
 
 	// Keep view pinned to bottom on new messages/stream
 	useEffect(() => {
-		bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-	}, [messages, streamingMessage]);
+		// Only auto-scroll if user is not actively scrolling
+		if (!isUserScrolling) {
+			bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+		}
+	}, [messages, streamingMessage, isUserScrolling]);
+
+	// Auto-scroll during streaming updates
+	useEffect(() => {
+		if (isStreaming && streamingMessage && !isUserScrolling) {
+			// Use requestAnimationFrame to ensure DOM is updated
+			requestAnimationFrame(() => {
+				bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+			});
+		}
+	}, [isStreaming, streamingMessage, isUserScrolling]);
 
 	// Auth and sidebar data
 	const { data: session } = authClient.useSession();
@@ -465,6 +512,12 @@ export default function ChatPage() {
 		}
 	};
 
+	const scrollToBottom = () => {
+		bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+		setShowScrollToBottom(false);
+		setIsUserScrolling(false);
+	};
+
 	// Initialize SpeechRecognition lazily on start
 	const getSpeechRecognition = (): any | null => {
 		if (typeof window === "undefined") return null;
@@ -668,6 +721,11 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
+							{isStreaming && (
+								<p className="text-xs text-muted-foreground animate-pulse">
+									{streamingMessage ? "Mengetik..." : "Memikirkan..."}
+								</p>
+							)}
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
@@ -717,10 +775,23 @@ export default function ChatPage() {
 				{/* Chat Area */}
 				<div
 					ref={scrollContainerRef}
-					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain"
-					style={{ paddingBottom: ((messagesLoading || isStreaming || messages.length === 0) ? (inputBarHeight + 24) : (hideInputBar ? 24 : inputBarHeight + 24)) }}
+					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain relative"
+					style={{ 
+						paddingBottom: isStreaming || isLoading ? (inputBarHeight + 32) : (hideInputBar ? 24 : inputBarHeight + 24)
+					}}
 					key={sessionId}
 				>
+					{/* Scroll to bottom button */}
+					{showScrollToBottom && (
+						<Button
+							onClick={scrollToBottom}
+							size="icon"
+							className="fixed bottom-20 right-6 z-30 rounded-full shadow-lg animate-bounce"
+							title="Scroll to bottom"
+						>
+							<ArrowDown className="h-4 w-4" />
+						</Button>
+					)}
 					{messagesLoading ? (
 						<div className="py-8 text-center">
 							<div className="mx-auto mb-4 h-6 w-6 animate-spin rounded-full border-2 border-primary border-b-transparent" />
@@ -779,7 +850,7 @@ export default function ChatPage() {
 								);
 							})}
 							{isStreaming && (
-								<div className="flex items-end gap-3 justify-start">
+								<div className="flex items-end gap-3 justify-start mb-4">
 									<div className="h-8 w-8 flex-shrink-0">
 										{character.avatarUrl && (
 											<img
@@ -789,7 +860,7 @@ export default function ChatPage() {
 											/>
 										)}
 									</div>
-									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5">
+									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5 shadow-sm border">
 										{streamingMessage ? (
 											<p className="whitespace-pre-wrap text-sm">{streamingMessage}</p>
 										) : (
@@ -810,7 +881,7 @@ export default function ChatPage() {
 				{/* Input Form */}
 				<div
 					ref={inputBarRef}
-					className={`sticky bottom-0 z-10 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-all duration-200 ${hideInputBar ? "h-0 p-0 border-t-0 overflow-hidden" : "p-4"}`}
+					className={`sticky bottom-0 z-20 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-all duration-200 ${hideInputBar ? "h-0 p-0 border-t-0 overflow-hidden" : "p-4"} ${isStreaming || isLoading ? "shadow-lg" : ""}`}
 				>
 					<form
 						onSubmit={handleSendMessage}
