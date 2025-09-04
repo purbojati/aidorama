@@ -7,9 +7,11 @@ import {
 	Clock,
 	LogOut,
 	MessageCircle,
+	Mic,
 	MoreVertical,
 	Plus,
 	Send,
+	Square,
 	Settings,
 	Sparkles,
 	Trash2,
@@ -30,6 +32,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Sheet,
 	SheetContent,
@@ -100,6 +103,25 @@ export default function ChatPage() {
 	const [isStreaming, setIsStreaming] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const tempIdRef = useRef(0);
+
+	// Voice input (SpeechRecognition)
+	const [isListening, setIsListening] = useState(false);
+	const recognitionRef = useRef<any>(null);
+	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const shouldKeepListeningRef = useRef<boolean>(false);
+	const accumulatedTranscriptRef = useRef<string>("");
+
+	const autoResizeTextarea = () => {
+		const el = textareaRef.current;
+		if (!el) return;
+		el.style.height = "0px";
+		const newHeight = Math.min(el.scrollHeight, 200); // cap height ~200px
+		el.style.height = `${newHeight}px`;
+	};
+
+	useEffect(() => {
+		autoResizeTextarea();
+	}, [newMessage]);
 
 	// Auth and sidebar data
 	const { data: session } = authClient.useSession();
@@ -397,6 +419,87 @@ export default function ChatPage() {
 		}
 	};
 
+	// Initialize SpeechRecognition lazily on start
+	const getSpeechRecognition = (): any | null => {
+		if (typeof window === "undefined") return null;
+		const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+		return SR ? SR : null;
+	};
+
+	const startListening = () => {
+		if (isLoading || isStreaming) return;
+		const SR = getSpeechRecognition();
+		if (!SR) {
+			toast.error("Peramban tidak mendukung pengenalan suara.");
+			return;
+		}
+
+		try {
+			if (!recognitionRef.current) {
+				recognitionRef.current = new SR();
+			}
+			recognitionRef.current.lang = "id-ID";
+			recognitionRef.current.interimResults = true;
+			recognitionRef.current.continuous = true; // allow long dictation
+
+			accumulatedTranscriptRef.current = newMessage ? newMessage.trim() + " " : "";
+			shouldKeepListeningRef.current = true;
+
+			recognitionRef.current.onresult = (event: any) => {
+				let interimTranscript = "";
+				for (let i = event.resultIndex; i < event.results.length; i++) {
+					const result = event.results[i];
+					const transcript = result[0].transcript;
+					if (result.isFinal) {
+						// Append only once to accumulated final transcript
+						accumulatedTranscriptRef.current = (accumulatedTranscriptRef.current + " " + transcript).replace(/\s+/g, " ").trim();
+					} else {
+						interimTranscript += transcript;
+					}
+				}
+				const composed = (accumulatedTranscriptRef.current + (interimTranscript ? " " + interimTranscript : "")).trim();
+				setNewMessage(composed);
+			};
+
+			recognitionRef.current.onerror = (event: any) => {
+				// 'no-speech' happens frequently; ignore if we want to keep listening
+				if (event?.error && event.error !== "no-speech") {
+					const message = event.error === "not-allowed"
+						? "Izin mikrofon ditolak. Periksa pengaturan browser."
+						: "Terjadi kesalahan pengenalan suara.";
+					toast.error(message);
+				}
+			};
+
+			recognitionRef.current.onend = () => {
+				if (shouldKeepListeningRef.current) {
+					try {
+						recognitionRef.current?.start();
+					} catch {}
+					return;
+				}
+				setIsListening(false);
+			};
+
+			recognitionRef.current.start();
+			setIsListening(true);
+		} catch (e) {
+			setIsListening(false);
+			toast.error("Gagal memulai pengenalan suara.");
+		}
+	};
+
+	const stopListening = () => {
+		shouldKeepListeningRef.current = false;
+		try {
+			if (recognitionRef.current && isListening) {
+				recognitionRef.current.stop();
+			}
+		} finally {
+			setIsListening(false);
+		}
+	};
+
 	// Helper function to check if messages should be grouped
 	const shouldGroupMessage = (currentIndex: number, messages: Message[]) => {
 		if (currentIndex === 0) {
@@ -658,14 +761,35 @@ export default function ChatPage() {
 						onSubmit={handleSendMessage}
 						className="mx-auto flex max-w-3xl items-center gap-3"
 					>
-						<Input
+						<Textarea
+							ref={textareaRef}
 							value={newMessage}
 							onChange={(e) => setNewMessage(e.target.value)}
+							onInput={autoResizeTextarea}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && !e.shiftKey) {
+									e.preventDefault();
+									(e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+								}
+							}}
 							placeholder={`Kirim pesan ke ${character.name}...`}
-							className="flex-1 rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50"
+							className="flex-1 rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto"
 							disabled={isLoading || isStreaming}
-							autoComplete="off"
 						/>
+						<Button
+							type="button"
+							size="icon"
+							className="rounded-full"
+							onClick={isListening ? stopListening : startListening}
+							disabled={isLoading || isStreaming}
+							title={isListening ? "Berhenti merekam" : "Mulai bicara"}
+						>
+							{isListening ? (
+								<Square className="h-5 w-5" />
+							) : (
+								<Mic className="h-5 w-5" />
+							)}
+						</Button>
 						<Button
 							type="submit"
 							size="icon"

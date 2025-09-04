@@ -12,6 +12,13 @@ import { ensureUniqueUsername, generateUsername } from "../lib/utils";
 import { TRPCError } from "@trpc/server";
 import { CHARACTER_TAG_OPTIONS } from "@/lib/character-tags";
 
+// Dev-only access bypass for debugging
+// Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
+// This is ignored in production regardless of the flag
+const BYPASS_ACCESS =
+	process.env.NODE_ENV !== "production" &&
+	process.env.AIDORAMA_DEBUG_BYPASS_ACCESS === "true";
+
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
 		return "OK";
@@ -231,6 +238,10 @@ export const appRouter = router({
 				}
 
 				// For private characters, user must be logged in and be the owner
+				if (BYPASS_ACCESS) {
+					return char;
+				}
+
 				if (!ctx.session?.user) {
 					throw new Error("Anda harus login untuk melihat karakter ini.");
 				}
@@ -599,6 +610,7 @@ JSON format (hanya field yang ada nilainya):
 
 				// Check if user owns character or character is public
 				if (
+					!BYPASS_ACCESS &&
 					character[0].userId !== ctx.session.user.id &&
 					!character[0].isPublic
 				) {
@@ -648,6 +660,7 @@ JSON format (hanya field yang ada nilainya):
 
 				// Check if user owns character or character is public
 				if (
+					!BYPASS_ACCESS &&
 					character[0].userId !== ctx.session.user.id &&
 					!character[0].isPublic
 				) {
@@ -769,7 +782,7 @@ JSON format (hanya field yang ada nilainya):
 					.where(eq(chatSessions.id, input.sessionId))
 					.limit(1);
 
-				if (!session[0] || session[0].userId !== ctx.session.user.id) {
+				if (!session[0] || (!BYPASS_ACCESS && session[0].userId !== ctx.session.user.id)) {
 					throw new Error(
 						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
 					);
@@ -804,7 +817,8 @@ JSON format (hanya field yang ada nilainya):
 
 				if (
 					!sessionWithCharacter[0] ||
-					sessionWithCharacter[0].session.userId !== ctx.session.user.id
+					(!BYPASS_ACCESS &&
+						sessionWithCharacter[0].session.userId !== ctx.session.user.id)
 				) {
 					throw new Error(
 						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
@@ -953,7 +967,7 @@ JSON format (hanya field yang ada nilainya):
 					.where(eq(chatSessions.id, input.sessionId))
 					.limit(1);
 
-				if (!session[0] || session[0].userId !== ctx.session.user.id) {
+				if (!session[0] || (!BYPASS_ACCESS && session[0].userId !== ctx.session.user.id)) {
 					throw new Error(
 						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
 					);
@@ -981,7 +995,7 @@ JSON format (hanya field yang ada nilainya):
 					.where(eq(chatSessions.id, input.sessionId))
 					.limit(1);
 
-				if (!session[0] || session[0].userId !== ctx.session.user.id) {
+				if (!session[0] || (!BYPASS_ACCESS && session[0].userId !== ctx.session.user.id)) {
 					throw new Error(
 						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
 					);
