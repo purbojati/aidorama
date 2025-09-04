@@ -103,6 +103,7 @@ export default function ChatPage() {
 	const [isUserScrolling, setIsUserScrolling] = useState(false);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const isScrollingRef = useRef(false);
 
 	// Voice input (SpeechRecognition)
 	const [isListening, setIsListening] = useState(false);
@@ -153,25 +154,35 @@ export default function ChatPage() {
 			const delta = currentTop - lastScrollTopRef.current;
 			lastScrollTopRef.current = currentTop;
 			
-			// Detect user scrolling
+			const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) < 24;
+			
+			// If user reaches bottom, reset all scroll states
+			if (atBottom) {
+				setHideInputBar(false);
+				setIsUserScrolling(false);
+				setShowScrollToBottom(false);
+				// Clear any pending timeout
+				if (scrollTimeoutRef.current) {
+					clearTimeout(scrollTimeoutRef.current);
+					scrollTimeoutRef.current = null;
+				}
+				return;
+			}
+			
+			// Detect user scrolling only if not at bottom
 			if (Math.abs(delta) > 2) {
+				isScrollingRef.current = true;
 				setIsUserScrolling(true);
 				// Clear existing timeout
 				if (scrollTimeoutRef.current) {
 					clearTimeout(scrollTimeoutRef.current);
 				}
-				// Reset user scrolling flag after 1 second of no scrolling
+				// Reset user scrolling flag after 1.5 seconds of no scrolling
 				scrollTimeoutRef.current = setTimeout(() => {
+					isScrollingRef.current = false;
 					setIsUserScrolling(false);
-				}, 1000);
-			}
-			
-			const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) < 24;
-			if (atBottom) {
-				setHideInputBar(false);
-				setIsUserScrolling(false);
-				setShowScrollToBottom(false);
-				return;
+					scrollTimeoutRef.current = null;
+				}, 1500);
 			}
 			
 			// Show scroll to bottom button when not at bottom and streaming
@@ -189,6 +200,7 @@ export default function ChatPage() {
 			el.removeEventListener("scroll", handleScroll);
 			if (scrollTimeoutRef.current) {
 				clearTimeout(scrollTimeoutRef.current);
+				scrollTimeoutRef.current = null;
 			}
 		};
 	}, [isStreaming, isLoading]);
@@ -196,20 +208,23 @@ export default function ChatPage() {
 	// Keep view pinned to bottom on new messages/stream
 	useEffect(() => {
 		// Only auto-scroll if user is not actively scrolling
-		if (!isUserScrolling) {
-			bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-		}
-	}, [messages, streamingMessage, isUserScrolling]);
-
-	// Auto-scroll during streaming updates
-	useEffect(() => {
-		if (isStreaming && streamingMessage && !isUserScrolling) {
+		if (!isScrollingRef.current) {
 			// Use requestAnimationFrame to ensure DOM is updated
 			requestAnimationFrame(() => {
 				bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
 			});
 		}
-	}, [isStreaming, streamingMessage, isUserScrolling]);
+	}, [messages, streamingMessage]);
+
+	// Auto-scroll during streaming updates
+	useEffect(() => {
+		if (isStreaming && streamingMessage && !isScrollingRef.current) {
+			// Use requestAnimationFrame to ensure DOM is updated
+			requestAnimationFrame(() => {
+				bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+			});
+		}
+	}, [isStreaming, streamingMessage]);
 
 	// Auth and sidebar data
 	const { data: session } = authClient.useSession();
@@ -401,6 +416,16 @@ export default function ChatPage() {
 			setIsStreaming(false);
 			setStreamingMessage("");
 			
+			// Reset scroll states when character finishes responding
+			setIsUserScrolling(false);
+			setShowScrollToBottom(false);
+			isScrollingRef.current = false;
+			// Clear any pending timeout
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+				scrollTimeoutRef.current = null;
+			}
+			
 			// Track send_chat event
 			if (typeof window !== "undefined" && window.sa_event) {
 				window.sa_event("send_chat");
@@ -413,6 +438,16 @@ export default function ChatPage() {
 			setIsLoading(false);
 			setIsStreaming(false);
 			setStreamingMessage("");
+			
+			// Reset scroll states on error
+			setIsUserScrolling(false);
+			setShowScrollToBottom(false);
+			isScrollingRef.current = false;
+			// Clear any pending timeout
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+				scrollTimeoutRef.current = null;
+			}
 		},
 	});
 
@@ -516,6 +551,12 @@ export default function ChatPage() {
 		bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
 		setShowScrollToBottom(false);
 		setIsUserScrolling(false);
+		isScrollingRef.current = false;
+		// Clear any pending timeout
+		if (scrollTimeoutRef.current) {
+			clearTimeout(scrollTimeoutRef.current);
+			scrollTimeoutRef.current = null;
+		}
 	};
 
 	// Initialize SpeechRecognition lazily on start
@@ -721,11 +762,6 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
-							{isStreaming && (
-								<p className="text-xs text-muted-foreground animate-pulse">
-									{streamingMessage ? "Mengetik..." : "Memikirkan..."}
-								</p>
-							)}
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
@@ -777,7 +813,7 @@ export default function ChatPage() {
 					ref={scrollContainerRef}
 					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain relative"
 					style={{ 
-						paddingBottom: isStreaming || isLoading ? (inputBarHeight + 32) : (hideInputBar ? 24 : inputBarHeight + 24)
+						paddingBottom: isStreaming || isLoading ? (inputBarHeight + (isStreaming && !streamingMessage ? 48 : 32)) : (hideInputBar ? 24 : inputBarHeight + 24)
 					}}
 					key={sessionId}
 				>
@@ -849,27 +885,19 @@ export default function ChatPage() {
 									</div>
 								);
 							})}
-							{isStreaming && (
+							{isStreaming && streamingMessage && (
 								<div className="flex items-end gap-3 justify-start mb-4">
 									<div className="h-8 w-8 flex-shrink-0">
 										{character.avatarUrl && (
 											<img
 												src={character.avatarUrl}
 												alt={character.name}
-												className="h-full w-full animate-pulse rounded-full object-cover"
+												className="h-full w-full rounded-full object-cover"
 											/>
 										)}
 									</div>
 									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5 shadow-sm border">
-										{streamingMessage ? (
-											<p className="whitespace-pre-wrap text-sm">{streamingMessage}</p>
-										) : (
-											<div className="flex items-center gap-1.5">
-												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground" />
-												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-75" />
-												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-150" />
-											</div>
-										)}
+										<p className="whitespace-pre-wrap text-sm">{streamingMessage}</p>
 									</div>
 								</div>
 							)}
@@ -877,6 +905,35 @@ export default function ChatPage() {
 						</div>
 					)}
 				</div>
+
+				{/* Typing Indicator - WhatsApp style */}
+				{isStreaming && !streamingMessage && (
+					<div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 px-4 py-3">
+						<div className="mx-auto flex max-w-3xl items-center gap-3">
+							<div className="h-6 w-6 flex-shrink-0">
+								{character.avatarUrl && (
+									<img
+										src={character.avatarUrl}
+										alt={character.name}
+										className="h-full w-full rounded-full object-cover"
+									/>
+								)}
+							</div>
+							<div className="flex items-center gap-2">
+								<span className="text-sm text-muted-foreground">
+									{character.name} sedang mengetik
+								</span>
+								<div className="flex items-center gap-1">
+									<div className="flex space-x-1">
+										<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
+										<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
+										<div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
 
 				{/* Input Form */}
 				<div
