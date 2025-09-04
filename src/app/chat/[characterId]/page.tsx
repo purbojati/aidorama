@@ -3,18 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
-	ChevronRight,
-	Clock,
-	LogOut,
 	MessageCircle,
 	Mic,
 	MoreVertical,
-	Plus,
 	Send,
 	Square,
-	Settings,
-	Sparkles,
-	Trash2,
 	User,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,19 +20,9 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-	Sheet,
-	SheetContent,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
@@ -107,6 +90,8 @@ export default function ChatPage() {
 	const bottomMarkerRef = useRef<HTMLDivElement | null>(null);
 	const lastScrollTopRef = useRef<number>(0);
 	const [hideInputBar, setHideInputBar] = useState(false);
+	const inputBarRef = useRef<HTMLDivElement | null>(null);
+	const [inputBarHeight, setInputBarHeight] = useState(0);
 
 	// Voice input (SpeechRecognition)
 	const [isListening, setIsListening] = useState(false);
@@ -126,6 +111,20 @@ export default function ChatPage() {
 	useEffect(() => {
 		autoResizeTextarea();
 	}, [newMessage]);
+
+	// Observe sticky input bar size to prevent overlap on mobile
+	useEffect(() => {
+		const el = inputBarRef.current;
+		if (!el || typeof ResizeObserver === "undefined") return;
+		const ro = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				const box = entry.contentRect;
+				setInputBarHeight(Math.ceil(box.height));
+			}
+		});
+		ro.observe(el);
+		return () => ro.disconnect();
+	}, []);
 
 	// Scroll behavior for showing/hiding input bar
 	useEffect(() => {
@@ -702,6 +701,7 @@ export default function ChatPage() {
 				<div
 					ref={scrollContainerRef}
 					className="flex-1 overflow-y-auto p-6"
+					style={{ paddingBottom: (hideInputBar ? 24 : inputBarHeight + 24) }}
 					key={sessionId}
 				>
 					{messagesLoading ? (
@@ -791,7 +791,7 @@ export default function ChatPage() {
 				</div>
 
 				{/* Input Form */}
-				<div className={`sticky bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-transform duration-200 ${hideInputBar ? "translate-y-full" : "translate-y-0"}`}>
+				<div ref={inputBarRef} className={`sticky bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-transform duration-200 ${hideInputBar ? "translate-y-full" : "translate-y-0"}`}>
 					<form
 						onSubmit={handleSendMessage}
 						className="mx-auto flex max-w-3xl items-center gap-3"
