@@ -103,6 +103,10 @@ export default function ChatPage() {
 	const [isStreaming, setIsStreaming] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const tempIdRef = useRef(0);
+	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+	const bottomMarkerRef = useRef<HTMLDivElement | null>(null);
+	const lastScrollTopRef = useRef<number>(0);
+	const [hideInputBar, setHideInputBar] = useState(false);
 
 	// Voice input (SpeechRecognition)
 	const [isListening, setIsListening] = useState(false);
@@ -122,6 +126,37 @@ export default function ChatPage() {
 	useEffect(() => {
 		autoResizeTextarea();
 	}, [newMessage]);
+
+	// Scroll behavior for showing/hiding input bar
+	useEffect(() => {
+		const el = scrollContainerRef.current;
+		if (!el) return;
+		lastScrollTopRef.current = el.scrollTop;
+		const handleScroll = () => {
+			const currentTop = el.scrollTop;
+			const delta = currentTop - lastScrollTopRef.current;
+			lastScrollTopRef.current = currentTop;
+			const atBottom = el.scrollHeight - (el.scrollTop + el.clientHeight) < 24;
+			if (atBottom) {
+				setHideInputBar(false);
+				return;
+			}
+			if (delta > 2) {
+				// scrolling down
+				setHideInputBar(false);
+			} else if (delta < -2) {
+				// scrolling up
+				setHideInputBar(true);
+			}
+		};
+		el.addEventListener("scroll", handleScroll, { passive: true });
+		return () => el.removeEventListener("scroll", handleScroll);
+	}, []);
+
+	// Keep view pinned to bottom on new messages/stream
+	useEffect(() => {
+		bottomMarkerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+	}, [messages, streamingMessage]);
 
 	// Auth and sidebar data
 	const { data: session } = authClient.useSession();
@@ -379,11 +414,6 @@ export default function ChatPage() {
 		}
 	}, [existingSessionId, sessionId, refetchMessages]);
 
-	// Scroll to bottom when new messages arrive or streaming updates
-	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [messages, streamingMessage]);
-
 	// no-op
 
 	const handleSendMessage = (e: React.FormEvent) => {
@@ -594,7 +624,7 @@ export default function ChatPage() {
 		<SidebarLayout>
 			<div className="flex h-screen flex-col bg-background">
 				{/* Header */}
-				<div className="flex items-center justify-between border-b p-4">
+				<div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75">
 					<div className="flex items-center gap-3">
 						<Button asChild variant="ghost" size="icon" className="lg:hidden">
 							<Link href="/chats">
@@ -670,9 +700,9 @@ export default function ChatPage() {
 
 				{/* Chat Area */}
 				<div
-					ref={messagesEndRef}
+					ref={scrollContainerRef}
 					className="flex-1 overflow-y-auto p-6"
-					key={sessionId} // Force re-render on session change
+					key={sessionId}
 				>
 					{messagesLoading ? (
 						<div className="py-8 text-center">
@@ -751,12 +781,13 @@ export default function ChatPage() {
 									</div>
 								</div>
 							)}
+							<div ref={bottomMarkerRef} /> {/* Add a marker for pinning */}
 						</div>
 					)}
 				</div>
 
 				{/* Input Form */}
-				<div className="border-t bg-background p-4">
+				<div className={`sticky bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-transform duration-200 ${hideInputBar ? "translate-y-full" : "translate-y-0"}`}>
 					<form
 						onSubmit={handleSendMessage}
 						className="mx-auto flex max-w-3xl items-center gap-3"
