@@ -332,7 +332,7 @@ export default function SidebarLayout({ children, requireAuth = true }: SidebarL
 	const isChatPage = pathname?.startsWith("/chat/") ?? false;
 
 	return (
-		<div className="flex min-h-[100dvh] bg-gradient-to-br from-background to-muted/20">
+		<div className={`flex ${isChatPage ? "h-[100dvh] overflow-hidden" : "min-h-[100dvh]"} bg-gradient-to-br from-background to-muted/20`}>
 			{/* Mobile Header (hidden on chat pages) */}
 			{!isChatPage && (
 				<div className="fixed top-0 right-0 left-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden">
@@ -381,7 +381,7 @@ export default function SidebarLayout({ children, requireAuth = true }: SidebarL
 			</div>
 
 			{/* Main Content */}
-			<div className={`flex-1 ${!isChatPage ? "pt-16 lg:pt-0" : "pt-0"}`}>{children}</div>
+			<div className={`flex-1 ${!isChatPage ? "pt-16 lg:pt-0" : "pt-0"} ${isChatPage ? "flex flex-col overflow-hidden" : ""}`}>{children}</div>
 		</div>
 	);
 }

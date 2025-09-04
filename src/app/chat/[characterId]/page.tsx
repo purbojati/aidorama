@@ -732,7 +732,7 @@ export default function ChatPage() {
 
 	return (
 		<SidebarLayout>
-			<div className="flex h-screen flex-col bg-background">
+			<div className="flex h-full flex-col bg-background overflow-hidden">
 				{/* Header */}
 				<div className="flex items-center justify-between border-b bg-background p-2 flex-shrink-0">
 					<div className="flex items-center gap-3">
@@ -811,7 +811,7 @@ export default function ChatPage() {
 				{/* Chat Area */}
 				<div
 					ref={scrollContainerRef}
-					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain relative"
+					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain relative touch-pan-y"
 					style={{ 
 						paddingBottom: isStreaming || isLoading ? (inputBarHeight + (isStreaming && !streamingMessage ? 48 : 32)) : (hideInputBar ? 24 : inputBarHeight + 24)
 					}}

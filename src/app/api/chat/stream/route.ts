@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 			.from(chatMessages)
 			.where(eq(chatMessages.sessionId, sessionId))
 			.orderBy(desc(chatMessages.createdAt))
-			.limit(5);
+			.limit(10);
 
 		// Prepare messages for AI
 		const character = sessionWithCharacter[0].character;
