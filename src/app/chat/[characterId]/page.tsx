@@ -773,11 +773,15 @@ export default function ChatPage() {
 										)}
 									</div>
 									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5">
-										<div className="flex items-center gap-1.5">
-											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground" />
-											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-75" />
-											<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-150" />
-										</div>
+										{streamingMessage ? (
+											<p className="whitespace-pre-wrap text-sm">{streamingMessage}</p>
+										) : (
+											<div className="flex items-center gap-1.5">
+												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground" />
+												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-75" />
+												<span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground delay-150" />
+											</div>
+										)}
 									</div>
 								</div>
 							)}
