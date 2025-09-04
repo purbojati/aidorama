@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 			.from(chatMessages)
 			.where(eq(chatMessages.sessionId, sessionId))
 			.orderBy(desc(chatMessages.createdAt))
-			.limit(10);
+			.limit(5);
 
 		// Prepare messages for AI
 		const character = sessionWithCharacter[0].character;
@@ -102,7 +102,6 @@ ${character.synopsis ? `- Sinopsis: ${character.synopsis}` : ""}
 ${character.description ? `- Deskripsi: ${character.description}` : ""}
 ${character.personality ? `- Sifat: ${character.personality}` : ""}
 ${character.backstory ? `- Latar: ${character.backstory}` : ""}
-${character.characterHistory ? `- Sejarah: ${character.characterHistory}` : ""}
 ${character.greetings ? `- Sapaan: ${character.greetings}` : ""}
 
 Skenario:
@@ -155,7 +154,7 @@ Aturan:
 								model: "deepseek/deepseek-chat-v3.1",
 								messages,
 								max_tokens: 6000,
-								temperature: 0.7,
+								temperature: 0.8,
 								stream: true, // Enable streaming
 							}),
 						},

@@ -54,7 +54,6 @@ interface CharacterForm {
 	synopsis: string;
 	description: string;
 	greetings: string;
-	characterHistory: string;
 	personality: string;
 	backstory: string;
 	avatarUrl: string;
@@ -83,7 +82,6 @@ export default function CharacterFormComponent({
 		synopsis: "",
 		description: "",
 		greetings: "",
-		characterHistory: "",
 		personality: "",
 		backstory: "",
 		avatarUrl: "",
@@ -119,7 +117,6 @@ export default function CharacterFormComponent({
 				synopsis: character.synopsis || "",
 				description: character.description || "",
 				greetings: character.greetings || "",
-				characterHistory: character.characterHistory || "",
 				personality: character.personality || "",
 				backstory: character.backstory || "",
 				avatarUrl: character.avatarUrl || "",
@@ -249,8 +246,6 @@ export default function CharacterFormComponent({
 			if (parsedData.synopsis) newForm.synopsis = parsedData.synopsis;
 			if (parsedData.description) newForm.description = parsedData.description;
 			if (parsedData.greetings) newForm.greetings = parsedData.greetings;
-			if (parsedData.characterHistory)
-				newForm.characterHistory = parsedData.characterHistory;
 			if (parsedData.personality) newForm.personality = parsedData.personality;
 			if (parsedData.backstory) newForm.backstory = parsedData.backstory;
 			if (parsedData.defaultUserRoleName)
@@ -305,10 +300,6 @@ export default function CharacterFormComponent({
 			newErrors.greetings = "Greetings kepanjangan, maksimal 200 karakter";
 		}
 
-		if (form.characterHistory.length > 800) {
-			newErrors.characterHistory =
-				"Sejarah karakter terlalu panjang, maksimal 800 karakter";
-		}
 
 		if (form.personality.length > 500) {
 			newErrors.personality =
@@ -373,7 +364,6 @@ export default function CharacterFormComponent({
 			synopsis: form.synopsis.trim(),
 			description: form.description.trim(),
 			greetings: form.greetings.trim(),
-			characterHistory: form.characterHistory.trim() || undefined,
 			personality: form.personality.trim() || undefined,
 			backstory: form.backstory.trim() || undefined,
 			avatarUrl: form.avatarUrl.trim() || undefined,
@@ -542,7 +532,7 @@ export default function CharacterFormComponent({
 	// Show loading state for edit mode
 	if (mode === "edit" && isLoading) {
 		return (
-			<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
+			<div className="w-full max-w-sm mx-auto px-2 py-6 sm:max-w-2xl sm:px-4 lg:max-w-5xl lg:py-8 overflow-x-hidden">
 				<div className="mb-6 lg:mb-8">
 					<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center">
 						<Skeleton className="h-10 w-24" />
@@ -578,7 +568,7 @@ export default function CharacterFormComponent({
 	// Show error state for edit mode if character not found
 	if (mode === "edit" && !character && !isLoading) {
 		return (
-			<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
+			<div className="w-full max-w-sm mx-auto px-2 py-6 sm:max-w-2xl sm:px-4 lg:max-w-5xl lg:py-8 overflow-x-hidden">
 				<Card className="py-12 text-center">
 					<CardContent>
 						<h2 className="mb-2 font-semibold text-xl">
@@ -603,7 +593,7 @@ export default function CharacterFormComponent({
 			: updateCharacterMutation.isPending;
 
 	return (
-		<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
+		<div className="w-full max-w-sm mx-auto px-2 py-6 sm:max-w-2xl sm:px-4 lg:max-w-5xl lg:py-8 overflow-x-hidden">
 			<div className="mb-6 lg:mb-8">
 				<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center">
 					<div>
@@ -620,7 +610,7 @@ export default function CharacterFormComponent({
 				</div>
 			</div>
 
-			<div className="space-y-6">
+			<div className="space-y-6 w-full overflow-hidden">
 				{/* AI Auto-fill Section (only for create mode) */}
 				{mode === "create" && (
 					<Button
@@ -875,33 +865,6 @@ export default function CharacterFormComponent({
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-6">
-							{/* Character History */}
-							<div className="space-y-2">
-								<Label htmlFor="characterHistory">
-									Sejarah Karakter (Opsional)
-								</Label>
-								<textarea
-									id="characterHistory"
-									value={form.characterHistory}
-									onChange={(e) =>
-										handleInputChange("characterHistory", e.target.value)
-									}
-									placeholder="Contoh: Kirana mulai belajar sihir di Akademi Astraluna sejak usia 16 tahun. Setelah 3 tahun belajar, dia dipercaya jadi penjaga perpustakaan kuno karena kemampuan luar biasanya dalam memahami mantra-mantra purba."
-									maxLength={800}
-									rows={4}
-									className={`w-full resize-none rounded-md border px-3 py-2 ${
-										errors.characterHistory ? "border-red-500" : "border-border"
-									}`}
-								/>
-								{errors.characterHistory && (
-									<p className="text-red-500 text-sm">
-										{errors.characterHistory}
-									</p>
-								)}
-								<p className="text-muted-foreground text-sm">
-									{form.characterHistory.length}/800 karakter
-								</p>
-							</div>
 
 							{/* Personality */}
 							<div className="space-y-2">
@@ -1122,7 +1085,7 @@ export default function CharacterFormComponent({
 								onChange={(tags) => handleInputChange("characterTags", tags)}
 								placeholder="Pilih label yang cocok sama karakter kamu..."
 								searchPlaceholder="Cari label (contoh: idol, female, kpop)..."
-								className="w-full"
+								className="w-full max-w-full"
 							/>
 						</div>
 					</CardContent>
@@ -1151,7 +1114,7 @@ export default function CharacterFormComponent({
 								<SelectTrigger>
 									<SelectValue placeholder="Pilih mode kepatuhan" />
 								</SelectTrigger>
-								<SelectContent>
+								<SelectContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-none">
 									<SelectItem value="strict">
 										<div className="flex flex-col text-left">
 											<span className="font-medium">🚫 Mode Ketat</span>
@@ -1178,13 +1141,7 @@ export default function CharacterFormComponent({
 									</SelectItem>
 								</SelectContent>
 							</Select>
-							<div className="flex items-start gap-2">
-								<span className="text-xs">💡</span>
-								<p className="text-muted-foreground text-xs">
-									Mode ini mengatur bagaimana karakter merespon permintaan user. 
-									Mode patuh membuat karakter lebih kooperatif dan mengikuti arahan user.
-								</p>
-							</div>
+
 						</div>
 					</CardContent>
 				</Card>
@@ -1210,7 +1167,7 @@ export default function CharacterFormComponent({
 								}
 							/>
 							<Label htmlFor="isPublic" className="cursor-pointer">
-								Jadiin karakter ini publik (orang lain bisa liat dan pake)
+								Jadiin karakter ini publik
 							</Label>
 						</div>
 					</CardContent>
