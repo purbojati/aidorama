@@ -103,8 +103,8 @@ export default function ChatPage() {
 	const autoResizeTextarea = () => {
 		const el = textareaRef.current;
 		if (!el) return;
-		el.style.height = "0px";
-		const newHeight = Math.min(el.scrollHeight, 200); // cap height ~200px
+		el.style.height = "auto";
+		const newHeight = Math.min(el.scrollHeight, 200);
 		el.style.height = `${newHeight}px`;
 	};
 
@@ -623,11 +623,11 @@ export default function ChatPage() {
 		<SidebarLayout>
 			<div className="flex h-screen flex-col bg-background">
 				{/* Header */}
-				<div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+				<div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/75">
 					<div className="flex items-center gap-3">
 						<Button asChild variant="ghost" size="icon" className="lg:hidden">
 							<Link href="/chats">
-								<ArrowLeft className="h-5 w-5" />
+								<ArrowLeft className="h-4 w-4" />
 							</Link>
 						</Button>
 						<Button
@@ -636,17 +636,17 @@ export default function ChatPage() {
 							onClick={() => router.back()}
 							className="hidden lg:flex"
 						>
-							<ArrowLeft className="h-5 w-5" />
+							<ArrowLeft className="h-4 w-4" />
 						</Button>
 						{character.avatarUrl ? (
 							<img
 								src={character.avatarUrl}
 								alt={character.name}
-								className="h-10 w-10 rounded-full object-cover"
+								className="h-8 w-8 rounded-full object-cover"
 							/>
 						) : (
-							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-								<User className="h-5 w-5 text-muted-foreground" />
+							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+								<User className="h-4 w-4 text-muted-foreground" />
 							</div>
 						)}
 						<div className="min-w-0">
@@ -658,7 +658,7 @@ export default function ChatPage() {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost" size="icon">
-									<MoreVertical className="h-5 w-5" />
+									<MoreVertical className="h-4 w-4" />
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
@@ -701,7 +701,7 @@ export default function ChatPage() {
 				<div
 					ref={scrollContainerRef}
 					className="flex-1 overflow-y-auto p-6"
-					style={{ paddingBottom: (hideInputBar ? 24 : inputBarHeight + 24) }}
+					style={{ paddingBottom: ((messagesLoading || isStreaming || messages.length === 0) ? (inputBarHeight + 24) : (hideInputBar ? 24 : inputBarHeight + 24)) }}
 					key={sessionId}
 				>
 					{messagesLoading ? (
@@ -791,7 +791,10 @@ export default function ChatPage() {
 				</div>
 
 				{/* Input Form */}
-				<div ref={inputBarRef} className={`sticky bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-transform duration-200 ${hideInputBar ? "translate-y-full" : "translate-y-0"}`}>
+				<div
+					ref={inputBarRef}
+					className={`sticky bottom-0 z-10 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-all duration-200 ${hideInputBar ? "h-0 p-0 border-t-0 overflow-hidden" : "p-4"}`}
+				>
 					<form
 						onSubmit={handleSendMessage}
 						className="mx-auto flex max-w-3xl items-center gap-3"
@@ -807,7 +810,9 @@ export default function ChatPage() {
 									(e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
 								}
 							}}
-							placeholder={`Kirim pesan ke ${character.name}...`}
+							placeholder={`Kirim pesan ...`}
+							rows={1}
+							style={{ minHeight: 0 }}
 							className="flex-1 rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto"
 							disabled={isLoading || isStreaming}
 						/>
