@@ -525,7 +525,7 @@ export default function CharacterFormComponent({
 	// Show loading state for edit mode
 	if (mode === "edit" && isLoading) {
 		return (
-			<div className="container mx-auto max-w-4xl px-4 py-6 lg:py-8">
+			<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
 				<div className="mb-6 lg:mb-8">
 					<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center">
 						<Skeleton className="h-10 w-24" />
@@ -561,7 +561,7 @@ export default function CharacterFormComponent({
 	// Show error state for edit mode if character not found
 	if (mode === "edit" && !character && !isLoading) {
 		return (
-			<div className="container mx-auto max-w-4xl px-4 py-6 lg:py-8">
+			<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
 				<Card className="py-12 text-center">
 					<CardContent>
 						<h2 className="mb-2 font-semibold text-xl">
@@ -586,15 +586,15 @@ export default function CharacterFormComponent({
 			: updateCharacterMutation.isPending;
 
 	return (
-		<div className="container mx-auto max-w-4xl px-4 py-6 lg:py-8">
+		<div className="w-full max-w-sm mx-auto px-4 py-6 sm:max-w-2xl sm:px-6 lg:max-w-4xl lg:py-8 overflow-x-hidden">
 			<div className="mb-6 lg:mb-8">
 				<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center">
 					<div>
-						<h1 className="flex items-center gap-2 font-bold font-sans text-2xl lg:text-3xl">
+						<h1 className="flex items-center gap-2 font-bold font-sans text-xl sm:text-2xl lg:text-3xl">
 							<span>{mode === "create" ? "✨" : "📝"}</span>
-							{mode === "create" ? "Bikin Karakter Baru" : "Edit Karakter"}
+							<span className="break-words">{mode === "create" ? "Bikin Karakter Baru" : "Edit Karakter"}</span>
 						</h1>
-						<p className="text-muted-foreground text-sm lg:text-base">
+						<p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
 							{mode === "create"
 								? "Bikin karakter imajiner dengan kepribadian dan cerita yang seru"
 								: `Perbarui informasi karakter "${character?.name || ""}"`}
@@ -609,19 +609,19 @@ export default function CharacterFormComponent({
 					<Button
 						onClick={handleOpenAiDialog}
 						size="lg"
-						className="h-12 w-full"
+						className="h-12 w-full text-sm sm:text-base"
 					>
 						<span className="mr-3 text-lg">✨</span>
-						Isi Form dengan AI
+						<span className="truncate">Isi Form dengan AI</span>
 					</Button>
 				)}
 
 				{/* Avatar Upload Section */}
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
 							<span>🖼️</span>
-							Avatar Karakter
+							<span className="break-words">Avatar Karakter</span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
@@ -638,7 +638,7 @@ export default function CharacterFormComponent({
 										: "Upload avatar karakter"
 								}
 							>
-								<div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-muted-foreground/30 border-dashed bg-muted/20 transition-colors group-hover:border-primary/50">
+								<div className="flex h-24 w-24 sm:h-32 sm:w-32 items-center justify-center overflow-hidden rounded-full border-4 border-muted-foreground/30 border-dashed bg-muted/20 transition-colors group-hover:border-primary/50">
 									{isUploadingAvatar ? (
 										<div className="text-center">
 											<div className="mb-2 animate-spin text-3xl">⏳</div>
@@ -725,9 +725,9 @@ export default function CharacterFormComponent({
 				{/* Basic Information */}
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-base sm:text-lg">
 							<span>📝</span>
-							Info Dasar
+							<span className="break-words">Info Dasar</span>
 						</CardTitle>
 						<CardDescription>
 							Info dasar tentang karakter kamu yang bakal dilihat sama user
@@ -738,7 +738,7 @@ export default function CharacterFormComponent({
 						<div className="space-y-6">
 							{/* Name */}
 							<div className="space-y-2">
-								<Label htmlFor="name" className="font-medium text-sm">
+								<Label htmlFor="name" className="font-medium text-xs sm:text-sm">
 									Nama Karakter <span className="text-red-500">*</span>
 								</Label>
 								<Input
@@ -747,7 +747,7 @@ export default function CharacterFormComponent({
 									onChange={(e) => handleInputChange("name", e.target.value)}
 									placeholder="Contoh: Kirana Bulanasih"
 									maxLength={50}
-									className={`transition-colors ${errors.name ? "border-red-500 focus:border-red-500" : "focus:border-primary"}`}
+									className={`h-10 text-sm transition-colors ${errors.name ? "border-red-500 focus:border-red-500" : "focus:border-primary"}`}
 								/>
 								{errors.name && (
 									<p className="flex items-center gap-1 text-red-500 text-sm">
@@ -773,11 +773,12 @@ export default function CharacterFormComponent({
 									placeholder="Contoh: Kirana adalah penyihir muda yang menguasai sihir bulan dan bintang. Dia dikenal dengan kemampuan magisnya yang luar biasa dan kepribadian yang lembut namun penuh misteri."
 									maxLength={300}
 									rows={3}
-									className={`w-full resize-none rounded-md border px-3 py-2 transition-colors ${
+									className={`w-full resize-none rounded-md border px-3 py-2 text-sm transition-colors ${
 										errors.synopsis
 											? "border-red-500 focus:border-red-500"
 											: "border-border focus:border-primary"
 									}`}
+									style={{ minHeight: '80px' }}
 								/>
 								{errors.synopsis && (
 									<p className="flex items-center gap-1 text-red-500 text-sm">
@@ -1205,7 +1206,7 @@ export default function CharacterFormComponent({
 							variant="outline"
 							type="button"
 							size="lg"
-							className="h-12 w-full px-8 font-medium text-base transition-all duration-200 hover:bg-accent sm:w-auto"
+							className="h-12 w-full px-4 font-medium text-sm transition-all duration-200 hover:bg-accent sm:w-auto sm:px-8 sm:text-base"
 						>
 							Batal
 						</Button>
@@ -1214,7 +1215,7 @@ export default function CharacterFormComponent({
 						onClick={handleSubmit}
 						disabled={isSubmitting}
 						size="lg"
-						className="h-12 w-full transform bg-primary px-8 font-semibold text-base text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/90 hover:shadow-xl sm:w-auto"
+						className="h-12 w-full transform bg-primary px-4 font-semibold text-sm text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 hover:bg-primary/90 hover:shadow-xl sm:w-auto sm:px-8 sm:text-base"
 					>
 						{isSubmitting ? (
 							<>

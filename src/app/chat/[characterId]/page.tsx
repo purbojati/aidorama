@@ -623,7 +623,7 @@ export default function ChatPage() {
 		<SidebarLayout>
 			<div className="flex h-screen flex-col bg-background">
 				{/* Header */}
-				<div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+				<div className="flex items-center justify-between border-b bg-background p-2 flex-shrink-0">
 					<div className="flex items-center gap-3">
 						<Button asChild variant="ghost" size="icon" className="lg:hidden">
 							<Link href="/chats">
@@ -700,7 +700,7 @@ export default function ChatPage() {
 				{/* Chat Area */}
 				<div
 					ref={scrollContainerRef}
-					className="flex-1 overflow-y-auto p-6"
+					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain"
 					style={{ paddingBottom: ((messagesLoading || isStreaming || messages.length === 0) ? (inputBarHeight + 24) : (hideInputBar ? 24 : inputBarHeight + 24)) }}
 					key={sessionId}
 				>
