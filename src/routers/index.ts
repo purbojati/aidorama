@@ -1019,6 +1019,173 @@ JSON format (hanya field yang ada nilainya):
 	}),
 
 	// AI chat stream (this is not a tRPC procedure, but handled via a custom route)
+
+	// Admin procedures
+	admin: router({
+		// Get all characters with user details
+		getAllCharacters: protectedProcedure
+			.input(
+				z.object({
+					search: z.string().optional(),
+					limit: z.number().min(1).max(100).default(20),
+					offset: z.number().min(0).default(0),
+				}),
+			)
+			.query(async ({ ctx, input }) => {
+				// Check if user is admin
+				if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+					throw new Error("Admin access required");
+				}
+
+				const baseCondition = input.search
+					? or(
+							like(characters.name, `%${input.search}%`),
+							like(characters.synopsis, `%${input.search}%`),
+							like(characters.description, `%${input.search}%`),
+						)
+					: undefined;
+
+				return await db
+					.select({
+						id: characters.id,
+						name: characters.name,
+						synopsis: characters.synopsis,
+						description: characters.description,
+						avatarUrl: characters.avatarUrl,
+						characterTags: characters.characterTags,
+						isPublic: characters.isPublic,
+						complianceMode: characters.complianceMode,
+						createdAt: characters.createdAt,
+						updatedAt: characters.updatedAt,
+						user: {
+							id: user.id,
+							name: user.name,
+							displayName: user.displayName,
+							username: user.username,
+							email: user.email,
+						},
+					})
+					.from(characters)
+					.leftJoin(user, eq(characters.userId, user.id))
+					.where(baseCondition)
+					.orderBy(desc(characters.createdAt))
+					.limit(input.limit)
+					.offset(input.offset);
+			}),
+
+		// Toggle character visibility
+		toggleCharacterVisibility: protectedProcedure
+			.input(
+				z.object({
+					characterId: z.number(),
+					isPublic: z.boolean(),
+				}),
+			)
+			.mutation(async ({ ctx, input }) => {
+				// Check if user is admin
+				if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+					throw new Error("Admin access required");
+				}
+
+				const updatedCharacter = await db
+					.update(characters)
+					.set({
+						isPublic: input.isPublic,
+						updatedAt: new Date(),
+					})
+					.where(eq(characters.id, input.characterId))
+					.returning();
+
+				if (!updatedCharacter[0]) {
+					throw new Error("Character not found");
+				}
+
+				return updatedCharacter[0];
+			}),
+
+		// Get all chat sessions with user and character details
+		getAllChatSessions: protectedProcedure
+			.input(
+				z.object({
+					limit: z.number().min(1).max(100).default(20),
+					offset: z.number().min(0).default(0),
+				}),
+			)
+			.query(async ({ ctx, input }) => {
+				// Check if user is admin
+				if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+					throw new Error("Admin access required");
+				}
+
+				return await db
+					.select({
+						id: chatSessions.id,
+						title: chatSessions.title,
+						createdAt: chatSessions.createdAt,
+						updatedAt: chatSessions.updatedAt,
+						user: {
+							id: user.id,
+							name: user.name,
+							displayName: user.displayName,
+							username: user.username,
+							email: user.email,
+						},
+						character: {
+							id: characters.id,
+							name: characters.name,
+							avatarUrl: characters.avatarUrl,
+						},
+					})
+					.from(chatSessions)
+					.leftJoin(user, eq(chatSessions.userId, user.id))
+					.leftJoin(characters, eq(chatSessions.characterId, characters.id))
+					.orderBy(desc(chatSessions.updatedAt))
+					.limit(input.limit)
+					.offset(input.offset);
+			}),
+
+		// Get chat messages for a specific session (admin view)
+		getSessionMessages: protectedProcedure
+			.input(
+				z.object({
+					sessionId: z.number(),
+				}),
+			)
+			.query(async ({ ctx, input }) => {
+				// Check if user is admin
+				if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+					throw new Error("Admin access required");
+				}
+
+				return await db
+					.select()
+					.from(chatMessages)
+					.where(eq(chatMessages.sessionId, input.sessionId))
+					.orderBy(chatMessages.createdAt);
+			}),
+
+		// Get admin dashboard stats
+		getDashboardStats: protectedProcedure.query(async ({ ctx }) => {
+			// Check if user is admin
+			if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+				throw new Error("Admin access required");
+			}
+
+			const [totalCharacters, publicCharacters, totalSessions, totalUsers] = await Promise.all([
+				db.select({ count: characters.id }).from(characters),
+				db.select({ count: characters.id }).from(characters).where(eq(characters.isPublic, true)),
+				db.select({ count: chatSessions.id }).from(chatSessions),
+				db.select({ count: user.id }).from(user),
+			]);
+
+			return {
+				totalCharacters: totalCharacters.length,
+				publicCharacters: publicCharacters.length,
+				totalSessions: totalSessions.length,
+				totalUsers: totalUsers.length,
+			};
+		}),
+	}),
 });
 
 export type AppRouter = typeof appRouter;

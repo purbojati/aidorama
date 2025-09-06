@@ -13,6 +13,7 @@ import {
 	Users,
 	Bot,
 	LogIn,
+	Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/sheet";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
+import { useIsAdmin } from "@/lib/admin";
 import { trpc } from "@/utils/trpc";
 
 interface SidebarLayoutProps {
@@ -57,6 +59,7 @@ function SidebarContent({
 }) {
 	const router = useRouter();
 	const { formatDate } = useClientDate();
+	const isAdmin = useIsAdmin();
 
 	return (
 		<div className="flex h-full flex-col overflow-hidden bg-card/50 backdrop-blur-sm">
@@ -115,6 +118,16 @@ function SidebarContent({
 										<Plus className="h-4 w-4" />
 										<span className="text-sm font-semibold">Buat Karakter</span>
 									</Link>
+									{isAdmin && (
+										<Link
+											href="/admin"
+											className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+											onClick={onLinkClick}
+										>
+											<Shield className="h-4 w-4" />
+											<span className="text-sm">Admin Panel</span>
+										</Link>
+									)}
 								</>
 							)}
 						</nav>
