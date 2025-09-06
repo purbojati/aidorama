@@ -4,12 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
 	ArrowDown,
+	ImageIcon,
 	MessageCircle,
 	Mic,
 	MoreVertical,
 	Send,
 	Square,
 	User,
+	X,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -46,12 +48,15 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import SidebarLayout from "@/components/sidebar-layout";
+import { ImageUpload } from "@/components/image-upload";
 
 interface Message {
 	id: number;
 	content: string;
 	role: "user" | "assistant";
 	createdAt: string;
+	imageUrl?: string;
+	imageDescription?: string;
 }
 
 export default function ChatPage() {
@@ -82,6 +87,7 @@ export default function ChatPage() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 	const [isCheckingSession, setIsCheckingSession] = useState(false);
 	const [streamingMessage, setStreamingMessage] = useState("");
 	const [isStreaming, setIsStreaming] = useState(false);
@@ -329,7 +335,7 @@ export default function ChatPage() {
 	});
 
 	const sendMessageMutation = useMutation({
-		mutationFn: async (input: { sessionId: number; content: string }) => {
+		mutationFn: async (input: { sessionId: number; content: string; imageUrl?: string }) => {
 			setIsStreaming(true);
 			setStreamingMessage("");
 
@@ -520,16 +526,19 @@ export default function ChatPage() {
 			content: newMessage.trim(),
 			role: "user",
 			createdAt: new Date().toISOString(),
+			imageUrl: selectedImageUrl || undefined,
 		};
 
 		setMessages((prev) => [...prev, userMessage]);
 
-
-
 		sendMessageMutation.mutate({
 			sessionId,
 			content: newMessage.trim(),
+			imageUrl: selectedImageUrl || undefined,
 		});
+
+		// Clear image selection after sending
+		setSelectedImageUrl(null);
 	};
 
 	const handleResetChat = () => {
@@ -869,9 +878,20 @@ export default function ChatPage() {
 													: "rounded-bl-none bg-muted"
 											}`}
 										>
-											<p className="whitespace-pre-wrap text-sm">
-												{message.content}
-											</p>
+											{message.imageUrl && (
+												<div className="mb-2 -mx-2 -mt-2">
+													<img
+														src={message.imageUrl}
+														alt="Uploaded image"
+														className="w-full max-w-xs h-auto rounded-t-lg object-cover"
+													/>
+												</div>
+											)}
+											{message.content && (
+												<p className="whitespace-pre-wrap text-sm">
+													{message.content}
+												</p>
+											)}
 										</div>
 									</div>
 								);
@@ -931,46 +951,78 @@ export default function ChatPage() {
 					ref={inputBarRef}
 					className={`sticky bottom-0 z-20 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-all duration-200 ${hideInputBar ? "h-0 p-0 border-t-0 overflow-hidden" : "p-4"} ${isStreaming || isLoading ? "shadow-lg" : ""}`}
 				>
+				{/* Image preview - WhatsApp style */}
+				{selectedImageUrl && (
+					<div className="mx-auto max-w-3xl mb-3">
+						<div className="relative inline-block group">
+							<img
+								src={selectedImageUrl}
+								alt="Selected image"
+								className="h-32 w-32 rounded-lg object-cover border shadow-sm"
+							/>
+							<Button
+								type="button"
+								size="icon"
+								variant="destructive"
+								className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+								onClick={() => setSelectedImageUrl(null)}
+								disabled={isLoading || isStreaming}
+							>
+								<X className="h-3 w-3" />
+							</Button>
+						</div>
+					</div>
+				)}
+					
 					<form
 						onSubmit={handleSendMessage}
-						className="mx-auto flex max-w-3xl items-center gap-3"
+						className="mx-auto flex max-w-3xl items-end gap-2"
 					>
-						<Textarea
-							ref={textareaRef}
-							value={newMessage}
-							onChange={(e) => setNewMessage(e.target.value)}
-							onInput={autoResizeTextarea}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" && !e.shiftKey) {
-									e.preventDefault();
-									(e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
-								}
-							}}
-							placeholder={`Kirim pesan ...`}
-							rows={1}
-							style={{ minHeight: 0 }}
-							className="flex-1 rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto"
-							disabled={isLoading || isStreaming}
-						/>
-						<Button
-							type="button"
-							size="icon"
-							className="rounded-full"
-							onClick={isListening ? stopListening : startListening}
-							disabled={isLoading || isStreaming}
-							title={isListening ? "Berhenti merekam" : "Mulai bicara"}
-						>
-							{isListening ? (
-								<Square className="h-5 w-5" />
-							) : (
-								<Mic className="h-5 w-5" />
-							)}
-						</Button>
+						<div className="flex-1 relative">
+							<Textarea
+								ref={textareaRef}
+								value={newMessage}
+								onChange={(e) => setNewMessage(e.target.value)}
+								onInput={autoResizeTextarea}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" && !e.shiftKey) {
+										e.preventDefault();
+										(e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+									}
+								}}
+								placeholder={`Kirim pesan ...`}
+								rows={1}
+								style={{ minHeight: 0 }}
+								className="w-full rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto pr-12"
+								disabled={isLoading || isStreaming}
+							/>
+							<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+								<ImageUpload
+									onImageUpload={setSelectedImageUrl}
+									disabled={isLoading || isStreaming}
+								/>
+								<Button
+									type="button"
+									size="icon"
+									variant="ghost"
+									className="h-8 w-8 rounded-full"
+									onClick={isListening ? stopListening : startListening}
+									disabled={isLoading || isStreaming}
+									title={isListening ? "Berhenti merekam" : "Mulai bicara"}
+								>
+									{isListening ? (
+										<Square className="h-4 w-4" />
+									) : (
+										<Mic className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
+						</div>
 						<Button
 							type="submit"
 							size="icon"
-							className="rounded-full"
-							disabled={!newMessage.trim() || isLoading || isStreaming}
+							className="h-10 w-10 rounded-full"
+							disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming}
 						>
 							<Send className="h-5 w-5" />
 						</Button>

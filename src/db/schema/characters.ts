@@ -66,5 +66,8 @@ export const chatMessages = pgTable("chat_messages", {
 	sessionId: integer("session_id")
 		.notNull()
 		.references(() => chatSessions.id, { onDelete: "cascade" }),
+	// Image upload fields
+	imageUrl: text("image_url"), // URL of uploaded image in R2
+	imageDescription: text("image_description"), // AI-generated description of the image
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 });

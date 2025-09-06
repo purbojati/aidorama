@@ -7,6 +7,7 @@ import {
 	chatSessions,
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
+import { describeImage } from "../../../../lib/vision";
 
 // Dev-only access bypass for debugging
 // Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { sessionId, content } = body;
+		const { sessionId, content, imageUrl } = body;
 
 		if (!sessionId || !content) {
 			return NextResponse.json(
@@ -57,13 +58,27 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Save user message
+		// Generate image description if image is provided
+		let imageDescription: string | null = null;
+		if (imageUrl) {
+			try {
+				imageDescription = await describeImage(imageUrl);
+			} catch (error) {
+				console.error("Failed to describe image:", error);
+				// Continue without description if vision fails - chat will still work
+				imageDescription = "Gambar telah diupload namun deskripsi tidak dapat dibuat.";
+			}
+		}
+
+		// Save user message with image data
 		const userMessage = await db
 			.insert(chatMessages)
 			.values({
 				sessionId: sessionId,
 				content: content,
 				role: "user",
+				imageUrl: imageUrl || null,
+				imageDescription: imageDescription,
 			})
 			.returning();
 
@@ -104,12 +119,22 @@ Aturan:
 - Aksi: Selalu dalam karakter, ekspresikan emosi.
 - Konteks: Fiksi & imajinasi.`;
 
+		// Build messages with image descriptions
 		const messages = [
 			{ role: "system", content: systemPrompt },
-			...recentMessages.reverse().map((msg) => ({
-				role: msg.role,
-				content: msg.content,
-			})),
+			...recentMessages.reverse().map((msg) => {
+				let content = msg.content;
+				
+				// If this is a user message with an image description, include it
+				if (msg.role === "user" && msg.imageDescription) {
+					content = `[Gambar: ${msg.imageDescription}]\n\n${msg.content}`;
+				}
+				
+				return {
+					role: msg.role,
+					content: content,
+				};
+			}),
 		];
 
 		// Check if API key is configured
