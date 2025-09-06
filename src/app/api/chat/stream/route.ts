@@ -147,13 +147,18 @@ Aturan:
 Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 
 		// Build messages with image descriptions
+		// Only include the latest image description to save tokens
+		const reversedMessages = recentMessages.reverse();
+		const latestImageDescription = reversedMessages
+			.find(msg => msg.role === "user" && msg.imageDescription)?.imageDescription;
+
 		const messages = [
 			{ role: "system", content: systemPrompt },
-			...recentMessages.reverse().map((msg) => {
+			...reversedMessages.map((msg, index) => {
 				let content = msg.content;
 				
-				// If this is a user message with an image description, include it
-				if (msg.role === "user" && msg.imageDescription) {
+				// Only include image description for the latest message that has one
+				if (msg.role === "user" && msg.imageDescription && msg.imageDescription === latestImageDescription) {
 					content = `[Gambar: ${msg.imageDescription}]\n\n${msg.content}`;
 				}
 				
