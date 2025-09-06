@@ -88,8 +88,15 @@ export default function ChatsPage() {
 
 	const filteredSessions =
 		(chatSessions?.filter(
-			(session: ChatSession) =>
-				!deletedSessions.includes(session.id) && session.character,
+			(session: ChatSession) => {
+				const isNotDeleted = !deletedSessions.includes(session.id);
+				const hasCharacter = !!session.character;
+				const matchesSearch = !searchTerm || 
+					session.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					session.character?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+				
+				return isNotDeleted && hasCharacter && matchesSearch;
+			}
 		) as ChatSession[]) || [];
 
 	// Debug: Log avatar URLs to help identify the issue
@@ -97,9 +104,16 @@ export default function ChatsPage() {
 		console.log("Chat sessions with character data:", filteredSessions.map(s => ({
 			id: s.id,
 			characterName: s.character?.name,
-			avatarUrl: s.character?.avatarUrl
+			avatarUrl: s.character?.avatarUrl,
+			hasCharacter: !!s.character,
+			characterId: s.character?.id,
+			avatarUrlType: typeof s.character?.avatarUrl,
+			avatarUrlLength: s.character?.avatarUrl?.length || 0
 		})));
 	}
+
+	// Debug: Log raw chat sessions data
+	console.log("Raw chat sessions data:", chatSessions);
 
 	const handleDeleteSession = async (sessionId: number, title: string) => {
 		if (
@@ -200,7 +214,7 @@ export default function ChatsPage() {
 											</CardDescription>
 										</div>
 										{session.character?.avatarUrl ? (
-											<div className="ml-2 h-10 w-10 rounded-full overflow-hidden">
+											<div className="ml-2 h-10 w-10 rounded-full overflow-hidden relative">
 												<Image
 													src={session.character.avatarUrl}
 													alt={session.character?.name || "Character"}
@@ -218,7 +232,8 @@ export default function ChatsPage() {
 														console.log("Avatar image loaded successfully:", session.character?.avatarUrl);
 													}}
 												/>
-												<div className="h-full w-full bg-muted flex items-center justify-center" style={{ display: 'none' }}>
+												{/* Fallback that shows when image fails to load */}
+												<div className="absolute inset-0 h-full w-full bg-muted flex items-center justify-center" style={{ display: 'none' }}>
 													<span className="text-muted-foreground text-sm font-medium">
 														{session.character?.name?.charAt(0)?.toUpperCase() || "?"}
 													</span>

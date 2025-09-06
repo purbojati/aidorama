@@ -733,7 +733,7 @@ JSON format (hanya field yang ada nilainya):
 					},
 				})
 				.from(chatSessions)
-				.innerJoin(characters, eq(chatSessions.characterId, characters.id))
+				.leftJoin(characters, eq(chatSessions.characterId, characters.id))
 				.where(eq(chatSessions.userId, ctx.session.user.id))
 				.orderBy(desc(chatSessions.updatedAt));
 
@@ -741,7 +741,9 @@ JSON format (hanya field yang ada nilainya):
 			console.log("Fetched chat sessions:", sessions.map(s => ({
 				id: s.id,
 				characterName: s.character?.name,
-				avatarUrl: s.character?.avatarUrl
+				avatarUrl: s.character?.avatarUrl,
+				hasCharacter: !!s.character,
+				characterId: s.character?.id
 			})));
 
 			return sessions;
