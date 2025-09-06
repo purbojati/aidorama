@@ -8,15 +8,7 @@ import {
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
 import { describeImage } from "../../../../lib/vision";
-import { 
-	calculateMood, 
-	calculateMoodIntensity, 
-	getMoodSystemPrompt, 
-	calculateUserEngagement,
-	getMoodTransitionMessage,
-	type Mood,
-	type MoodTriggers
-} from "../../../../lib/mood-system";
+import { getMoodSystemPrompt, type Mood } from "../../../../lib/mood-system";
 
 // Dev-only access bypass for debugging
 // Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
@@ -99,7 +91,7 @@ export async function POST(request: NextRequest) {
 			.orderBy(desc(chatMessages.createdAt))
 			.limit(8);
 
-		// Get session data for mood calculation
+		// Get session data
 		const sessionData = await db
 			.select()
 			.from(chatSessions)
@@ -114,35 +106,11 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Calculate user engagement and mood triggers
-		const moodCalculationTime = new Date();
+		
+		// Calculate time since last user message for tracking
 		const timeSinceLastUserMessage = chatSession.lastUserMessage 
-			? Math.floor((moodCalculationTime.getTime() - chatSession.lastUserMessage.getTime()) / (1000 * 60)) // minutes
+			? Math.floor((new Date().getTime() - chatSession.lastUserMessage.getTime()) / (1000 * 60)) // minutes
 			: 0;
-		
-		const userEngagement = calculateUserEngagement(
-			chatSession.conversationLength || 0,
-			chatSession.userResponseTime || 0,
-			Math.floor((moodCalculationTime.getTime() - chatSession.createdAt.getTime()) / (1000 * 60)) // session duration in minutes
-		);
-
-		const moodTriggers: MoodTriggers = {
-			userResponseTime: timeSinceLastUserMessage,
-			conversationLength: chatSession.conversationLength || 0,
-			timeSinceLastMessage: timeSinceLastUserMessage,
-			userEngagement,
-			userMessageContent: content, // Pass user message content for analysis
-			messageCount: (chatSession.conversationLength || 0) + 1 // Current message count
-		};
-
-		// Calculate new mood
-		const currentMood = chatSession.currentMood as Mood || "happy";
-		const newMood = calculateMood(moodTriggers, currentMood);
-		const newMoodIntensity = calculateMoodIntensity(moodTriggers, newMood);
-		
-		// Check if mood changed
-		const moodChanged = newMood !== currentMood;
-		const moodTransitionMessage = moodChanged ? getMoodTransitionMessage(currentMood, newMood) : null;
 
 		// Prepare messages for AI
 		const character = sessionWithCharacter[0].character;
@@ -190,7 +158,10 @@ export async function POST(request: NextRequest) {
 			day: "numeric"
 		});
 
-		const moodSystemPrompt = getMoodSystemPrompt(newMood, newMoodIntensity);
+		// Get current mood from session (manual mood system)
+		const currentMood = chatSession.currentMood as Mood || "happy";
+		const moodIntensity = chatSession.moodIntensity || 5;
+		const moodSystemPrompt = getMoodSystemPrompt(currentMood, moodIntensity);
 		
 		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
 
@@ -208,10 +179,8 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}${moodSystemPrompt}`;
 		const latestImageDescription = reversedMessages
 			.find(msg => msg.role === "user" && msg.imageDescription)?.imageDescription;
 
-		// Add mood transition message if mood changed
 		const messages = [
 			{ role: "system", content: systemPrompt },
-			...(moodTransitionMessage ? [{ role: "assistant", content: moodTransitionMessage }] : []),
 			...reversedMessages.map((msg, index) => {
 				let content = msg.content;
 				
@@ -305,17 +274,13 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}${moodSystemPrompt}`;
 										})
 										.returning();
 
-									// Update session with mood data and user interaction tracking
+									// Update session with user interaction tracking
 									await db
 										.update(chatSessions)
 										.set({ 
 											updatedAt: new Date(),
-											currentMood: newMood,
-											moodIntensity: newMoodIntensity,
-											lastMoodChange: moodChanged ? new Date() : chatSession.lastMoodChange,
 											conversationLength: (chatSession.conversationLength || 0) + 2, // +2 for user and AI message
-											lastUserMessage: new Date(),
-											userResponseTime: timeSinceLastUserMessage
+											lastUserMessage: new Date()
 										})
 										.where(eq(chatSessions.id, sessionId));
 

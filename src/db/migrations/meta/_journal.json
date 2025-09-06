@@ -36,6 +36,20 @@
       "when": 1757181622385,
       "tag": "0004_furry_morg",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1757186479974,
+      "tag": "0005_good_malcolm_colcord",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757186795798,
+      "tag": "0006_needy_patriot",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
 	ArrowDown,
-	ImageIcon,
 	MessageCircle,
 	Mic,
 	MoreVertical,
@@ -12,18 +11,12 @@ import {
 	Square,
 	User,
 	X,
-	Heart,
-	Smile,
-	Frown,
-	Zap,
-	Sparkles,
-	Meh,
+	ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -111,8 +104,6 @@ export default function ChatPage() {
 	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isScrollingRef = useRef(false);
 	
-	// Local mood state as fallback for React Query issues
-	const [localMood, setLocalMood] = useState<{mood: Mood, intensity: number} | null>(null);
 
 	// Voice input (SpeechRecognition)
 	const [isListening, setIsListening] = useState(false);
@@ -261,7 +252,7 @@ export default function ChatPage() {
 	// Use the actual sessionId we have, either from state or URL
 	const actualSessionId = sessionId || (existingSessionId ? Number.parseInt(existingSessionId) : null);
 
-	// Get session data including mood
+	// Get session data
 	const { data: sessionData, refetch: refetchSessionData } = useQuery({
 		...trpc.chat.getSession.queryOptions({ sessionId: actualSessionId || 0 }),
 		enabled: !!actualSessionId && actualSessionId > 0,
@@ -345,7 +336,7 @@ export default function ChatPage() {
 			refetchMessages();
 			// Also invalidate sessions list as it might show outdated last message
 			queryClient.invalidateQueries(trpc.chat.getUserSessions.queryOptions());
-			// Force refetch session data to reset mood indicator
+			// Force refetch session data
 			refetchSessionData();
 			
 			// Additional invalidation for React Query v5
@@ -459,32 +450,8 @@ export default function ChatPage() {
 				scrollTimeoutRef.current = null;
 			}
 			
-			// Force refetch session data to update mood indicator
-			// Use immediate refetch for React Query v5 compatibility
+			// Force refetch session data
 			refetchSessionData();
-			
-			// Update local mood state as fallback
-			// This ensures mood updates even if React Query fails
-			setTimeout(() => {
-				// Try to get fresh data from the refetch
-				refetchSessionData().then((result) => {
-					if (result.data?.currentMood) {
-						setLocalMood({
-							mood: result.data.currentMood as Mood,
-							intensity: result.data.moodIntensity || 5
-						});
-					}
-				}).catch(() => {
-					// If refetch fails, use optimistic mood update
-					// This is a fallback for when React Query completely fails
-					const possibleMoods: Mood[] = ['happy', 'excited', 'romantic', 'playful', 'jealous', 'lonely', 'sad'];
-					const randomMood = possibleMoods[Math.floor(Math.random() * possibleMoods.length)];
-					setLocalMood({
-						mood: randomMood,
-						intensity: Math.floor(Math.random() * 5) + 5 // 5-10 intensity
-					});
-				});
-			}, 100);
 			
 			// Additional invalidation for React Query v5
 			setTimeout(() => {
@@ -525,6 +492,33 @@ export default function ChatPage() {
 				clearTimeout(scrollTimeoutRef.current);
 				scrollTimeoutRef.current = null;
 			}
+		},
+	});
+
+	// Mood change mutation using tRPC
+	const changeMoodMutation = useMutation({
+		mutationFn: async (input: { sessionId: number; mood: Mood }) => {
+			const response = await fetch("/trpc/chat.changeMood", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify(input),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error?.message || "Failed to change mood");
+			}
+
+			return response.json();
+		},
+		onSuccess: () => {
+			// Refetch session data to get updated mood
+			refetchSessionData();
+			toast.success("Mood berhasil diubah!");
+		},
+		onError: (error: { message?: string }) => {
+			toast.error(error.message || "Gagal mengubah mood");
 		},
 	});
 
@@ -582,12 +576,6 @@ export default function ChatPage() {
 		}
 	}, [sessionMessages]);
 
-	// Reset local mood when session data is available
-	useEffect(() => {
-		if (sessionData?.currentMood) {
-			setLocalMood(null); // Clear local mood when server data is available
-		}
-	}, [sessionData]);
 
 	// Trigger message fetch when we have an existing session from URL
 	useEffect(() => {
@@ -737,14 +725,46 @@ export default function ChatPage() {
 		);
 	};
 
-	// Mood display component
-	const MoodIndicator = ({ mood, intensity }: { mood: Mood; intensity: number }) => {
-		const moodDef = MOOD_DEFINITIONS[mood];
+	// Mood selector component
+	const MoodSelector = ({ currentMood, onMoodChange }: { currentMood: Mood; onMoodChange: (mood: Mood) => void }) => {
+		const [isOpen, setIsOpen] = useState(false);
+		const currentMoodDef = MOOD_DEFINITIONS[currentMood];
 
 		return (
-			<div className="flex items-center gap-1 text-sm text-muted-foreground">
-				<span className="text-lg">{moodDef.emoji}</span>
-				<span className="inline">{moodDef.description}</span>
+			<div className="relative">
+				<button
+					onClick={() => setIsOpen(!isOpen)}
+					className="flex items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs hover:bg-accent"
+				>
+					<span className="text-sm">{currentMoodDef.emoji}</span>
+					<span>{currentMoodDef.description}</span>
+					<ChevronDown className="h-3 w-3" />
+				</button>
+				
+				{isOpen && (
+					<div className="absolute top-full z-50 mt-1 w-64 rounded-lg border bg-background shadow-lg">
+						<div className="py-1">
+							{Object.entries(MOOD_DEFINITIONS).map(([mood, def]) => (
+								<button
+									key={mood}
+									onClick={() => {
+										onMoodChange(mood as Mood);
+										setIsOpen(false);
+									}}
+									className={`w-full flex items-center gap-2 rounded-md px-2 py-1 text-left text-xs hover:bg-accent ${
+										mood === currentMood ? 'bg-accent' : ''
+									}`}
+								>
+									<span className="text-sm">{def.emoji}</span>
+									<div>
+										<div className="font-medium">{def.description}</div>
+										
+									</div>
+								</button>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		);
 	};
@@ -833,7 +853,7 @@ export default function ChatPage() {
 		<SidebarLayout>
 			<div className="flex h-full flex-col bg-background overflow-hidden">
 				{/* Header */}
-				<div className="flex items-center justify-between border-b bg-background p-2 flex-shrink-0">
+				<div className="flex items-center justify-between border-b bg-background px-3 py-1.5 flex-shrink-0">
 					<div className="flex items-center gap-3">
 						<Button asChild variant="ghost" size="icon" className="lg:hidden">
 							<Link href="/chats">
@@ -861,16 +881,20 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
-							{(sessionData?.currentMood || localMood) && (
-								<MoodIndicator 
-									mood={(localMood?.mood || sessionData?.currentMood) as Mood || "happy"} 
-									intensity={localMood?.intensity || sessionData?.moodIntensity || 5} 
+							{sessionData?.currentMood && actualSessionId && (
+								<MoodSelector 
+									currentMood={sessionData.currentMood as Mood || "happy"}
+									onMoodChange={(mood) => {
+										changeMoodMutation.mutate({
+											sessionId: actualSessionId,
+											mood: mood
+										});
+									}}
 								/>
 							)}
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
-						<ModeToggle />
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost" size="icon">
@@ -916,7 +940,7 @@ export default function ChatPage() {
 				{/* Chat Area */}
 				<div
 					ref={scrollContainerRef}
-					className="flex-1 overflow-y-auto p-6 overscroll-behavior-contain relative touch-pan-y"
+					className="flex-1 overflow-y-auto p-2 overscroll-behavior-contain relative touch-pan-y"
 					style={{ 
 						paddingBottom: isStreaming || isLoading ? (inputBarHeight + (isStreaming && !streamingMessage ? 48 : 32)) : (hideInputBar ? 24 : inputBarHeight + 24)
 					}}
@@ -953,7 +977,7 @@ export default function ChatPage() {
 							</p>
 						</div>
 					) : (
-						<div className="mx-auto max-w-3xl space-y-4">
+						<div className="mx-auto max-w-3xl space-y-4 px-2">
 							{messages.map((message, index) => {
 								const isUser = message.role === "user";
 								const showAvatar =
@@ -967,12 +991,18 @@ export default function ChatPage() {
 									>
 										{!isUser && (
 											<div className="h-8 w-8 flex-shrink-0">
-												{showAvatar && character.avatarUrl && (
-													<img
-														src={character.avatarUrl}
-														alt={character.name}
-														className="h-full w-full rounded-full object-cover"
-													/>
+												{showAvatar && (
+													character.avatarUrl ? (
+														<img
+															src={character.avatarUrl}
+															alt={character.name}
+															className="h-full w-full rounded-full object-cover"
+														/>
+													) : (
+														<div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+															<User className="h-4 w-4 text-muted-foreground" />
+														</div>
+													)
 												)}
 											</div>
 										)}
@@ -1004,12 +1034,16 @@ export default function ChatPage() {
 							{isStreaming && streamingMessage && (
 								<div className="flex items-end gap-3 justify-start mb-4">
 									<div className="h-8 w-8 flex-shrink-0">
-										{character.avatarUrl && (
+										{character.avatarUrl ? (
 											<img
 												src={character.avatarUrl}
 												alt={character.name}
 												className="h-full w-full rounded-full object-cover"
 											/>
+										) : (
+											<div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+												<User className="h-4 w-4 text-muted-foreground" />
+											</div>
 										)}
 									</div>
 									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5 shadow-sm border">
