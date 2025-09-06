@@ -17,24 +17,23 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Bump version (minor)
-        run: npm run version:minor
+        run: bun run version:minor
 
       - name: Commit version bump
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add package.json src/lib/version.ts
-          git commit -m "Bump version to $(node -p "require('./package.json').version")" || exit 0
+          git commit -m "Bump version to $(bun -e "console.log(JSON.parse(require('fs').readFileSync('./package.json', 'utf8')).version)")" || exit 0
           git push
 
       - name: Set up Docker Buildx
