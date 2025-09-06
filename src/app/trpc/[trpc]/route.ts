@@ -9,6 +9,12 @@ function handler(req: NextRequest) {
 		req,
 		router: appRouter,
 		createContext: () => createContext(req),
+		onError: ({ error, path }) => {
+			// Only log errors in development, not successful requests
+			if (process.env.NODE_ENV === "development") {
+				console.error(`tRPC error on ${path}:`, error);
+			}
+		},
 	});
 }
 export { handler as GET, handler as POST };

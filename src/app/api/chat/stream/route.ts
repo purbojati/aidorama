@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 			.from(chatMessages)
 			.where(eq(chatMessages.sessionId, sessionId))
 			.orderBy(desc(chatMessages.createdAt))
-			.limit(10);
+			.limit(8);
 
 		// Prepare messages for AI
 		const character = sessionWithCharacter[0].character;
@@ -96,21 +96,7 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
-		const systemPrompt = `Peran: ${character.name}.
-Karakter:
-${character.synopsis ? `- Sinopsis: ${character.synopsis}` : ""}
-${character.description ? `- Deskripsi: ${character.description}` : ""}
-${character.personality ? `- Sifat: ${character.personality}` : ""}
-${character.backstory ? `- Latar: ${character.backstory}` : ""}
-${character.greetings ? `- Sapaan: ${character.greetings}` : ""}
-
-Skenario:
-- Situasi: ${character.defaultSituationName || "Percakapan biasa"}. ${
-			character.initialSituationDetails || ""
-		}
-- Peran User: ${character.defaultUserRoleName || "Pengguna"}. ${
-			character.defaultUserRoleDetails || ""
-		}
+		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
@@ -139,6 +125,15 @@ Aturan:
 		const stream = new ReadableStream({
 			async start(controller) {
 				try {
+					// Prepare OpenRouter API request
+					const openRouterRequest = {
+						model: "deepseek/deepseek-chat-v3.1",
+						messages,
+						max_tokens: 6000,
+						temperature: 0.8,
+						stream: true, // Enable streaming
+					};
+
 					// Call OpenRouter API with streaming
 					const response = await fetch(
 						"https://openrouter.ai/api/v1/chat/completions",
@@ -150,20 +145,14 @@ Aturan:
 								"HTTP-Referer": "https://aidorama.app",
 								"X-Title": "AiDorama",
 							},
-							body: JSON.stringify({
-								model: "deepseek/deepseek-chat-v3.1",
-								messages,
-								max_tokens: 6000,
-								temperature: 0.8,
-								stream: true, // Enable streaming
-							}),
+							body: JSON.stringify(openRouterRequest),
 						},
 					);
 
 					if (!response.ok) {
 						const errorText = await response.text();
 						console.error(
-							`OpenRouter API Error - Status: ${response.status}, Response: ${errorText}`,
+							`❌ [STREAM API] OpenRouter API Error - Status: ${response.status}, Response: ${errorText}`,
 						);
 						controller.error(new Error(`OpenRouter API Error: ${errorText}`));
 						return;

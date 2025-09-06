@@ -12,6 +12,113 @@ import { ensureUniqueUsername, generateUsername } from "../lib/utils";
 import { TRPCError } from "@trpc/server";
 import { CHARACTER_TAG_OPTIONS } from "@/lib/character-tags";
 
+// Helper function to generate character summary
+async function generateCharacterSummary(characterData: {
+	name: string;
+	synopsis: string;
+	description: string;
+	personality?: string;
+	backstory?: string;
+	greetings: string;
+	defaultSituationName?: string;
+	initialSituationDetails?: string;
+	defaultUserRoleName?: string;
+	defaultUserRoleDetails?: string;
+	complianceMode?: string;
+}): Promise<string> {
+	if (!process.env.OPENROUTER_API_KEY) {
+		// Fallback to basic summary if no API key
+		let fallbackSummary = `Kamu adalah ${characterData.name}. ${characterData.synopsis}`;
+		
+		if (characterData.defaultSituationName || characterData.initialSituationDetails) {
+			fallbackSummary += ` Situasi: ${characterData.defaultSituationName || "Percakapan biasa"}. ${characterData.initialSituationDetails || ""}`;
+		}
+		
+		if (characterData.defaultUserRoleName || characterData.defaultUserRoleDetails) {
+			fallbackSummary += ` Peran User: ${characterData.defaultUserRoleName || "Pengguna"}. ${characterData.defaultUserRoleDetails || ""}`;
+		}
+		
+		return fallbackSummary;
+	}
+
+	try {
+		const systemPrompt = `Buat ringkasan lengkap karakter untuk AI chat yang mencakup karakter, skenario, dan peran user. Format: "Kamu adalah [nama]. [ringkasan karakter]. [skenario]. [peran user]". Maksimal 200 kata. Bahasa Indonesia.`;
+
+		const userPrompt = `Nama: ${characterData.name}
+Sinopsis: ${characterData.synopsis}
+Deskripsi: ${characterData.description}
+${characterData.personality ? `Kepribadian: ${characterData.personality}` : ""}
+${characterData.backstory ? `Latar belakang: ${characterData.backstory}` : ""}
+Sapaan: ${characterData.greetings}
+${characterData.defaultSituationName ? `Situasi: ${characterData.defaultSituationName}` : ""}
+${characterData.initialSituationDetails ? `Detail Situasi: ${characterData.initialSituationDetails}` : ""}
+${characterData.defaultUserRoleName ? `Peran User: ${characterData.defaultUserRoleName}` : ""}
+${characterData.defaultUserRoleDetails ? `Detail Peran User: ${characterData.defaultUserRoleDetails}` : ""}
+${characterData.complianceMode ? `Mode Kepatuhan: ${characterData.complianceMode}` : ""}`;
+
+		const response = await fetch(
+			"https://openrouter.ai/api/v1/chat/completions",
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+					"Content-Type": "application/json",
+					"HTTP-Referer": "https://aidorama.app",
+					"X-Title": "AIDorama",
+				},
+				body: JSON.stringify({
+					model: "deepseek/deepseek-chat-v3.1",
+					messages: [
+						{ role: "system", content: systemPrompt },
+						{ role: "user", content: userPrompt },
+					],
+					max_tokens: 200,
+					temperature: 0.3,
+					stream: false,
+				}),
+			},
+		);
+
+		if (!response.ok) {
+			throw new Error("Failed to generate summary");
+		}
+
+		const result = await response.json();
+		const summary = result.choices?.[0]?.message?.content?.trim();
+
+		if (summary) {
+			return summary;
+		}
+
+		// Fallback if AI response is empty
+		let fallbackSummary = `Kamu adalah ${characterData.name}. ${characterData.synopsis}`;
+		
+		if (characterData.defaultSituationName || characterData.initialSituationDetails) {
+			fallbackSummary += ` Situasi: ${characterData.defaultSituationName || "Percakapan biasa"}. ${characterData.initialSituationDetails || ""}`;
+		}
+		
+		if (characterData.defaultUserRoleName || characterData.defaultUserRoleDetails) {
+			fallbackSummary += ` Peran User: ${characterData.defaultUserRoleName || "Pengguna"}. ${characterData.defaultUserRoleDetails || ""}`;
+		}
+		
+		return fallbackSummary;
+	} catch (error) {
+		console.error("Error generating character summary:", error);
+		// Fallback to basic summary
+		let fallbackSummary = `Kamu adalah ${characterData.name}. ${characterData.synopsis}`;
+		
+		if (characterData.defaultSituationName || characterData.initialSituationDetails) {
+			fallbackSummary += ` Situasi: ${characterData.defaultSituationName || "Percakapan biasa"}. ${characterData.initialSituationDetails || ""}`;
+		}
+		
+		if (characterData.defaultUserRoleName || characterData.defaultUserRoleDetails) {
+			fallbackSummary += ` Peran User: ${characterData.defaultUserRoleName || "Pengguna"}. ${characterData.defaultUserRoleDetails || ""}`;
+		}
+		
+		return fallbackSummary;
+	}
+}
+
 // Dev-only access bypass for debugging
 // Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
 // This is ignored in production regardless of the flag
@@ -319,10 +426,26 @@ export const appRouter = router({
 				}),
 			)
 			.mutation(async ({ ctx, input }) => {
+				// Generate character summary
+				const summary = await generateCharacterSummary({
+					name: input.name,
+					synopsis: input.synopsis,
+					description: input.description,
+					personality: input.personality,
+					backstory: input.backstory,
+					greetings: input.greetings,
+					defaultSituationName: input.defaultSituationName,
+					initialSituationDetails: input.initialSituationDetails,
+					defaultUserRoleName: input.defaultUserRoleName,
+					defaultUserRoleDetails: input.defaultUserRoleDetails,
+					complianceMode: input.complianceMode,
+				});
+
 				const newCharacter = await db
 					.insert(characters)
 					.values({
 						...input,
+						summary,
 						userId: ctx.session.user.id,
 					})
 					.returning();
@@ -413,12 +536,28 @@ export const appRouter = router({
 					);
 				}
 
+				// Generate character summary
+				const summary = await generateCharacterSummary({
+					name: input.name,
+					synopsis: input.synopsis,
+					description: input.description,
+					personality: input.personality,
+					backstory: input.backstory,
+					greetings: input.greetings,
+					defaultSituationName: input.defaultSituationName,
+					initialSituationDetails: input.initialSituationDetails,
+					defaultUserRoleName: input.defaultUserRoleName,
+					defaultUserRoleDetails: input.defaultUserRoleDetails,
+					complianceMode: input.complianceMode,
+				});
+
 				const updatedCharacter = await db
 					.update(characters)
 					.set({
 						name: input.name,
 						synopsis: input.synopsis,
 						description: input.description,
+						summary,
 						greetings: input.greetings,
 						characterHistory: input.characterHistory,
 						personality: input.personality,
@@ -737,12 +876,6 @@ JSON format (hanya field yang ada nilainya):
 				.where(eq(chatSessions.userId, ctx.session.user.id))
 				.orderBy(desc(chatSessions.updatedAt));
 
-			// Debug: Log the sessions to help identify the issue
-			console.log("Fetched chat sessions:", sessions.map(s => ({
-				id: s.id,
-				characterName: s.character?.name,
-				avatarUrl: s.character?.avatarUrl
-			})));
 
 			return sessions;
 		}),

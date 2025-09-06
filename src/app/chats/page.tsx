@@ -67,7 +67,6 @@ export default function ChatsPage() {
 			return response.json();
 		},
 		onSuccess: (data, variables) => {
-			console.log("Delete session success:", data);
 			toast.success("Sesi chat berhasil dihapus! 🗑️");
 			// Immediately remove from local state
 			setDeletedSessions((prev) => [...prev, variables.sessionId]);
@@ -98,14 +97,6 @@ export default function ChatsPage() {
 			}
 		) as ChatSession[]) || [];
 
-	// Debug: Log avatar URLs to help identify the issue
-	if (filteredSessions.length > 0) {
-		console.log("Chat sessions with character data:", filteredSessions.map(s => ({
-			id: s.id,
-			characterName: s.character?.name,
-			avatarUrl: s.character?.avatarUrl
-		})));
-	}
 
 	const handleDeleteSession = async (sessionId: number, title: string) => {
 		if (
@@ -217,9 +208,7 @@ export default function ChatsPage() {
 													const fallback = e.currentTarget.nextElementSibling as HTMLElement;
 													if (fallback) fallback.style.display = 'flex';
 												}}
-												onLoad={() => {
-													console.log("Avatar image loaded successfully:", session.character?.avatarUrl);
-												}}
+												onLoad={() => {}}
 											/>
 										) : (
 											<div className="ml-2 h-10 w-10 rounded-full bg-muted flex items-center justify-center">

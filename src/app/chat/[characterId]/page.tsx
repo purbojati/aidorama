@@ -63,13 +63,6 @@ export default function ChatPage() {
 	const characterId = Number.parseInt(params.characterId as string);
 	const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
-	// Debug logging
-	console.log(
-		"Character ID from params:",
-		params.characterId,
-		"Parsed:",
-		characterId,
-	);
 
 	// Get sessionId from URL params if continuing an existing chat
 	const existingSessionId = searchParams.get("sessionId");
@@ -284,7 +277,6 @@ export default function ChatPage() {
 			}
 
 			const result = await response.json();
-			console.log("CreateSession success:", result);
 			return result.result?.data;
 		},
 		onSuccess: (session: { id: number }) => {
@@ -341,7 +333,6 @@ export default function ChatPage() {
 			setIsStreaming(true);
 			setStreamingMessage("");
 
-			console.log("Streaming to:", "/api/chat/stream");
 
 			const response = await fetch("/api/chat/stream", {
 				method: "POST",

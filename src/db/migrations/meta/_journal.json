@@ -15,6 +15,13 @@
       "when": 1751551208442,
       "tag": "0001_even_rogue",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757170660658,
+      "tag": "0002_fearless_maria_hill",
+      "breakpoints": true
     }
   ]
 }

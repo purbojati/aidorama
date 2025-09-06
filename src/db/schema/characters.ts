@@ -16,6 +16,7 @@ export const characters = pgTable("characters", {
 	name: text("name").notNull(),
 	synopsis: text("synopsis").notNull(),
 	description: text("description").notNull(),
+	summary: text("summary"),
 	greetings: text("greetings").notNull(),
 	characterHistory: text("character_history"),
 	personality: text("personality"),

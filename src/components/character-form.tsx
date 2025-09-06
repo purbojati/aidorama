@@ -129,10 +129,7 @@ export default function CharacterFormComponent({
 				isPublic: character.isPublic || false,
 			});
 			if (character.avatarUrl) {
-				console.log("Setting avatar preview for edit mode:", character.avatarUrl);
 				setAvatarPreview(character.avatarUrl);
-			} else {
-				console.log("No avatar URL found for character:", character.name);
 			}
 			setIsInitialized(true);
 		}
@@ -418,7 +415,6 @@ export default function CharacterFormComponent({
 
 		// Create initial preview
 		const previewUrl = URL.createObjectURL(file);
-		console.log("Creating initial avatar preview:", previewUrl);
 		setAvatarPreview(previewUrl);
 		setIsUploadingAvatar(true);
 
@@ -444,7 +440,6 @@ export default function CharacterFormComponent({
 
 			// Update preview with compressed version
 			const compressedPreviewUrl = URL.createObjectURL(clientCompressed.file);
-			console.log("Updating avatar preview with compressed version:", compressedPreviewUrl);
 			setAvatarPreview(compressedPreviewUrl);
 
 			// Upload compressed file to R2
@@ -470,7 +465,6 @@ export default function CharacterFormComponent({
 			const result = await response.json();
 
 			// Update form with R2 URL
-			console.log("Updating form with R2 URL:", result.url);
 			setForm((prev) => ({ ...prev, avatarUrl: result.url }));
 
 			// Clean up preview URL if it was a blob (compressedPreviewUrl)
@@ -674,9 +668,7 @@ export default function CharacterFormComponent({
 														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
 														if (fallback) fallback.style.display = 'flex';
 													}}
-													onLoad={() => {
-														console.log("Avatar blob preview loaded successfully:", avatarPreview);
-													}}
+													onLoad={() => {}}
 												/>
 											) : (
 												// Use Next.js Image for R2 URLs
@@ -692,9 +684,7 @@ export default function CharacterFormComponent({
 														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
 														if (fallback) fallback.style.display = 'flex';
 													}}
-													onLoad={() => {
-														console.log("Avatar R2 preview loaded successfully:", avatarPreview);
-													}}
+													onLoad={() => {}}
 													unoptimized={true}
 												/>
 											)}
