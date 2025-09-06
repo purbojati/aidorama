@@ -339,12 +339,18 @@ export default function ChatPage() {
 			setIsStreaming(true);
 			setStreamingMessage("");
 
+			// Get current browser time in 24-hour format
+			const now = new Date();
+			const browserTime = now.toISOString();
 
 			const response = await fetch("/api/chat/stream", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
-				body: JSON.stringify(input),
+				body: JSON.stringify({
+					...input,
+					browserTime: browserTime,
+				}),
 			});
 
 			if (!response.ok) {

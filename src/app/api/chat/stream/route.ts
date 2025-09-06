@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { sessionId, content, imageUrl } = body;
+		const { sessionId, content, imageUrl, browserTime } = body;
 
 		if (!sessionId || !content) {
 			return NextResponse.json(
@@ -111,13 +111,40 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
+		// Get current time information for context
+		// Use browser time if provided, otherwise fallback to server time
+		const now = browserTime ? new Date(browserTime) : new Date();
+		const currentTime = now.toLocaleString("id-ID", {
+			weekday: "long",
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+			hour12: false
+		});
+		const timeOnly = now.toLocaleTimeString("id-ID", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false
+		});
+		const dateOnly = now.toLocaleDateString("id-ID", {
+			weekday: "long",
+			year: "numeric",
+			month: "long",
+			day: "numeric"
+		});
+
 		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
 - Balasan: Detail, deskriptif, natural (Bahasa Indonesia).
 - Aksi: Selalu dalam karakter, ekspresikan emosi.
-- Konteks: Fiksi & imajinasi.`;
+- Konteks: Fiksi & imajinasi.
+
+Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 
 		// Build messages with image descriptions
 		const messages = [
