@@ -720,7 +720,7 @@ JSON format (hanya field yang ada nilainya):
 
 		// Get user's chat sessions
 		getUserSessions: protectedProcedure.query(async ({ ctx }) => {
-			return await db
+			const sessions = await db
 				.select({
 					id: chatSessions.id,
 					title: chatSessions.title,
@@ -733,9 +733,18 @@ JSON format (hanya field yang ada nilainya):
 					},
 				})
 				.from(chatSessions)
-				.leftJoin(characters, eq(chatSessions.characterId, characters.id))
+				.innerJoin(characters, eq(chatSessions.characterId, characters.id))
 				.where(eq(chatSessions.userId, ctx.session.user.id))
 				.orderBy(desc(chatSessions.updatedAt));
+
+			// Debug: Log the sessions to help identify the issue
+			console.log("Fetched chat sessions:", sessions.map(s => ({
+				id: s.id,
+				characterName: s.character?.name,
+				avatarUrl: s.character?.avatarUrl
+			})));
+
+			return sessions;
 		}),
 
 		// Find existing session for a character (to prevent duplicate sessions)

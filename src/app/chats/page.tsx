@@ -92,6 +92,15 @@ export default function ChatsPage() {
 				!deletedSessions.includes(session.id) && session.character,
 		) as ChatSession[]) || [];
 
+	// Debug: Log avatar URLs to help identify the issue
+	if (filteredSessions.length > 0) {
+		console.log("Chat sessions with character data:", filteredSessions.map(s => ({
+			id: s.id,
+			characterName: s.character?.name,
+			avatarUrl: s.character?.avatarUrl
+		})));
+	}
+
 	const handleDeleteSession = async (sessionId: number, title: string) => {
 		if (
 			window.confirm(
@@ -190,14 +199,37 @@ export default function ChatsPage() {
 												dengan {session.character?.name || "Karakter"}
 											</CardDescription>
 										</div>
-										{session.character?.avatarUrl && (
-											<Image
-												src={session.character.avatarUrl}
-												alt={session.character?.name || "Character"}
-												width={40}
-												height={40}
-												className="ml-2 h-10 w-10 rounded-full object-cover"
-											/>
+										{session.character?.avatarUrl ? (
+											<div className="ml-2 h-10 w-10 rounded-full overflow-hidden">
+												<Image
+													src={session.character.avatarUrl}
+													alt={session.character?.name || "Character"}
+													width={40}
+													height={40}
+													className="h-full w-full object-cover"
+													onError={(e) => {
+														console.error("Avatar image failed to load:", session.character?.avatarUrl);
+														// Hide the image on error and show fallback
+														e.currentTarget.style.display = 'none';
+														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+														if (fallback) fallback.style.display = 'flex';
+													}}
+													onLoad={() => {
+														console.log("Avatar image loaded successfully:", session.character?.avatarUrl);
+													}}
+												/>
+												<div className="h-full w-full bg-muted flex items-center justify-center" style={{ display: 'none' }}>
+													<span className="text-muted-foreground text-sm font-medium">
+														{session.character?.name?.charAt(0)?.toUpperCase() || "?"}
+													</span>
+												</div>
+											</div>
+										) : (
+											<div className="ml-2 h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+												<span className="text-muted-foreground text-sm font-medium">
+													{session.character?.name?.charAt(0)?.toUpperCase() || "?"}
+												</span>
+											</div>
 										)}
 									</div>
 								</CardHeader>
