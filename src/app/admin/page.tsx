@@ -499,7 +499,23 @@ export default function AdminDashboard() {
                                               : "bg-muted"
                                           }`}
                                         >
-                                          <p className="text-sm leading-relaxed">{message.content}</p>
+                                          {message.imageUrl && (
+                                            <div className="mb-2 -mx-1 -mt-1">
+                                              <img
+                                                src={message.imageUrl}
+                                                alt="Uploaded image"
+                                                className="w-full max-w-xs h-auto rounded-t-lg object-cover"
+                                              />
+                                            </div>
+                                          )}
+                                          {message.content && (
+                                            <p className="text-sm leading-relaxed">{message.content}</p>
+                                          )}
+                                          {message.imageDescription && (
+                                            <p className="text-xs opacity-70 italic mt-1">
+                                              [Deskripsi: {message.imageDescription}]
+                                            </p>
+                                          )}
                                           <p className="text-xs opacity-70 mt-2">
                                             {formatDate(message.createdAt, {
                                               hour: "2-digit",
