@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -104,16 +103,9 @@ export default function ChatsPage() {
 		console.log("Chat sessions with character data:", filteredSessions.map(s => ({
 			id: s.id,
 			characterName: s.character?.name,
-			avatarUrl: s.character?.avatarUrl,
-			hasCharacter: !!s.character,
-			characterId: s.character?.id,
-			avatarUrlType: typeof s.character?.avatarUrl,
-			avatarUrlLength: s.character?.avatarUrl?.length || 0
+			avatarUrl: s.character?.avatarUrl
 		})));
 	}
-
-	// Debug: Log raw chat sessions data
-	console.log("Raw chat sessions data:", chatSessions);
 
 	const handleDeleteSession = async (sessionId: number, title: string) => {
 		if (
@@ -214,31 +206,21 @@ export default function ChatsPage() {
 											</CardDescription>
 										</div>
 										{session.character?.avatarUrl ? (
-											<div className="ml-2 h-10 w-10 rounded-full overflow-hidden relative">
-												<Image
-													src={session.character.avatarUrl}
-													alt={session.character?.name || "Character"}
-													width={40}
-													height={40}
-													className="h-full w-full object-cover"
-													onError={(e) => {
-														console.error("Avatar image failed to load:", session.character?.avatarUrl);
-														// Hide the image on error and show fallback
-														e.currentTarget.style.display = 'none';
-														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-														if (fallback) fallback.style.display = 'flex';
-													}}
-													onLoad={() => {
-														console.log("Avatar image loaded successfully:", session.character?.avatarUrl);
-													}}
-												/>
-												{/* Fallback that shows when image fails to load */}
-												<div className="absolute inset-0 h-full w-full bg-muted flex items-center justify-center" style={{ display: 'none' }}>
-													<span className="text-muted-foreground text-sm font-medium">
-														{session.character?.name?.charAt(0)?.toUpperCase() || "?"}
-													</span>
-												</div>
-											</div>
+											<img
+												src={session.character.avatarUrl}
+												alt={session.character?.name || "Character"}
+												className="ml-2 h-10 w-10 rounded-full object-cover"
+												onError={(e) => {
+													console.error("Avatar image failed to load:", session.character?.avatarUrl);
+													// Hide the image on error and show fallback
+													e.currentTarget.style.display = 'none';
+													const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+													if (fallback) fallback.style.display = 'flex';
+												}}
+												onLoad={() => {
+													console.log("Avatar image loaded successfully:", session.character?.avatarUrl);
+												}}
+											/>
 										) : (
 											<div className="ml-2 h-10 w-10 rounded-full bg-muted flex items-center justify-center">
 												<span className="text-muted-foreground text-sm font-medium">

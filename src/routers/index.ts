@@ -741,9 +741,7 @@ JSON format (hanya field yang ada nilainya):
 			console.log("Fetched chat sessions:", sessions.map(s => ({
 				id: s.id,
 				characterName: s.character?.name,
-				avatarUrl: s.character?.avatarUrl,
-				hasCharacter: !!s.character,
-				characterId: s.character?.id
+				avatarUrl: s.character?.avatarUrl
 			})));
 
 			return sessions;
