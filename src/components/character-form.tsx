@@ -129,7 +129,10 @@ export default function CharacterFormComponent({
 				isPublic: character.isPublic || false,
 			});
 			if (character.avatarUrl) {
+				console.log("Setting avatar preview for edit mode:", character.avatarUrl);
 				setAvatarPreview(character.avatarUrl);
+			} else {
+				console.log("No avatar URL found for character:", character.name);
 			}
 			setIsInitialized(true);
 		}
@@ -415,6 +418,7 @@ export default function CharacterFormComponent({
 
 		// Create initial preview
 		const previewUrl = URL.createObjectURL(file);
+		console.log("Creating initial avatar preview:", previewUrl);
 		setAvatarPreview(previewUrl);
 		setIsUploadingAvatar(true);
 
@@ -440,6 +444,7 @@ export default function CharacterFormComponent({
 
 			// Update preview with compressed version
 			const compressedPreviewUrl = URL.createObjectURL(clientCompressed.file);
+			console.log("Updating avatar preview with compressed version:", compressedPreviewUrl);
 			setAvatarPreview(compressedPreviewUrl);
 
 			// Upload compressed file to R2
@@ -465,6 +470,7 @@ export default function CharacterFormComponent({
 			const result = await response.json();
 
 			// Update form with R2 URL
+			console.log("Updating form with R2 URL:", result.url);
 			setForm((prev) => ({ ...prev, avatarUrl: result.url }));
 
 			// Clean up preview URL if it was a blob (compressedPreviewUrl)
@@ -655,17 +661,52 @@ export default function CharacterFormComponent({
 										</div>
 									) : avatarPreview ? (
 										<div className="h-full w-full relative">
-											<Image
-												src={avatarPreview}
-												alt="Avatar preview"
-												fill
-												className="object-cover"
-												onError={(e) => {
-													console.error("Avatar image load error:", e);
-													// You could set a fallback here if needed
-												}}
-												unoptimized={avatarPreview.startsWith("blob:") || avatarPreview.includes("r2.dev")}
-											/>
+											{avatarPreview.startsWith("blob:") ? (
+												// Use regular img tag for blob URLs to avoid Next.js Image issues
+												<img
+													src={avatarPreview}
+													alt="Avatar preview"
+													className="h-full w-full object-cover"
+													onError={(e) => {
+														console.error("Avatar blob image load error:", avatarPreview, e);
+														// Hide the image and show fallback
+														e.currentTarget.style.display = 'none';
+														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+														if (fallback) fallback.style.display = 'flex';
+													}}
+													onLoad={() => {
+														console.log("Avatar blob preview loaded successfully:", avatarPreview);
+													}}
+												/>
+											) : (
+												// Use Next.js Image for R2 URLs
+												<Image
+													src={avatarPreview}
+													alt="Avatar preview"
+													fill
+													className="object-cover"
+													onError={(e) => {
+														console.error("Avatar R2 image load error:", avatarPreview, e);
+														// Hide the image and show fallback
+														e.currentTarget.style.display = 'none';
+														const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+														if (fallback) fallback.style.display = 'flex';
+													}}
+													onLoad={() => {
+														console.log("Avatar R2 preview loaded successfully:", avatarPreview);
+													}}
+													unoptimized={true}
+												/>
+											)}
+											{/* Fallback when image fails to load */}
+											<div className="absolute inset-0 h-full w-full bg-muted flex items-center justify-center" style={{ display: 'none' }}>
+												<div className="text-center">
+													<div className="mb-2 text-3xl">📷</div>
+													<p className="font-medium text-muted-foreground text-xs">
+														Preview Error
+													</p>
+												</div>
+											</div>
 										</div>
 									) : (
 										<div className="text-center">
