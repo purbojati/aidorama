@@ -102,13 +102,35 @@ export default function AdminDashboard() {
 
   // Toggle character visibility mutation
   const toggleVisibilityMutation = useMutation({
-    mutationFn: trpc.admin.toggleCharacterVisibility.mutate,
+    mutationFn: async (input: { characterId: number; isPublic: boolean }) => {
+      const serverUrl =
+        process.env.NEXT_PUBLIC_SERVER_URL ||
+        (typeof window !== "undefined"
+          ? window.location.origin
+          : "http://localhost:3000");
+      
+      const response = await fetch(`${serverUrl}/api/trpc/admin.toggleCharacterVisibility`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          json: input,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update character visibility");
+      }
+
+      return response.json();
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: trpc.admin.getAllCharacters.getQueryKey() });
-      queryClient.invalidateQueries({ queryKey: trpc.admin.getDashboardStats.getQueryKey() });
+      queryClient.invalidateQueries({ queryKey: trpc.admin.getAllCharacters.queryKey() });
+      queryClient.invalidateQueries({ queryKey: trpc.admin.getDashboardStats.queryKey() });
       toast.success("Visibility updated successfully");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to update visibility");
     },
   });
