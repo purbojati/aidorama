@@ -360,9 +360,10 @@ export default function ChatPage() {
 			setIsStreaming(true);
 			setStreamingMessage("");
 
-			// Get current browser time in 24-hour format
+			// Get current time in Jakarta timezone
 			const now = new Date();
-			const browserTime = now.toISOString();
+			const jakartaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+			const browserTime = jakartaTime.toISOString();
 
 			const response = await fetch("/api/chat/stream", {
 				method: "POST",

@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 		};
 
 		// Get current time information for context
-		// Use browser time if provided, otherwise fallback to server time
+		// Use browser time if provided (now in Jakarta timezone), otherwise fallback to server time
 		const timeNow = browserTime ? new Date(browserTime) : new Date();
 		const currentTime = timeNow.toLocaleString("id-ID", {
 			weekday: "long",
