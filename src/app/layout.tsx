@@ -5,6 +5,7 @@ import "../index.css";
 import Providers from "@/components/providers";
 import { ClientLayout } from "@/components/client-layout";
 import { ThemeColor } from "@/components/theme-color";
+import { APP_VERSION } from "@/lib/version";
 
 const jakartaSans = Plus_Jakarta_Sans({
 	variable: "--font-sans",
@@ -139,6 +140,11 @@ export default function RootLayout({
 				<script
 					dangerouslySetInnerHTML={{
 						__html: `window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};`,
+					}}
+				/>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `window.__APP_VERSION__ = "${APP_VERSION}";`,
 					}}
 				/>
 				<script

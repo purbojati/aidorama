@@ -5,15 +5,37 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
-  docker:
+  version-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bump version (minor)
+        run: npm run version:minor
+
+      - name: Commit version bump
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json src/lib/version.ts
+          git commit -m "Bump version to $(node -p "require('./package.json').version")" || exit 0
+          git push
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
