@@ -1,3 +1,4 @@
+// src/db/schema/auth.ts
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {

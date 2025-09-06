@@ -148,7 +148,7 @@ Aturan:
 								Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
 								"Content-Type": "application/json",
 								"HTTP-Referer": "https://aidorama.app",
-								"X-Title": "AIDorama",
+								"X-Title": "AiDorama",
 							},
 							body: JSON.stringify({
 								model: "deepseek/deepseek-chat-v3.1",

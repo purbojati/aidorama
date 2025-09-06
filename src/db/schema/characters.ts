@@ -1,3 +1,5 @@
+// src/db/schema/characters.ts
+
 import {
 	boolean,
 	integer,
