@@ -1,16 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
 	const { data: session, isPending } = authClient.useSession();
 	const router = useRouter();
-	const [isSignUp, setIsSignUp] = useState(false);
 
 	useEffect(() => {
 		if (session) {
@@ -48,11 +46,7 @@ export default function LoginPage() {
 			{/* Main content */}
 			<div className="flex min-h-[calc(100vh-100px)] items-center justify-center px-4">
 				<div className="w-full max-w-6xl">
-					{isSignUp ? (
-						<SignUpForm onSwitchToSignIn={() => setIsSignUp(false)} />
-					) : (
-						<SignInForm onSwitchToSignUp={() => setIsSignUp(true)} />
-					)}
+					<SignInForm />
 				</div>
 			</div>
 		</div>
