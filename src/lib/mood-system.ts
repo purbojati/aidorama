@@ -32,7 +32,7 @@ export const MOOD_DEFINITIONS: Record<Mood, {
   },
   sad: {
     emoji: "😢",
-    description: "Lagi sedih nih",
+    description: "Lagi sedih",
     responseStyle: "Sedih, pakai 'nih', 'ya', 'hmm', banyak titik-titik",
     triggers: ["long silence from user", "negative conversation tone", "loneliness"]
   },
@@ -50,7 +50,7 @@ export const MOOD_DEFINITIONS: Record<Mood, {
   },
   jealous: {
     emoji: "😤",
-    description: "Lagi cemburu nih",
+    description: "Lagi cemburu",
     responseStyle: "Cemburu, pakai 'hmm', 'serius?', 'beneran?', sedikit sarkas",
     triggers: ["user mentions others", "long response time", "lack of attention"]
   },
@@ -478,9 +478,9 @@ export function getMoodResponsePrefix(mood: Mood, intensity: number): string {
     return `${moodDef.emoji} ${moodDef.emoji} `; // Double emoji for high intensity
   } else if (intensity >= 6) {
     return `${moodDef.emoji} `;
+  } else {
+    return `${moodDef.emoji} `; // Always return emoji based on mood config
   }
-  
-  return ""; // No prefix for low intensity
 }
 
 // Get mood-appropriate system prompt addition (Bahasa Indonesia Jakartan)
