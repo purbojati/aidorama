@@ -9,7 +9,7 @@ export async function describeImage(imageUrl: string): Promise<string> {
 
 		// Try multiple vision models in order of preference
 		const visionModels = [
-			"google/gemini-2.5-flash"
+			"google/gemini-2.0-flash-001"
 		];
 
 		let lastError: Error | null = null;
