@@ -744,7 +744,7 @@ export default function ChatPage() {
 		return (
 			<div className="flex items-center gap-1 text-sm text-muted-foreground">
 				<span className="text-lg">{moodDef.emoji}</span>
-				<span className="hidden sm:inline">{moodDef.description}</span>
+				<span className="inline">{moodDef.description}</span>
 			</div>
 		);
 	};
