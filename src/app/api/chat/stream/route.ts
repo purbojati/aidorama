@@ -8,6 +8,15 @@ import {
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
 import { describeImage } from "../../../../lib/vision";
+import { 
+	calculateMood, 
+	calculateMoodIntensity, 
+	getMoodSystemPrompt, 
+	calculateUserEngagement,
+	getMoodTransitionMessage,
+	type Mood,
+	type MoodTriggers
+} from "../../../../lib/mood-system";
 
 // Dev-only access bypass for debugging
 // Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
@@ -19,11 +28,11 @@ const BYPASS_ACCESS =
 export async function POST(request: NextRequest) {
 	try {
 		// Get session from auth
-		const session = await auth.api.getSession({
+		const authSession = await auth.api.getSession({
 			headers: request.headers,
 		});
 
-		if (!session) {
+		if (!authSession) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
@@ -50,7 +59,7 @@ export async function POST(request: NextRequest) {
 
 		if (
 			!sessionWithCharacter[0] ||
-			(!BYPASS_ACCESS && sessionWithCharacter[0].session.userId !== session.user.id)
+			(!BYPASS_ACCESS && sessionWithCharacter[0].session.userId !== authSession.user.id)
 		) {
 			return NextResponse.json(
 				{ error: "Session not found or access denied" },
@@ -90,6 +99,51 @@ export async function POST(request: NextRequest) {
 			.orderBy(desc(chatMessages.createdAt))
 			.limit(8);
 
+		// Get session data for mood calculation
+		const sessionData = await db
+			.select()
+			.from(chatSessions)
+			.where(eq(chatSessions.id, sessionId))
+			.limit(1);
+
+		const chatSession = sessionData[0];
+		if (!chatSession) {
+			return NextResponse.json(
+				{ error: "Session not found" },
+				{ status: 404 },
+			);
+		}
+
+		// Calculate user engagement and mood triggers
+		const moodCalculationTime = new Date();
+		const timeSinceLastUserMessage = chatSession.lastUserMessage 
+			? Math.floor((moodCalculationTime.getTime() - chatSession.lastUserMessage.getTime()) / (1000 * 60)) // minutes
+			: 0;
+		
+		const userEngagement = calculateUserEngagement(
+			chatSession.conversationLength || 0,
+			chatSession.userResponseTime || 0,
+			Math.floor((moodCalculationTime.getTime() - chatSession.createdAt.getTime()) / (1000 * 60)) // session duration in minutes
+		);
+
+		const moodTriggers: MoodTriggers = {
+			userResponseTime: timeSinceLastUserMessage,
+			conversationLength: chatSession.conversationLength || 0,
+			timeSinceLastMessage: timeSinceLastUserMessage,
+			userEngagement,
+			userMessageContent: content, // Pass user message content for analysis
+			messageCount: (chatSession.conversationLength || 0) + 1 // Current message count
+		};
+
+		// Calculate new mood
+		const currentMood = chatSession.currentMood as Mood || "happy";
+		const newMood = calculateMood(moodTriggers, currentMood);
+		const newMoodIntensity = calculateMoodIntensity(moodTriggers, newMood);
+		
+		// Check if mood changed
+		const moodChanged = newMood !== currentMood;
+		const moodTransitionMessage = moodChanged ? getMoodTransitionMessage(currentMood, newMood) : null;
+
 		// Prepare messages for AI
 		const character = sessionWithCharacter[0].character;
 		if (!character) {
@@ -113,8 +167,8 @@ export async function POST(request: NextRequest) {
 
 		// Get current time information for context
 		// Use browser time if provided, otherwise fallback to server time
-		const now = browserTime ? new Date(browserTime) : new Date();
-		const currentTime = now.toLocaleString("id-ID", {
+		const timeNow = browserTime ? new Date(browserTime) : new Date();
+		const currentTime = timeNow.toLocaleString("id-ID", {
 			weekday: "long",
 			year: "numeric",
 			month: "long",
@@ -124,18 +178,20 @@ export async function POST(request: NextRequest) {
 			second: "2-digit",
 			hour12: false
 		});
-		const timeOnly = now.toLocaleTimeString("id-ID", {
+		const timeOnly = timeNow.toLocaleTimeString("id-ID", {
 			hour: "2-digit",
 			minute: "2-digit",
 			hour12: false
 		});
-		const dateOnly = now.toLocaleDateString("id-ID", {
+		const dateOnly = timeNow.toLocaleDateString("id-ID", {
 			weekday: "long",
 			year: "numeric",
 			month: "long",
 			day: "numeric"
 		});
 
+		const moodSystemPrompt = getMoodSystemPrompt(newMood, newMoodIntensity);
+		
 		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
 
 Aturan:
@@ -144,7 +200,7 @@ Aturan:
 - Aksi: Selalu dalam karakter, ekspresikan emosi.
 - Konteks: Fiksi & imajinasi.
 
-Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
+Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}${moodSystemPrompt}`;
 
 		// Build messages with image descriptions
 		// Only include the latest image description to save tokens
@@ -152,8 +208,10 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 		const latestImageDescription = reversedMessages
 			.find(msg => msg.role === "user" && msg.imageDescription)?.imageDescription;
 
+		// Add mood transition message if mood changed
 		const messages = [
 			{ role: "system", content: systemPrompt },
+			...(moodTransitionMessage ? [{ role: "assistant", content: moodTransitionMessage }] : []),
 			...reversedMessages.map((msg, index) => {
 				let content = msg.content;
 				
@@ -247,10 +305,18 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 										})
 										.returning();
 
-									// Update session timestamp
+									// Update session with mood data and user interaction tracking
 									await db
 										.update(chatSessions)
-										.set({ updatedAt: new Date() })
+										.set({ 
+											updatedAt: new Date(),
+											currentMood: newMood,
+											moodIntensity: newMoodIntensity,
+											lastMoodChange: moodChanged ? new Date() : chatSession.lastMoodChange,
+											conversationLength: (chatSession.conversationLength || 0) + 2, // +2 for user and AI message
+											lastUserMessage: new Date(),
+											userResponseTime: timeSinceLastUserMessage
+										})
 										.where(eq(chatSessions.id, sessionId));
 
 									// Send final message with metadata

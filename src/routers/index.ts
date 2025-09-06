@@ -909,6 +909,30 @@ JSON format (hanya field yang ada nilainya):
 				return existingSession[0] || null;
 			}),
 
+		// Get session data including mood
+		getSession: protectedProcedure
+			.input(
+				z.object({
+					sessionId: z.number(),
+				}),
+			)
+			.query(async ({ ctx, input }) => {
+				// Verify user owns the session
+				const session = await db
+					.select()
+					.from(chatSessions)
+					.where(eq(chatSessions.id, input.sessionId))
+					.limit(1);
+
+				if (!session[0] || (!BYPASS_ACCESS && session[0].userId !== ctx.session.user.id)) {
+					throw new Error(
+						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
+					);
+				}
+
+				return session[0];
+			}),
+
 		// Get messages for a session
 		getSessionMessages: protectedProcedure
 			.input(

@@ -12,6 +12,12 @@ import {
 	Square,
 	User,
 	X,
+	Heart,
+	Smile,
+	Frown,
+	Zap,
+	Sparkles,
+	Meh,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -29,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
+import { MOOD_DEFINITIONS, type Mood } from "@/lib/mood-system";
 
 // Declare sa_event for Simple Analytics
 declare global {
@@ -250,6 +257,12 @@ export default function ChatPage() {
 
 	// Use the actual sessionId we have, either from state or URL
 	const actualSessionId = sessionId || (existingSessionId ? Number.parseInt(existingSessionId) : null);
+
+	// Get session data including mood
+	const { data: sessionData } = useQuery({
+		...trpc.chat.getSession.queryOptions({ sessionId: actualSessionId || 0 }),
+		enabled: !!actualSessionId && actualSessionId > 0,
+	});
 	
 	const { data: sessionMessages, refetch: refetchMessages, isLoading: messagesLoading } = useQuery({
 		...trpc.chat.getSessionMessages.queryOptions({ 
@@ -326,6 +339,8 @@ export default function ChatPage() {
 			refetchMessages();
 			// Also invalidate sessions list as it might show outdated last message
 			queryClient.invalidateQueries(trpc.chat.getUserSessions.queryOptions());
+			// Invalidate session data to reset mood indicator
+			queryClient.invalidateQueries(trpc.chat.getSession.queryOptions({ sessionId: actualSessionId || 0 }));
 			setIsResetConfirmOpen(false);
 		},
 		onError: (error: Error) => {
@@ -428,6 +443,9 @@ export default function ChatPage() {
 				clearTimeout(scrollTimeoutRef.current);
 				scrollTimeoutRef.current = null;
 			}
+			
+			// Invalidate session data to update mood indicator automatically
+			queryClient.invalidateQueries(trpc.chat.getSession.queryOptions({ sessionId: actualSessionId || 0 }));
 			
 			// Track send_chat event
 			if (typeof window !== "undefined" && window.sa_event) {
@@ -656,6 +674,31 @@ export default function ChatPage() {
 		);
 	};
 
+	// Mood display component
+	const MoodIndicator = ({ mood, intensity }: { mood: Mood; intensity: number }) => {
+		const moodDef = MOOD_DEFINITIONS[mood];
+		const getMoodIcon = (mood: Mood) => {
+			switch (mood) {
+				case "happy": return <Smile className="h-4 w-4" />;
+				case "sad": return <Frown className="h-4 w-4" />;
+				case "excited": return <Zap className="h-4 w-4" />;
+				case "romantic": return <Heart className="h-4 w-4" />;
+				case "jealous": return <Meh className="h-4 w-4" />;
+				case "lonely": return <Frown className="h-4 w-4" />;
+				case "playful": return <Sparkles className="h-4 w-4" />;
+				default: return <Meh className="h-4 w-4" />;
+			}
+		};
+
+		return (
+			<div className="flex items-center gap-1 text-sm text-muted-foreground">
+				{getMoodIcon(mood)}
+				<span className="hidden sm:inline">{moodDef.description}</span>
+				{intensity >= 7 && <span className="text-xs">🔥</span>}
+			</div>
+		);
+	};
+
 	// Check if character ID is valid
 	if (params.characterId === "undefined" || isNaN(characterId)) {
 		return (
@@ -768,6 +811,12 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
+							{sessionData && sessionData.currentMood && (
+								<MoodIndicator 
+									mood={sessionData.currentMood as Mood || "happy"} 
+									intensity={sessionData.moodIntensity || 5} 
+								/>
+							)}
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
