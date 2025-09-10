@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/ui/multi-select";
 import {
 	Select,
 	SelectContent,
@@ -47,21 +46,17 @@ import {
 } from "@/lib/image-compression";
 import { trpc } from "@/utils/trpc";
 import Image from "next/image";
-import { CHARACTER_TAG_OPTIONS } from "@/lib/character-tags";
 
 interface CharacterForm {
 	name: string;
 	synopsis: string;
 	description: string;
 	greetings: string;
-	personality: string;
-	backstory: string;
 	avatarUrl: string;
 	defaultUserRoleName: string;
 	defaultUserRoleDetails: string;
 	defaultSituationName: string;
 	initialSituationDetails: string;
-	characterTags: string[];
 	complianceMode: string;
 	isPublic: boolean;
 }
@@ -82,14 +77,11 @@ export default function CharacterFormComponent({
 		synopsis: "",
 		description: "",
 		greetings: "",
-		personality: "",
-		backstory: "",
 		avatarUrl: "",
 		defaultUserRoleName: "",
 		defaultUserRoleDetails: "",
 		defaultSituationName: "",
 		initialSituationDetails: "",
-		characterTags: [],
 		complianceMode: "standard",
 		isPublic: false,
 	});
@@ -117,14 +109,11 @@ export default function CharacterFormComponent({
 				synopsis: character.synopsis || "",
 				description: character.description || "",
 				greetings: character.greetings || "",
-				personality: character.personality || "",
-				backstory: character.backstory || "",
 				avatarUrl: character.avatarUrl || "",
 				defaultUserRoleName: character.defaultUserRoleName || "",
 				defaultUserRoleDetails: character.defaultUserRoleDetails || "",
 				defaultSituationName: character.defaultSituationName || "",
 				initialSituationDetails: character.initialSituationDetails || "",
-				characterTags: character.characterTags || [],
 				complianceMode: character.complianceMode || "standard",
 				isPublic: character.isPublic || false,
 			});
@@ -246,8 +235,6 @@ export default function CharacterFormComponent({
 			if (parsedData.synopsis) newForm.synopsis = parsedData.synopsis;
 			if (parsedData.description) newForm.description = parsedData.description;
 			if (parsedData.greetings) newForm.greetings = parsedData.greetings;
-			if (parsedData.personality) newForm.personality = parsedData.personality;
-			if (parsedData.backstory) newForm.backstory = parsedData.backstory;
 			if (parsedData.defaultUserRoleName)
 				newForm.defaultUserRoleName = parsedData.defaultUserRoleName;
 			if (parsedData.defaultUserRoleDetails)
@@ -256,9 +243,6 @@ export default function CharacterFormComponent({
 				newForm.defaultSituationName = parsedData.defaultSituationName;
 			if (parsedData.initialSituationDetails)
 				newForm.initialSituationDetails = parsedData.initialSituationDetails;
-			if (parsedData.characterTags && Array.isArray(parsedData.characterTags)) {
-				newForm.characterTags = parsedData.characterTags;
-			}
 			if (typeof parsedData.isPublic === "boolean")
 				newForm.isPublic = parsedData.isPublic;
 
@@ -301,15 +285,6 @@ export default function CharacterFormComponent({
 		}
 
 
-		if (form.personality.length > 500) {
-			newErrors.personality =
-				"Kepribadian terlalu panjang, maksimal 500 karakter";
-		}
-
-		if (form.backstory.length > 800) {
-			newErrors.backstory =
-				"Latar belakang terlalu panjang, maksimal 800 karakter";
-		}
 
 		if (
 			form.avatarUrl &&
@@ -364,14 +339,11 @@ export default function CharacterFormComponent({
 			synopsis: form.synopsis.trim(),
 			description: form.description.trim(),
 			greetings: form.greetings.trim(),
-			personality: form.personality.trim() || undefined,
-			backstory: form.backstory.trim() || undefined,
 			avatarUrl: form.avatarUrl.trim() || undefined,
 			defaultUserRoleName: form.defaultUserRoleName.trim() || undefined,
 			defaultUserRoleDetails: form.defaultUserRoleDetails.trim() || undefined,
 			defaultSituationName: form.defaultSituationName.trim() || undefined,
 			initialSituationDetails: form.initialSituationDetails.trim() || undefined,
-			characterTags: form.characterTags,
 			complianceMode: form.complianceMode,
 			isPublic: form.isPublic,
 		};
@@ -883,71 +855,6 @@ export default function CharacterFormComponent({
 					</CardContent>
 				</Card>
 
-				{/* Character Details */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<span>🎭</span>
-							Detail Karakter
-						</CardTitle>
-						<CardDescription>
-							Info lebih dalam tentang kepribadian dan cerita karakter kamu.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="space-y-6">
-
-							{/* Personality */}
-							<div className="space-y-2">
-								<Label htmlFor="personality">Kepribadian (Opsional)</Label>
-								<textarea
-									id="personality"
-									value={form.personality}
-									onChange={(e) =>
-										handleInputChange("personality", e.target.value)
-									}
-									placeholder="Contoh: Kirana punya kepribadian yang misterius namun ramah. Dia suka berbicara dengan nada lembut yang menenangkan, tapi matanya selalu berkilau penuh rasa ingin tahu tentang sihir kuno."
-									maxLength={500}
-									rows={4}
-									className={`w-full resize-none rounded-md border px-3 py-2 ${
-										errors.personality ? "border-red-500" : "border-border"
-									}`}
-								/>
-								{errors.personality && (
-									<p className="text-red-500 text-sm">{errors.personality}</p>
-								)}
-								<p className="text-muted-foreground text-sm">
-									{form.personality.length}/500 karakter
-								</p>
-							</div>
-
-							{/* Backstory */}
-							<div className="space-y-2">
-								<Label htmlFor="backstory">Latar Belakang (Opsional)</Label>
-								<textarea
-									id="backstory"
-									value={form.backstory}
-									onChange={(e) =>
-										handleInputChange("backstory", e.target.value)
-									}
-									placeholder="Contoh: Kirana lahir di desa kecil di kaki gunung mistis, dalam keluarga penjaga kristal purba. Dari kecil dia udah bisa melihat aura magis dan sering bermain dengan peri-peri hutan."
-									maxLength={800}
-									rows={5}
-									className={`w-full resize-none rounded-md border px-3 py-2 ${
-										errors.backstory ? "border-red-500" : "border-border"
-									}`}
-								/>
-								{errors.backstory && (
-									<p className="text-red-500 text-sm">{errors.backstory}</p>
-								)}
-								<p className="text-muted-foreground text-sm">
-									{form.backstory.length}/800 karakter
-								</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
 				{/* Default User Role */}
 				<Card>
 					<CardHeader>
@@ -1093,34 +1000,6 @@ export default function CharacterFormComponent({
 					</CardContent>
 				</Card>
 
-				{/* Character Tags */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<span>🏷️</span>
-							Label Karakter (Opsional)
-						</CardTitle>
-						<CardDescription>
-							Pilih label yang cocok sama karakter kamu buat bantu kategorisasi
-							dan pencarian.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="space-y-3">
-							<Label className="font-medium text-sm">
-								Label Karakter (Opsional)
-							</Label>
-							<MultiSelect
-								options={CHARACTER_TAG_OPTIONS}
-								selected={form.characterTags}
-								onChange={(tags) => handleInputChange("characterTags", tags)}
-								placeholder="Pilih label yang cocok sama karakter kamu..."
-								searchPlaceholder="Cari label (contoh: idol, female, kpop)..."
-								className="w-full max-w-full"
-							/>
-						</div>
-					</CardContent>
-				</Card>
 
 				{/* Compliance Mode */}
 				<Card>

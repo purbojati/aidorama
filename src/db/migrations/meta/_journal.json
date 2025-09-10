@@ -57,6 +57,27 @@
       "when": 1757524756652,
       "tag": "0007_fine_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1757525458151,
+      "tag": "0008_magenta_nocturne",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1757525730200,
+      "tag": "0009_narrow_magus",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1757526076139,
+      "tag": "0010_magenta_lester",
+      "breakpoints": true
     }
   ]
 }

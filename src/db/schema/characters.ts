@@ -16,11 +16,7 @@ export const characters = pgTable("characters", {
 	name: text("name").notNull(),
 	synopsis: text("synopsis").notNull(),
 	description: text("description").notNull(),
-	summary: text("summary"),
 	greetings: text("greetings").notNull(),
-	characterHistory: text("character_history"),
-	personality: text("personality"),
-	backstory: text("backstory"),
 	avatarUrl: text("avatar_url"),
 
 	// Default user role fields
@@ -32,8 +28,6 @@ export const characters = pgTable("characters", {
 	defaultSituationName: text("default_situation_name"),
 	initialSituationDetails: text("initial_situation_details"),
 
-	// Character tags stored as JSON array
-	characterTags: json("character_tags").$type<string[]>().default([]),
 
 	// Compliance mode for character behavior
 	complianceMode: text("compliance_mode").default("standard").notNull(), // "standard", "obedient", "strict"

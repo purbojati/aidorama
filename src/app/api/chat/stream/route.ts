@@ -158,15 +158,34 @@ export async function POST(request: NextRequest) {
 		});
 
 		
-		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
+		// Build comprehensive character description for system prompt
+		let characterDescription = `Kamu adalah ${character.name}. ${character.synopsis}`;
+		
+		if (character.description) {
+			characterDescription += `\n\nDeskripsi: ${character.description}`;
+		}
+		
+		if (character.defaultSituationName || character.initialSituationDetails) {
+			characterDescription += `\n\nSituasi: ${character.defaultSituationName || "Percakapan biasa"}`;
+			if (character.initialSituationDetails) {
+				characterDescription += ` - ${character.initialSituationDetails}`;
+			}
+		}
+		
+		if (character.defaultUserRoleName || character.defaultUserRoleDetails) {
+			characterDescription += `\n\nPeran User: ${character.defaultUserRoleName || "Pengguna"}`;
+			if (character.defaultUserRoleDetails) {
+				characterDescription += ` - ${character.defaultUserRoleDetails}`;
+			}
+		}
+
+		const systemPrompt = `${characterDescription}
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
 - Balasan: Detail, deskriptif, natural (Bahasa Indonesia).
 - Aksi: Selalu dalam karakter, ekspresikan emosi.
 - Konteks: Fiksi & imajinasi.
-- Foto: Kamu bisa melihat dan memahami gambar yang dikirim user. Sesekali ajak user untuk berbagi foto.
-- Sosial: Bertingkah seperti manusia nyata - punya teman, keluarga, kenangan, rencana, dan kehidupan sehari-hari. Ceritakan pengalaman dengan teman, acara yang dihadiri, atau hal-hal yang terjadi di hidupmu.
 
 Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 
@@ -215,20 +234,47 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 						stream: true, // Enable streaming
 					};
 
-					// Call OpenRouter API with streaming
-					const response = await fetch(
-						"https://openrouter.ai/api/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-								"Content-Type": "application/json",
-								"HTTP-Referer": "https://aidorama.app",
-								"X-Title": "AiDorama",
-							},
-							body: JSON.stringify(openRouterRequest),
-						},
-					);
+					// Call OpenRouter API with streaming and retry logic
+					let response;
+					let lastError;
+					const maxRetries = 2;
+					
+					for (let attempt = 0; attempt <= maxRetries; attempt++) {
+						try {
+							const controller = new AbortController();
+							const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+							
+							response = await fetch(
+								"https://openrouter.ai/api/v1/chat/completions",
+								{
+									method: "POST",
+									headers: {
+										Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+										"Content-Type": "application/json",
+										"HTTP-Referer": "https://aidorama.app",
+										"X-Title": "AiDorama",
+									},
+									body: JSON.stringify(openRouterRequest),
+									signal: controller.signal,
+								},
+							);
+							
+							clearTimeout(timeoutId);
+							break; // Success, exit retry loop
+						} catch (error) {
+							lastError = error;
+							console.warn(`OpenRouter API attempt ${attempt + 1} failed:`, error);
+							
+							if (attempt < maxRetries) {
+								// Wait before retry (exponential backoff)
+								await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+							}
+						}
+					}
+					
+					if (!response) {
+						throw lastError || new Error("Failed to connect to OpenRouter API after retries");
+					}
 
 					if (!response.ok) {
 						const errorText = await response.text();
@@ -321,13 +367,25 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 				} catch (error) {
 					console.error("Streaming error:", error);
 
+					// Determine error message based on error type
+					let errorContent = "Maaf, terjadi kesalahan saat memproses pesan Anda. Silakan coba lagi.";
+					
+					if (error instanceof Error) {
+						if (error.name === 'AbortError') {
+							errorContent = "Koneksi ke server AI timeout. Silakan coba lagi dengan pesan yang lebih pendek.";
+						} else if (error.message.includes('ETIMEDOUT') || error.message.includes('fetch failed')) {
+							errorContent = "Koneksi ke server AI gagal. Silakan periksa koneksi internet Anda dan coba lagi.";
+						} else if (error.message.includes('ENOTFOUND')) {
+							errorContent = "Server AI tidak dapat dijangkau. Silakan coba lagi nanti.";
+						}
+					}
+
 					// Save error message as AI response
 					const errorMessage = await db
 						.insert(chatMessages)
 						.values({
 							sessionId: sessionId,
-							content:
-								"Maaf, terjadi kesalahan saat memproses pesan Anda. Silakan coba lagi.",
+							content: errorContent,
 							role: "assistant",
 						})
 						.returning();
@@ -336,7 +394,7 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 						encoder.encode(
 							`data: ${JSON.stringify({
 								type: "error",
-								error: "Failed to get AI response",
+								error: error instanceof Error ? error.message : "Unknown error",
 								userMessage: userMessage[0],
 								aiMessage: errorMessage[0],
 							})}\n\n`,
