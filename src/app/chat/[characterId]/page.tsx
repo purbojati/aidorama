@@ -11,7 +11,6 @@ import {
 	Square,
 	User,
 	X,
-	ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +27,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
-import { MOOD_DEFINITIONS, type Mood } from "@/lib/mood-system";
 
 // Declare sa_event for Simple Analytics
 declare global {
@@ -465,10 +463,6 @@ export default function ChatPage() {
 				// Force refetch again
 				refetchSessionData();
 				
-				// Debug log for production troubleshooting
-				if (process.env.NODE_ENV === 'production') {
-					console.log('Mood update: Refetching session data for sessionId:', actualSessionId);
-				}
 			}, 200);
 			
 			// Track send_chat event
@@ -496,32 +490,6 @@ export default function ChatPage() {
 		},
 	});
 
-	// Mood change mutation using tRPC
-	const changeMoodMutation = useMutation({
-		mutationFn: async (input: { sessionId: number; mood: Mood }) => {
-			const response = await fetch("/trpc/chat.changeMood", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(input),
-			});
-
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.error?.message || "Failed to change mood");
-			}
-
-			return response.json();
-		},
-		onSuccess: () => {
-			// Refetch session data to get updated mood
-			refetchSessionData();
-			toast.success("Mood berhasil diubah!");
-		},
-		onError: (error: { message?: string }) => {
-			toast.error(error.message || "Gagal mengubah mood");
-		},
-	});
 
 	// Check for existing session and redirect if found
 	useEffect(() => {
@@ -726,49 +694,6 @@ export default function ChatPage() {
 		);
 	};
 
-	// Mood selector component
-	const MoodSelector = ({ currentMood, onMoodChange }: { currentMood: Mood; onMoodChange: (mood: Mood) => void }) => {
-		const [isOpen, setIsOpen] = useState(false);
-		const currentMoodDef = MOOD_DEFINITIONS[currentMood];
-
-		return (
-			<div className="relative">
-				<button
-					onClick={() => setIsOpen(!isOpen)}
-					className="flex items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs hover:bg-accent"
-				>
-					<span className="text-sm">{currentMoodDef.emoji}</span>
-					<span>{currentMoodDef.description}</span>
-					<ChevronDown className="h-3 w-3" />
-				</button>
-				
-				{isOpen && (
-					<div className="absolute top-full z-50 mt-1 w-64 rounded-lg border bg-background shadow-lg">
-						<div className="py-1">
-							{Object.entries(MOOD_DEFINITIONS).map(([mood, def]) => (
-								<button
-									key={mood}
-									onClick={() => {
-										onMoodChange(mood as Mood);
-										setIsOpen(false);
-									}}
-									className={`w-full flex items-center gap-2 rounded-md px-2 py-1 text-left text-xs hover:bg-accent ${
-										mood === currentMood ? 'bg-accent' : ''
-									}`}
-								>
-									<span className="text-sm">{def.emoji}</span>
-									<div>
-										<div className="font-medium">{def.description}</div>
-										
-									</div>
-								</button>
-							))}
-						</div>
-					</div>
-				)}
-			</div>
-		);
-	};
 
 	// Check if character ID is valid
 	if (params.characterId === "undefined" || isNaN(characterId)) {
@@ -882,17 +807,6 @@ export default function ChatPage() {
 						)}
 						<div className="min-w-0">
 							<h1 className="truncate font-bold">{character.name}</h1>
-							{sessionData?.currentMood && actualSessionId && (
-								<MoodSelector 
-									currentMood={sessionData.currentMood as Mood || "happy"}
-									onMoodChange={(mood) => {
-										changeMoodMutation.mutate({
-											sessionId: actualSessionId,
-											mood: mood
-										});
-									}}
-								/>
-							)}
 						</div>
 					</div>
 					<div className="flex items-center gap-2">

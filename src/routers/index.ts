@@ -1174,41 +1174,6 @@ JSON format (hanya field yang ada nilainya):
 				return { success: true, message: "Chat berhasil direset." };
 			}),
 
-		// Change character mood (manual)
-		changeMood: protectedProcedure
-			.input(
-				z.object({
-					sessionId: z.number(),
-					mood: z.enum(["happy", "sad", "excited", "romantic", "jealous", "lonely", "playful", "neutral", "horny"]),
-				}),
-			)
-			.mutation(async ({ ctx, input }) => {
-				// Verify user owns the session
-				const session = await db
-					.select()
-					.from(chatSessions)
-					.where(eq(chatSessions.id, input.sessionId))
-					.limit(1);
-
-				if (!session[0] || (!BYPASS_ACCESS && session[0].userId !== ctx.session.user.id)) {
-					throw new Error(
-						"Sesi chat tidak ditemukan atau Anda tidak memiliki akses",
-					);
-				}
-
-				// Update mood
-				await db
-					.update(chatSessions)
-					.set({
-						currentMood: input.mood,
-						moodIntensity: 5, // Default intensity for manual mood changes
-						lastMoodChange: new Date(),
-						updatedAt: new Date(),
-					})
-					.where(eq(chatSessions.id, input.sessionId));
-
-				return { success: true, mood: input.mood };
-			}),
 
 	}),
 

@@ -8,7 +8,6 @@ import {
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
 import { describeImage } from "../../../../lib/vision";
-import { getMoodSystemPrompt, type Mood } from "../../../../lib/mood-system";
 
 // Dev-only access bypass for debugging
 // Enable by setting AIDORAMA_DEBUG_BYPASS_ACCESS=true in .env.local
@@ -158,10 +157,6 @@ export async function POST(request: NextRequest) {
 			day: "numeric"
 		});
 
-		// Get current mood from session (manual mood system)
-		const currentMood = chatSession.currentMood as Mood || "happy";
-		const moodIntensity = chatSession.moodIntensity || 5;
-		const moodSystemPrompt = getMoodSystemPrompt(currentMood, moodIntensity);
 		
 		const systemPrompt = `${character.summary || `Kamu adalah ${character.name}. ${character.synopsis}`}
 
@@ -173,7 +168,7 @@ Aturan:
 - Foto: Kamu bisa melihat dan memahami gambar yang dikirim user. Sesekali ajak user untuk berbagi foto.
 - Sosial: Bertingkah seperti manusia nyata - punya teman, keluarga, kenangan, rencana, dan kehidupan sehari-hari. Ceritakan pengalaman dengan teman, acara yang dihadiri, atau hal-hal yang terjadi di hidupmu.
 
-Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}${moodSystemPrompt}`;
+Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 
 		// Build messages with image descriptions
 		// Only include the latest image description to save tokens

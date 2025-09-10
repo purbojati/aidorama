@@ -55,10 +55,6 @@ export const chatSessions = pgTable("chat_sessions", {
 	characterId: integer("character_id")
 		.notNull()
 		.references(() => characters.id, { onDelete: "cascade" }),
-	// Manual mood system fields
-	currentMood: text("current_mood").default("happy").notNull(), // "happy", "sad", "excited", "romantic", "jealous", "lonely", "playful", "neutral", "horny"
-	moodIntensity: integer("mood_intensity").default(5).notNull(), // 1-10 scale
-	lastMoodChange: timestamp("last_mood_change").defaultNow().notNull(),
 	// User interaction tracking
 	conversationLength: integer("conversation_length").default(0).notNull(), // total messages in session
 	lastUserMessage: timestamp("last_user_message"),
