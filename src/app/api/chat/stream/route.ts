@@ -132,30 +132,6 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
-		// Get current time information for context
-		// Use browser time if provided (now in Jakarta timezone), otherwise fallback to server time
-		const timeNow = browserTime ? new Date(browserTime) : new Date();
-		const currentTime = timeNow.toLocaleString("id-ID", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-			second: "2-digit",
-			hour12: false
-		});
-		const timeOnly = timeNow.toLocaleTimeString("id-ID", {
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: false
-		});
-		const dateOnly = timeNow.toLocaleDateString("id-ID", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric"
-		});
 
 		
 		// Build comprehensive character description for system prompt
@@ -183,11 +159,11 @@ export async function POST(request: NextRequest) {
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
-- Balasan: Detail, deskriptif, natural (Bahasa Indonesia).
-- Aksi: Selalu dalam karakter, ekspresikan emosi.
-- Konteks: Fiksi & imajinasi.
-
-Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
+- Balasan: PANJANG, detail, deskriptif, natural (Bahasa Indonesia).
+- Aksi: Selalu dalam karakter, ekspresikan emosi dengan detail.
+- Inisiatif: Ambil inisiatif untuk melakukan apa yang diminta user dengan antusias dan detail.
+- Penjelasan: Jelaskan setiap tindakan dengan detail, termasuk proses, perasaan, dan konteks.
+- Konteks: Fiksi & imajinasi.`;
 
 		// Build messages with image descriptions
 		// Only include the latest image description to save tokens
@@ -229,8 +205,8 @@ Informasi Waktu: ${currentTime} Tanggal: ${dateOnly}`;
 					const openRouterRequest = {
 						model: "deepseek/deepseek-chat-v3.1",
 						messages,
-						max_tokens: 6000,
-						temperature: 0.8,
+						max_tokens: 4000,
+						temperature: 0.7,
 						stream: true, // Enable streaming
 					};
 
