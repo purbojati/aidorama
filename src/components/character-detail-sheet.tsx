@@ -145,33 +145,6 @@ export function CharacterDetailSheet({
 
 						{/* Character Details */}
 						<div className="space-y-4">
-							{/* Character Tags */}
-							{character.characterTags &&
-								character.characterTags.length > 0 && (
-									<Card>
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2 text-base">
-												<Hash className="h-4 w-4" />
-												Tags
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="flex flex-wrap gap-2">
-												{character.characterTags.map(
-													(tag: string, index: number) => (
-														<Badge
-															key={`${character.id}-tag-${index}`}
-															variant="secondary"
-															className="border-primary/20 bg-primary/10 text-primary text-xs"
-														>
-															{tag}
-														</Badge>
-													),
-												)}
-											</div>
-										</CardContent>
-									</Card>
-								)}
 
 							{/* Description */}
 							{character.description && (
@@ -203,49 +176,8 @@ export function CharacterDetailSheet({
 								</Card>
 							)}
 
-							{/* Character History */}
-							{character.characterHistory && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="text-base">
-											Sejarah Karakter
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap text-sm leading-relaxed">
-											{character.characterHistory}
-										</p>
-									</CardContent>
-								</Card>
-							)}
 
-							{/* Personality */}
-							{character.personality && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="text-base">Kepribadian</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap text-sm leading-relaxed">
-											{character.personality}
-										</p>
-									</CardContent>
-								</Card>
-							)}
 
-							{/* Backstory */}
-							{character.backstory && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="text-base">Latar Belakang</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap text-sm leading-relaxed">
-											{character.backstory}
-										</p>
-									</CardContent>
-								</Card>
-							)}
 
 							{/* Default User Role */}
 							{(character.defaultUserRoleName ||

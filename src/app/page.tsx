@@ -195,31 +195,6 @@ export default function PublicCharactersPage() {
 														"Karakter AI yang menarik untuk diajak berbicara"}
 												</p>
 
-												{/* Character Tags */}
-												{character.characterTags &&
-													character.characterTags.length > 0 && (
-														<div className="flex flex-wrap gap-1">
-															{character.characterTags
-																.slice(0, 3)
-																.map((tag: string, index: number) => (
-																	<Badge
-																		key={`${character.id}-${tag}-${index}`}
-																		variant="secondary"
-																		className="border-primary/20 bg-primary/10 px-2 py-1 text-primary text-xs hover:bg-primary/20"
-																	>
-																		{tag}
-																	</Badge>
-																))}
-															{character.characterTags.length > 3 && (
-																<Badge
-																	variant="outline"
-																	className="px-2 py-1 text-muted-foreground text-xs"
-																>
-																	+{character.characterTags.length - 3}
-																</Badge>
-															)}
-														</div>
-													)}
 											</div>
 										</div>
 									</Card>

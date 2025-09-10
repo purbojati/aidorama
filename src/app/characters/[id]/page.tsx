@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClientDate } from "@/hooks/use-client-date";
-import { CHARACTER_TAG_OPTIONS } from "@/lib/character-tags";
 import { trpc } from "@/utils/trpc";
 
 // Helper function to get compliance mode display info
@@ -26,23 +25,6 @@ const getComplianceModeInfo = (mode: string) => {
 	}
 };
 
-// Helper function to get character tags by category
-const getTagsByCategory = (characterTags: string[]) => {
-	const tagsByCategory: { [key: string]: string[] } = {};
-	
-	characterTags.forEach(tagValue => {
-		const tagOption = CHARACTER_TAG_OPTIONS.find(option => option.value === tagValue);
-		if (tagOption) {
-			const category = tagOption.category;
-			if (!tagsByCategory[category]) {
-				tagsByCategory[category] = [];
-			}
-			tagsByCategory[category].push(tagOption.label);
-		}
-	});
-	
-	return tagsByCategory;
-};
 
 export default function CharacterDetailPage() {
 	const params = useParams();
@@ -220,54 +202,8 @@ export default function CharacterDetailPage() {
 								</CardContent>
 							</Card>
 
-							{/* Character History */}
-							{character.characterHistory && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<span>📚</span>
-											Sejarah Karakter
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap">
-											{character.characterHistory}
-										</p>
-									</CardContent>
-								</Card>
-							)}
 
-							{/* Personality */}
-							{character.personality && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<span>🎭</span>
-											Kepribadian
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap">
-											{character.personality}
-										</p>
-									</CardContent>
-								</Card>
-							)}
 
-							{/* Backstory */}
-							{character.backstory && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<span>📖</span>
-											Latar Belakang
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="whitespace-pre-wrap">{character.backstory}</p>
-									</CardContent>
-								</Card>
-							)}
 
 							{/* Default User Role */}
 							{(character.defaultUserRoleName || character.defaultUserRoleDetails) && (
@@ -353,33 +289,6 @@ export default function CharacterDetailPage() {
 								</CardContent>
 							</Card>
 
-							{/* Character Tags */}
-							{character.characterTags && character.characterTags.length > 0 && (
-								<Card>
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<span>🏷️</span>
-											Label Karakter
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-3">
-											{Object.entries(getTagsByCategory(character.characterTags)).map(([category, tags]) => (
-												<div key={category}>
-													<h4 className="font-medium text-sm text-muted-foreground mb-2">{category}:</h4>
-													<div className="flex flex-wrap gap-1">
-														{tags.map((tag) => (
-															<Badge key={tag} variant="secondary" className="text-xs">
-																{tag}
-															</Badge>
-														))}
-													</div>
-												</div>
-											))}
-										</div>
-									</CardContent>
-								</Card>
-							)}
 
 							{/* Compliance Mode */}
 							<Card>
