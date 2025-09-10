@@ -1147,6 +1147,52 @@ JSON format (hanya field yang ada nilainya):
 					.orderBy(chatMessages.createdAt);
 			}),
 
+		// Get character details for admin view
+		getCharacterDetails: protectedProcedure
+			.input(z.object({ characterId: z.number() }))
+			.query(async ({ ctx, input }) => {
+				// Check if user is admin
+				if (ctx.session.user.id !== "VmJDso30i3zQ2cl8AcEupL21pc0v6Oya") {
+					throw new Error("Admin access required");
+				}
+
+				const character = await db
+					.select({
+						id: characters.id,
+						name: characters.name,
+						synopsis: characters.synopsis,
+						description: characters.description,
+						greetings: characters.greetings,
+						avatarUrl: characters.avatarUrl,
+						defaultUserRoleAvatar: characters.defaultUserRoleAvatar,
+						defaultUserRoleName: characters.defaultUserRoleName,
+						defaultUserRoleDetails: characters.defaultUserRoleDetails,
+						defaultSituationName: characters.defaultSituationName,
+						initialSituationDetails: characters.initialSituationDetails,
+						complianceMode: characters.complianceMode,
+						isPublic: characters.isPublic,
+						createdAt: characters.createdAt,
+						updatedAt: characters.updatedAt,
+						user: {
+							id: user.id,
+							name: user.name,
+							displayName: user.displayName,
+							username: user.username,
+							email: user.email,
+						},
+					})
+					.from(characters)
+					.leftJoin(user, eq(characters.userId, user.id))
+					.where(eq(characters.id, input.characterId))
+					.limit(1);
+
+				if (!character.length) {
+					throw new Error("Character not found");
+				}
+
+				return character[0];
+			}),
+
 		// Get admin dashboard stats
 		getDashboardStats: protectedProcedure.query(async ({ ctx }) => {
 			// Check if user is admin

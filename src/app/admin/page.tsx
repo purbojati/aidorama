@@ -14,7 +14,11 @@ import {
   Calendar,
   User,
   Settings,
-  BarChart3
+  BarChart3,
+  Info,
+  UserCircle,
+  MapPin,
+  Hash
 } from "lucide-react";
 import SidebarLayout from "@/components/sidebar-layout";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsAdmin } from "@/lib/admin";
 import { trpc } from "@/utils/trpc";
@@ -38,6 +42,7 @@ export default function AdminDashboard() {
   const isAdmin = useIsAdmin();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null);
   const [charactersPage, setCharactersPage] = useState(0);
   const [sessionsPage, setSessionsPage] = useState(0);
   const [hasMoreCharacters, setHasMoreCharacters] = useState(true);
@@ -98,6 +103,14 @@ export default function AdminDashboard() {
       sessionId: selectedSessionId!,
     }),
     enabled: !!selectedSessionId,
+  });
+
+  // Fetch character details for selected character
+  const { data: characterDetails } = useQuery({
+    ...trpc.admin.getCharacterDetails.queryOptions({
+      characterId: selectedCharacterId!,
+    }),
+    enabled: !!selectedCharacterId,
   });
 
   // Toggle character visibility mutation
@@ -345,6 +358,16 @@ export default function AdminDashboard() {
                                   disabled={toggleVisibilityMutation.isPending}
                                 />
                               </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedCharacterId(character.id)}
+                                className="text-xs sm:text-sm"
+                              >
+                                <Info className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">View Details</span>
+                                <span className="sm:hidden">Details</span>
+                              </Button>
                             </div>
                           </div>
                         ))}
@@ -570,6 +593,240 @@ export default function AdminDashboard() {
             </Tabs>
           </div>
         </div>
+
+        {/* Character Detail Sheet */}
+        <Sheet open={!!selectedCharacterId} onOpenChange={(open) => !open && setSelectedCharacterId(null)}>
+          <SheetContent 
+            side="right" 
+            className="w-full overflow-y-auto p-4 sm:max-w-2xl sm:p-6"
+          >
+            {characterDetails ? (
+              <div className="space-y-6">
+                <SheetHeader>
+                  <div className="flex items-start space-x-4">
+                    {/* Avatar */}
+                    {characterDetails.avatarUrl ? (
+                      <div className="relative">
+                        <img
+                          src={characterDetails.avatarUrl}
+                          alt={characterDetails.name}
+                          className="h-16 w-16 flex-shrink-0 rounded-full object-cover ring-2 ring-primary/20"
+                        />
+                        <div className="-bottom-1 -right-1 absolute h-4 w-4 rounded-full bg-green-500 ring-2 ring-background" />
+                      </div>
+                    ) : (
+                      <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 ring-2 ring-primary/20">
+                        <span className="font-semibold text-primary text-xl">
+                          {characterDetails.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Character Info */}
+                    <div className="min-w-0 flex-1">
+                      <SheetTitle className="mb-2 text-xl">
+                        {characterDetails.name}
+                      </SheetTitle>
+                      {characterDetails.synopsis && (
+                        <SheetDescription className="text-base">
+                          {characterDetails.synopsis}
+                        </SheetDescription>
+                      )}
+
+                      <div className="mt-3 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>
+                            {formatDate(characterDetails.createdAt, {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <Badge
+                          variant={characterDetails.isPublic ? "default" : "secondary"}
+                          className={`text-xs ${
+                            characterDetails.isPublic
+                              ? "bg-green-500/20 text-green-700 hover:bg-green-500/30"
+                              : "bg-gray-500/20 text-gray-700 hover:bg-gray-500/30"
+                          }`}
+                        >
+                          {characterDetails.isPublic ? "Public" : "Private"}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {characterDetails.complianceMode}
+                        </Badge>
+                      </div>
+
+                      {/* Creator Info */}
+                      <div className="mt-2 flex items-center gap-1 text-muted-foreground text-sm">
+                        <User className="h-3 w-3" />
+                        <span>Created by: {characterDetails.user?.displayName || characterDetails.user?.name || characterDetails.user?.username || "Unknown"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </SheetHeader>
+
+                {/* Character Details */}
+                <div className="space-y-4">
+                  {/* Description */}
+                  {characterDetails.description && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Description</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {characterDetails.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Greetings */}
+                  {characterDetails.greetings && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Greetings</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="rounded-lg border-primary/30 border-l-4 bg-muted/50 p-3">
+                          <p className="whitespace-pre-wrap text-sm italic">
+                            "{characterDetails.greetings}"
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Default User Role */}
+                  {(characterDetails.defaultUserRoleName ||
+                    characterDetails.defaultUserRoleDetails) && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <UserCircle className="h-4 w-4" />
+                          User Role
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {characterDetails.defaultUserRoleName && (
+                          <div>
+                            <span className="text-muted-foreground text-sm">
+                              Role Name:
+                            </span>
+                            <p className="font-medium text-sm">
+                              {characterDetails.defaultUserRoleName}
+                            </p>
+                          </div>
+                        )}
+                        {characterDetails.defaultUserRoleDetails && (
+                          <div>
+                            <span className="text-muted-foreground text-sm">
+                              Role Details:
+                            </span>
+                            <p className="text-sm leading-relaxed">
+                              {characterDetails.defaultUserRoleDetails}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Default Situation */}
+                  {(characterDetails.defaultSituationName ||
+                    characterDetails.initialSituationDetails) && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <MapPin className="h-4 w-4" />
+                          Situation
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {characterDetails.defaultSituationName && (
+                          <div>
+                            <span className="text-muted-foreground text-sm">
+                              Situation Name:
+                            </span>
+                            <p className="font-medium text-sm">
+                              {characterDetails.defaultSituationName}
+                            </p>
+                          </div>
+                        )}
+                        {characterDetails.initialSituationDetails && (
+                          <div>
+                            <span className="text-muted-foreground text-sm">
+                              Situation Details:
+                            </span>
+                            <p className="text-sm leading-relaxed">
+                              {characterDetails.initialSituationDetails}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Admin Info */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Hash className="h-4 w-4" />
+                        Admin Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Character ID:</span>
+                          <p className="font-mono">{characterDetails.id}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Creator ID:</span>
+                          <p className="font-mono text-xs">{characterDetails.user?.id}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Created:</span>
+                          <p>{formatDate(characterDetails.createdAt, {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Updated:</span>
+                          <p>{formatDate(characterDetails.updatedAt, {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center">
+                  <h3 className="mb-2 font-semibold text-lg">
+                    Character Not Found
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    The character you are looking for could not be found.
+                  </p>
+                </div>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
     </SidebarLayout>
   );
