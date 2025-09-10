@@ -852,6 +852,7 @@ export default function ChatPage() {
 					</div>
 				</div>
 
+
 				{/* Chat Area */}
 				<div
 					ref={scrollContainerRef}
@@ -881,6 +882,35 @@ export default function ChatPage() {
 						</div>
 					) : messages.length === 0 ? (
 						<div className="flex h-full flex-col items-center justify-center text-center">
+							{/* Large Avatar for empty chat */}
+							<div className="mb-8">
+								<div className="relative group">
+									{character.avatarUrl ? (
+										<img
+											src={character.avatarUrl}
+											alt={character.name}
+											className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
+										/>
+									) : (
+										<div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300">
+											<User className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground" />
+										</div>
+									)}
+									{/* Online indicator with pulse animation */}
+									<div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-green-500 border-4 border-background flex items-center justify-center shadow-lg">
+										<div className="h-3 w-3 rounded-full bg-white animate-pulse"></div>
+									</div>
+									{/* Glow effect */}
+									<div className="absolute inset-0 rounded-full bg-primary/10 blur-xl scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+								</div>
+								<div className="mt-6 text-center">
+									<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground drop-shadow-lg">{character.name}</h2>
+									<p className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
+										<div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500 animate-pulse"></div>
+										Online
+									</p>
+								</div>
+							</div>
 							<div className="mb-4 rounded-full bg-muted p-4">
 								<MessageCircle className="h-10 w-10 text-muted-foreground" />
 							</div>
@@ -893,6 +923,35 @@ export default function ChatPage() {
 						</div>
 					) : (
 						<div className="mx-auto max-w-3xl space-y-4 px-2">
+							{/* Large Avatar above first message */}
+							<div className="flex flex-col items-center justify-center py-8 px-4 bg-gradient-to-b from-background via-background/95 to-transparent rounded-lg mb-6">
+								<div className="relative group">
+									{character.avatarUrl ? (
+										<img
+											src={character.avatarUrl}
+											alt={character.name}
+											className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
+										/>
+									) : (
+										<div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300">
+											<User className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground" />
+										</div>
+									)}
+									{/* Online indicator with pulse animation */}
+									<div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-green-500 border-4 border-background flex items-center justify-center shadow-lg">
+										<div className="h-3 w-3 rounded-full bg-white animate-pulse"></div>
+									</div>
+									{/* Glow effect */}
+									<div className="absolute inset-0 rounded-full bg-primary/10 blur-xl scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+								</div>
+								<div className="mt-6 text-center">
+									<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground drop-shadow-lg">{character.name}</h2>
+									<p className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
+										<div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500 animate-pulse"></div>
+										Online
+									</p>
+								</div>
+							</div>
 							{messages.map((message, index) => {
 								const isUser = message.role === "user";
 								const showAvatar =
