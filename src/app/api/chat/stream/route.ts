@@ -203,7 +203,7 @@ Aturan:
 				try {
 					// Prepare OpenRouter API request
 					const openRouterRequest = {
-						model: "deepseek/deepseek-chat-v3.1",
+						model: "deepseek/deepseek-v3.2-exp",
 						messages,
 						max_tokens: 4000,
 						temperature: 0.7,

@@ -477,7 +477,7 @@ JSON format (hanya field yang ada nilainya):
 								"X-Title": "AIDorama",
 							},
 							body: JSON.stringify({
-								model: "deepseek/deepseek-chat-v3.1",
+								model: "deepseek/deepseek-v3.2-exp",
 								messages: [
 									{ role: "system", content: systemPrompt },
 									{ role: "user", content: input.userInput },
@@ -868,7 +868,7 @@ JSON format (hanya field yang ada nilainya):
 								"X-Title": "AIDorama",
 							},
 							body: JSON.stringify({
-								model: "deepseek/deepseek-chat-v3.1",
+								model: "deepseek/deepseek-v3.2-exp",
 								messages,
 								max_tokens: 3000,
 								temperature: 0.7,
