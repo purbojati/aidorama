@@ -466,31 +466,21 @@ JSON format (hanya field yang ada nilainya):
 }`;
 
 				try {
-					const response = await fetch(
-						"https://openrouter.ai/api/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-								"Content-Type": "application/json",
-								"HTTP-Referer": "https://aidorama.app",
-								"X-Title": "AIDorama",
-							},
-							body: JSON.stringify({
-								model: "deepseek/deepseek-v3.2-exp",
-								messages: [
-									{ role: "system", content: systemPrompt },
-									{ role: "user", content: input.userInput },
-								],
-								max_tokens: 2000,
-								temperature: 0.3,
-								stream: false,
-							}),
-						},
-					);
+					// Use dynamic model selection with fallback
+					const { callWithFallback } = await import("../lib/openrouter-discovery");
+					
+					const response = await callWithFallback({
+						messages: [
+							{ role: "system", content: systemPrompt },
+							{ role: "user", content: input.userInput },
+						],
+						max_tokens: 2000,
+						temperature: 0.3,
+						stream: false,
+					});
 
-					if (!response.ok) {
-						const errorText = await response.text();
+					if (!response || !response.ok) {
+						const errorText = response ? await response.text() : "No response";
 						console.error(`OpenRouter API Error: ${errorText}`);
 						throw new Error("Gagal memproses input dengan AI");
 					}
@@ -856,33 +846,22 @@ JSON format (hanya field yang ada nilainya):
 						throw new Error("OpenRouter API key not configured");
 					}
 
-					// Call OpenRouter API
-					const response = await fetch(
-						"https://openrouter.ai/api/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-								"Content-Type": "application/json",
-								"HTTP-Referer": "https://aidorama.app",
-								"X-Title": "AIDorama",
-							},
-							body: JSON.stringify({
-								model: "deepseek/deepseek-v3.2-exp",
-								messages,
-								max_tokens: 3000,
-								temperature: 0.7,
-							}),
-						},
-					);
+					// Use dynamic model selection with fallback
+					const { callWithFallback } = await import("../lib/openrouter-discovery");
+					
+					const response = await callWithFallback({
+						messages,
+						max_tokens: 3000,
+						temperature: 0.7,
+					});
 
-					if (!response.ok) {
-						const errorText = await response.text();
+					if (!response || !response.ok) {
+						const errorText = response ? await response.text() : "No response from any model";
 						console.error(
-							`OpenRouter API Error - Status: ${response.status}, Response: ${errorText}`,
+							`OpenRouter API Error - Response: ${errorText}`,
 						);
 						throw new Error(
-							`OpenRouter API Error (${response.status}): ${errorText}`,
+							`OpenRouter API Error: ${errorText}`,
 						);
 					}
 

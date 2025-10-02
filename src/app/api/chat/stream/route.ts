@@ -201,55 +201,20 @@ Aturan:
 		const stream = new ReadableStream({
 			async start(controller) {
 				try {
-					// Prepare OpenRouter API request
-					const openRouterRequest = {
-						model: "deepseek/deepseek-v3.2-exp",
+					// Use dynamic model selection with fallback
+					const { callWithFallback } = await import("../../../../lib/openrouter-discovery");
+					
+					const response = await callWithFallback({
 						messages,
 						max_tokens: 4000,
 						temperature: 0.7,
 						stream: true, // Enable streaming
-					};
-
-					// Call OpenRouter API with streaming and retry logic
-					let response;
-					let lastError;
-					const maxRetries = 2;
-					
-					for (let attempt = 0; attempt <= maxRetries; attempt++) {
-						try {
-							const controller = new AbortController();
-							const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-							
-							response = await fetch(
-								"https://openrouter.ai/api/v1/chat/completions",
-								{
-									method: "POST",
-									headers: {
-										Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-										"Content-Type": "application/json",
-										"HTTP-Referer": "https://aidorama.app",
-										"X-Title": "AiDorama",
-									},
-									body: JSON.stringify(openRouterRequest),
-									signal: controller.signal,
-								},
-							);
-							
-							clearTimeout(timeoutId);
-							break; // Success, exit retry loop
-						} catch (error) {
-							lastError = error;
-							console.warn(`OpenRouter API attempt ${attempt + 1} failed:`, error);
-							
-							if (attempt < maxRetries) {
-								// Wait before retry (exponential backoff)
-								await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-							}
-						}
-					}
+					});
 					
 					if (!response) {
-						throw lastError || new Error("Failed to connect to OpenRouter API after retries");
+						console.error("❌ [STREAM API] All models failed, no response available");
+						controller.error(new Error("All models failed"));
+						return;
 					}
 
 					if (!response.ok) {
