@@ -1056,7 +1056,7 @@ export default function CharacterFormComponent({
 					</CardContent>
 				</Card>
 
-				{/* Privacy Setting */}
+				{/* Privacy Setting
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
@@ -1081,7 +1081,7 @@ export default function CharacterFormComponent({
 							</Label>
 						</div>
 					</CardContent>
-				</Card>
+				</Card> */}
 
 				{/* Submit Button */}
 				<div className="flex flex-col justify-end gap-4 border-border border-t-2 pt-8 sm:flex-row sm:gap-6">
