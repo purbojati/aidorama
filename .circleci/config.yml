@@ -38,31 +38,6 @@ jobs:
             source $BASH_ENV
             bun install --frozen-lockfile
 
-      # ---- Bump version (minor) ----
-      - run:
-          name: Bump version (minor)
-          command: |
-            source $BASH_ENV
-            bun run version:minor
-
-      # ---- Commit version bump back to repository (if changed) ----
-      - run:
-          name: Commit and push version bump
-          command: |
-            # If the repo changed (package.json or version file), commit & push
-            git add package.json src/lib/version.ts || true
-            if ! git diff --staged --quiet; then
-              git commit -m "Bump version from CircleCI [skip ci]" || true
-              # Push using a token (needs permission); we will use GIT_PUSH_TOKEN env var
-              # Create auth header in URL form: https://<token>@github.com/<owner>/<repo>.git
-              # Avoid exposing token in logs by using git remote set-url with token
-              git remote set-url origin "https://${GIT_PUSH_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
-              git push origin HEAD:${CIRCLE_BRANCH}
-            else
-              echo "No version changes to commit"
-            fi
-          no_output_timeout: 5m
-
       # ---- Setup Docker Buildx for multi-arch (optional) ----
       - run:
           name: Setup QEMU & buildx
