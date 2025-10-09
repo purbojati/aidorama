@@ -296,39 +296,30 @@ Aturan:
 									.orderBy(desc(chatMessages.createdAt))
 									.limit(20);
 
+								// Get character name for better conversation formatting
+								const characterName = character.name;
+
 								// Format conversation as plain text to avoid content filtering
 								const conversationText = windowMessages
 									.reverse()
-									.map((m, i) => `${i + 1}. ${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+									.map((m, i) => `${i + 1}. ${m.role === 'user' ? 'User' : characterName}: ${m.content}`)
 									.join('\n');
 
 								const summaryMessages = [
 									{
 										role: "user",
-										content: `Summarize this conversation in Indonesian (1-2 sentences). Focus on user facts, preferences, and plans:\n\n${conversationText}\n\nSummary:`
+										content: `Ringkas percakapan ini dalam Bahasa Indonesia (1 kalimat). Fokus pada:\n- Nama user dan karakter yang disebutkan dalam percakapan\n- Aktivitas atau kegiatan yang sedang dilakukan user dan karakter\n- Lokasi, situasi, atau setting tempat percakapan terjadi\n- Fakta user, preferensi, rencana, situasi, suasana hati\n- Dinamika percakapan dan konteks emosional\n- Interaksi, aksi, dan respons yang terjadi antara user dan karakter\n- Perkembangan hubungan atau situasi dari waktu ke waktu\n\n${conversationText}\n\nRingkasan:`
 									}
 								];
 								
-								// Use Gemini 2.5 Flash for summarization
-								const summaryResponse = await fetch(
-									'https://openrouter.ai/api/v1/chat/completions',
-									{
-										method: 'POST',
-										headers: {
-											'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-											'Content-Type': 'application/json',
-											'HTTP-Referer': 'https://aidorama.app',
-											'X-Title': 'AiDorama',
-										},
-										body: JSON.stringify({
-											model: 'google/gemini-2.5-flash',
-											messages: summaryMessages,
-											max_tokens: 200,
-											temperature: 0.3,
-											stream: false,
-										}),
-									}
-								);
+								// Use DeepSeek with fallback for summarization
+								const { callWithFallback } = await import("../../../../lib/openrouter-discovery");
+								const summaryResponse = await callWithFallback({
+									messages: summaryMessages,
+									max_tokens: 200,
+									temperature: 0.3,
+									stream: false,
+								});
 
 								if (summaryResponse && summaryResponse.ok) {
 									const data = await summaryResponse.json();
