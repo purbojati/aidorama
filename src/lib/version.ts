@@ -1,5 +1,5 @@
 // Version management utilities
-export const APP_VERSION = "0.19.0";
+export const APP_VERSION = "0.21.4";
 
 export function getVersionFromPackageJson(): string {
   try {

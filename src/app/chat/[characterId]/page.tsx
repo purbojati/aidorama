@@ -694,6 +694,68 @@ export default function ChatPage() {
 		);
 	};
 
+	// Helper function to render formatted text with bold, italic, and proper line breaks
+	const renderFormattedText = (text: string) => {
+		// Split by lines first to preserve line breaks
+		const lines = text.split('\n');
+		
+		return lines.map((line, lineIndex) => {
+			const parts: React.ReactElement[] = [];
+			let lastIndex = 0;
+			
+			// Regex to match **bold** or *italic* patterns
+			const regex = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+			let match;
+			
+			while ((match = regex.exec(line)) !== null) {
+				// Add text before the match
+				if (match.index > lastIndex) {
+					parts.push(
+						<span key={`text-${lineIndex}-${lastIndex}`}>
+							{line.substring(lastIndex, match.index)}
+						</span>
+					);
+				}
+				
+				// Add formatted text
+				if (match[2]) {
+					// Bold text (**text**)
+					parts.push(
+						<strong key={`bold-${lineIndex}-${match.index}`} className="font-bold">
+							{match[2]}
+						</strong>
+					);
+				} else if (match[3]) {
+					// Italic text (*text*)
+					parts.push(
+						<em key={`italic-${lineIndex}-${match.index}`} className="italic">
+							{match[3]}
+						</em>
+					);
+				}
+				
+				lastIndex = match.index + match[0].length;
+			}
+			
+			// Add remaining text after last match
+			if (lastIndex < line.length) {
+				parts.push(
+					<span key={`text-${lineIndex}-${lastIndex}`}>
+						{line.substring(lastIndex)}
+					</span>
+				);
+			}
+			
+			// Return the line with a line break after it (except for the last line)
+			return (
+				<span key={`line-${lineIndex}`}>
+					{parts.length > 0 ? parts : line}
+					{lineIndex < lines.length - 1 && <br />}
+				</span>
+			);
+		});
+	};
+
 
 	// Check if character ID is valid
 	if (params.characterId === "undefined" || isNaN(characterId)) {
@@ -997,9 +1059,9 @@ export default function ChatPage() {
 												</div>
 											)}
 											{message.content && (
-												<p className="whitespace-pre-wrap text-sm">
-													{message.content}
-												</p>
+												<div className="text-sm leading-relaxed">
+													{renderFormattedText(message.content)}
+												</div>
 											)}
 										</div>
 									</div>
@@ -1021,7 +1083,9 @@ export default function ChatPage() {
 										)}
 									</div>
 									<div className="max-w-md rounded-2xl rounded-bl-none bg-muted px-4 py-2.5 shadow-sm border">
-										<p className="whitespace-pre-wrap text-sm">{streamingMessage}</p>
+										<div className="text-sm leading-relaxed">
+											{renderFormattedText(streamingMessage)}
+										</div>
 									</div>
 								</div>
 							)}
