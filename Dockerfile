@@ -11,9 +11,14 @@ RUN bun install --frozen-lockfile
 FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy dependencies and source
+# Copy dependencies first (better caching)
 COPY --from=deps /app/node_modules ./node_modules
+COPY package.json bun.lockb ./
+
+# Copy source code
 COPY . .
+
+# Build the application
 RUN bun run build
 
 # Install only production deps

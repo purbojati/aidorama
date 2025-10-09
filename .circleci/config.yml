@@ -31,6 +31,12 @@ jobs:
             source $BASH_ENV
             bun --version
 
+      # ---- Restore Bun cache ----
+      - restore_cache:
+          keys:
+            - bun-cache-v1-{{ checksum "bun.lockb" }}
+            - bun-cache-v1-
+
       # ---- Install dependencies ----
       - run:
           name: Install dependencies (bun)
@@ -38,12 +44,26 @@ jobs:
             source $BASH_ENV
             bun install --frozen-lockfile
 
+      # ---- Save Bun cache ----
+      - save_cache:
+          key: bun-cache-v1-{{ checksum "bun.lockb" }}
+          paths:
+            - ~/.bun/install/cache
+            - node_modules
+
       # ---- Setup Docker Buildx for multi-arch (optional) ----
       - run:
           name: Setup QEMU & buildx
           command: |
             docker run --privileged --rm tonistiigi/binfmt --install all || true
             docker buildx create --use || true
+
+      # ---- Restore Docker cache ----
+      - restore_cache:
+          keys:
+            - docker-cache-v1-{{ .Branch }}-{{ .Revision }}
+            - docker-cache-v1-{{ .Branch }}-
+            - docker-cache-v1-
 
       # ---- Login to GHCR ----
       - run:
@@ -55,13 +75,28 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
-            docker buildx build --platform linux/amd64,linux/arm64 \
+            docker buildx build --platform linux/amd64 \
+              --cache-from=type=local,src=/tmp/.buildx-cache \
+              --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
               --push \
               -t ${IMAGE_NAME}:latest \
               -t ${IMAGE_NAME}:${CIRCLE_SHA1} \
               --label org.opencontainers.image.revision=${CIRCLE_SHA1} \
               --label org.opencontainers.image.source=https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
               .
+
+      # ---- Move cache ----
+      - run:
+          name: Move cache
+          command: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      # ---- Save Docker cache ----
+      - save_cache:
+          key: docker-cache-v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /tmp/.buildx-cache
 
 workflows:
   version: 2
