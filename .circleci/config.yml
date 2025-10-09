@@ -1,0 +1,98 @@
+version: 2.1
+
+jobs:
+  build-and-push:
+    machine: true          # full VM with docker available
+    working_directory: ~/repo
+    environment:
+      IMAGE_NAME: ghcr.io/purbojati/aidorama
+    steps:
+      - checkout
+
+      # ---- Setup Git for pushing commits from CI ----
+      - run:
+          name: Configure git
+          command: |
+            git config --global user.email "circleci@circleci.com"
+            git config --global user.name "CircleCI"
+
+      # ---- Install Bun (same as your Actions setup) ----
+      - run:
+          name: Install bun
+          command: |
+            curl -fsSL https://bun.sh/install | bash
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            echo 'export BUN_INSTALL="$HOME/.bun"' >> $BASH_ENV
+            echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Verify bun
+          command: |
+            source $BASH_ENV
+            bun --version
+
+      # ---- Install dependencies ----
+      - run:
+          name: Install dependencies (bun)
+          command: |
+            source $BASH_ENV
+            bun install --frozen-lockfile
+
+      # ---- Bump version (minor) ----
+      - run:
+          name: Bump version (minor)
+          command: |
+            source $BASH_ENV
+            bun run version:minor
+
+      # ---- Commit version bump back to repository (if changed) ----
+      - run:
+          name: Commit and push version bump
+          command: |
+            # If the repo changed (package.json or version file), commit & push
+            git add package.json src/lib/version.ts || true
+            if ! git diff --staged --quiet; then
+              git commit -m "Bump version from CircleCI [skip ci]" || true
+              # Push using a token (needs permission); we will use GIT_PUSH_TOKEN env var
+              # Create auth header in URL form: https://<token>@github.com/<owner>/<repo>.git
+              # Avoid exposing token in logs by using git remote set-url with token
+              git remote set-url origin "https://${GIT_PUSH_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+              git push origin HEAD:${CIRCLE_BRANCH}
+            else
+              echo "No version changes to commit"
+            fi
+          no_output_timeout: 5m
+
+      # ---- Setup Docker Buildx for multi-arch (optional) ----
+      - run:
+          name: Setup QEMU & buildx
+          command: |
+            docker run --privileged --rm tonistiigi/binfmt --install all || true
+            docker buildx create --use || true
+
+      # ---- Login to GHCR ----
+      - run:
+          name: Login to GHCR
+          command: |
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${CIRCLE_PROJECT_USERNAME}" --password-stdin
+
+      # ---- Build and push image to GHCR ----
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              --push \
+              -t ${IMAGE_NAME}:latest \
+              -t ${IMAGE_NAME}:${CIRCLE_SHA1} \
+              --label org.opencontainers.image.revision=${CIRCLE_SHA1} \
+              --label org.opencontainers.image.source=https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
+              .
+
+workflows:
+  version: 2
+  build_and_push_workflow:
+    jobs:
+      - build-and-push:
+          filters:
+            branches:
+              only: main
