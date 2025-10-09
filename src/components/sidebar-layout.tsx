@@ -38,6 +38,7 @@ import {
 import { useClientDate } from "@/hooks/use-client-date";
 import { authClient } from "@/lib/auth-client";
 import { useIsAdmin } from "@/lib/admin";
+import { APP_VERSION } from "@/lib/version";
 import { trpc } from "@/utils/trpc";
 
 interface SidebarLayoutProps {
@@ -297,6 +298,9 @@ function SidebarContent({
 						</p>
 					</div>
 				)}
+				<div className="mt-2 text-center text-muted-foreground text-xs">
+					v{APP_VERSION}
+				</div>
 			</div>
 		</div>
 	);
