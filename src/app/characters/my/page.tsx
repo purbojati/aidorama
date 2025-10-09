@@ -284,7 +284,7 @@ export default function MyCharactersPage() {
 														Chat
 													</Button>
 												</Link>
-												<Button
+												{/* <Button
 													variant="destructive"
 													size="sm"
 													onClick={(e) => {
@@ -295,7 +295,7 @@ export default function MyCharactersPage() {
 													className="px-2 py-1 text-xs hover:bg-destructive/90"
 												>
 													<Trash2 className="h-3 w-3" />
-												</Button>
+												</Button> */}
 											</div>
 										</div>
 									</div>

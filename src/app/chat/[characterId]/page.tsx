@@ -820,7 +820,7 @@ export default function ChatPage() {
 								<DropdownMenuItem onClick={() => router.push(`/characters/edit/${characterId}`)}>
 									Edit Karakter
 								</DropdownMenuItem>
-								<AlertDialog
+								{/* <AlertDialog
 									open={isResetConfirmOpen}
 									onOpenChange={setIsResetConfirmOpen}
 								>
@@ -846,7 +846,7 @@ export default function ChatPage() {
 											</AlertDialogAction>
 										</AlertDialogFooter>
 									</AlertDialogContent>
-								</AlertDialog>
+								</AlertDialog> */}
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>

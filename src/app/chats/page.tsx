@@ -250,7 +250,7 @@ export default function ChatsPage() {
 												Lanjutkan Chat
 											</Button>
 										</Link>
-										<Button
+										{/* <Button
 											variant="destructive"
 											size="sm"
 											onClick={() =>
@@ -259,7 +259,7 @@ export default function ChatsPage() {
 											disabled={deleteSessionMutation.isPending}
 										>
 											Hapus
-										</Button>
+										</Button> */}
 									</div>
 								</CardContent>
 							</Card>
