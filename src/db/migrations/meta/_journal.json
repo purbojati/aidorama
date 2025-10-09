@@ -78,6 +78,13 @@
       "when": 1757526076139,
       "tag": "0010_magenta_lester",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1760019614402,
+      "tag": "0011_faithful_dragon_lord",
+      "breakpoints": true
     }
   ]
 }

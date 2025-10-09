@@ -5,6 +5,7 @@ import {
 	characters,
 	chatMessages,
 	chatSessions,
+	chatMemories,
 } from "../../../../db/schema/characters";
 import { auth } from "../../../../lib/auth";
 import { describeImage } from "../../../../lib/vision";
@@ -155,7 +156,21 @@ export async function POST(request: NextRequest) {
 			}
 		}
 
-		const systemPrompt = `${characterDescription}
+		// Fetch recent long-term memories to include in context
+		const recentMemories = await db
+			.select()
+			.from(chatMemories)
+			.where(eq(chatMemories.sessionId, sessionId))
+			.orderBy(desc(chatMemories.createdAt))
+			.limit(5);
+
+		const memoriesBlock = recentMemories.length
+			? `\n\nMemori Percakapan (ringkasan jangka panjang):\n${recentMemories
+				.map((m, i) => `${i + 1}. ${m.content}`)
+				.join("\n")}`
+			: "";
+
+		const systemPrompt = `${characterDescription}${memoriesBlock}
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
@@ -246,7 +261,7 @@ Aturan:
 							if (line.startsWith("data: ")) {
 								const data = line.slice(6);
 								if (data === "[DONE]") {
-									// Save the complete AI response to database
+					// Save the complete AI response to database
 									const aiMessage = await db
 										.insert(chatMessages)
 										.values({
@@ -258,7 +273,7 @@ Aturan:
 										})
 										.returning();
 
-									// Update session with user interaction tracking
+					// Update session with user interaction tracking
 									await db
 										.update(chatSessions)
 										.set({ 
@@ -267,6 +282,56 @@ Aturan:
 											lastUserMessage: new Date()
 										})
 										.where(eq(chatSessions.id, sessionId));
+
+					// After every 10 messages total, generate a summary memory in the background
+					const newConversationLength = (chatSession.conversationLength || 0) + 2;
+					if (newConversationLength % 10 === 0) {
+						void (async () => {
+							try {
+								const { callWithFallback } = await import("../../../../lib/openrouter-discovery");
+								// Load more recent messages for a good summary window
+								const windowMessages = await db
+									.select()
+									.from(chatMessages)
+									.where(eq(chatMessages.sessionId, sessionId))
+									.orderBy(desc(chatMessages.createdAt))
+									.limit(20);
+
+								const summarySystem = {
+									role: "system",
+									content:
+										"Ringkas percakapan berikut menjadi memori jangka panjang yang PADAT dalam Bahasa Indonesia. Fokus pada fakta pengguna, preferensi, rencana/komitmen, keputusan, dan konteks berulang yang akan berguna nanti. Hindari detail sepele, tanggal spesifik, dan kutipan. 1-3 kalimat maksimal.",
+								};
+								const summaryMessages = [
+									summarySystem,
+									...windowMessages
+										.reverse()
+										.map((m) => ({ role: m.role, content: m.content })),
+								];
+
+								const summaryResponse = await callWithFallback({
+									messages: summaryMessages,
+									max_tokens: 160,
+									temperature: 0.2,
+									stream: false,
+								});
+
+								if (summaryResponse && summaryResponse.ok) {
+									const data = await summaryResponse.json();
+									const content =
+										data?.choices?.[0]?.message?.content?.trim?.() || null;
+									if (content) {
+										await db.insert(chatMemories).values({
+											sessionId: sessionId,
+											content,
+										});
+									}
+								}
+							} catch (e) {
+								console.warn("Failed to create chat memory:", e);
+							}
+						})();
+					}
 
 									// Send final message with metadata
 									controller.enqueue(

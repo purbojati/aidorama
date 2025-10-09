@@ -68,3 +68,13 @@ export const chatMessages = pgTable("chat_messages", {
 	imageDescription: text("image_description"), // AI-generated description of the image
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// Persistent conversation memories captured periodically for long-term context
+export const chatMemories = pgTable("chat_memories", {
+	id: serial("id").primaryKey(),
+	sessionId: integer("session_id")
+		.notNull()
+		.references(() => chatSessions.id, { onDelete: "cascade" }),
+	content: text("content").notNull(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+});
