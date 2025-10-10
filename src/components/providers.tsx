@@ -18,9 +18,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		>
 			<QueryClientProvider client={queryClient}>
 				<Suspense fallback={null}>
-					<PosthogProvider />
+					<PosthogProvider>
+						{children}
+					</PosthogProvider>
 				</Suspense>
-				{children}
 				<VersionRefreshNotification />
 			</QueryClientProvider>
 			<Toaster richColors />

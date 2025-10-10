@@ -1,24 +1,34 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { initializePosthog, posthog } from "@/lib/posthog";
+import posthog from "posthog-js";
+import { PostHogProvider as PHProvider } from "posthog-js/react";
+import { authClient } from "@/lib/auth-client";
 
-export function PosthogProvider() {
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+export function PosthogProvider({ children }: { children: React.ReactNode }) {
+    const { data: session } = authClient.useSession();
 
     useEffect(() => {
-        initializePosthog();
+        posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
+            api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+            person_profiles: "identified_only",
+            capture_pageview: false,
+            autocapture: false,
+            // Session replay is managed server-side in PostHog; this keeps only replay
+            // and disables generic event autocapture in the client.
+        });
     }, []);
 
     useEffect(() => {
-        // Track client-side route changes as pageviews
-        // Avoid manual timestamp, PostHog records it automatically
-        posthog.capture("$pageview");
-    }, [pathname, searchParams]);
+        if (session?.user?.id) {
+            posthog.identify(session.user.id, {
+                name: session.user.name,
+                email: session.user.email,
+            });
+        }
+    }, [session]);
 
-    return null;
+    return <PHProvider client={posthog}>{children}</PHProvider>;
 }
 
 
