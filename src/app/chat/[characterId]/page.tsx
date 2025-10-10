@@ -57,6 +57,8 @@ interface Message {
 	imageDescription?: string;
 }
 
+const MAX_MESSAGES = 100;
+
 export default function ChatPage() {
 	const params = useParams();
 	const router = useRouter();
@@ -558,7 +560,7 @@ export default function ChatPage() {
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!newMessage.trim() || !sessionId || isLoading || isStreaming) {
+		if (!newMessage.trim() || !sessionId || isLoading || isStreaming || messages.length >= MAX_MESSAGES) {
 			return;
 		}
 
@@ -611,7 +613,7 @@ export default function ChatPage() {
 	};
 
 	const startListening = () => {
-		if (isLoading || isStreaming) return;
+		if (isLoading || isStreaming || messages.length >= MAX_MESSAGES) return;
 		const SR = getSpeechRecognition();
 		if (!SR) {
 			toast.error("Peramban tidak mendukung pengenalan suara.");
@@ -1128,6 +1130,17 @@ export default function ChatPage() {
 					ref={inputBarRef}
 					className={`sticky bottom-0 z-20 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 transition-all duration-200 ${hideInputBar ? "h-0 p-0 border-t-0 overflow-hidden" : "p-4"} ${isStreaming || isLoading ? "shadow-lg" : ""}`}
 				>
+				{/* Maximum message limit warning */}
+				{messages.length >= MAX_MESSAGES && (
+					<div className="mx-auto max-w-3xl mb-3">
+						<div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 text-center">
+							<p className="text-sm text-yellow-600 dark:text-yellow-500 font-medium">
+								Batas maksimum pesan tercapai ({MAX_MESSAGES} pesan). Tidak dapat mengirim pesan lebih lanjut.
+							</p>
+						</div>
+					</div>
+				)}
+				
 				{/* Image preview - WhatsApp style */}
 				{selectedImageUrl && (
 					<div className="mx-auto max-w-3xl mb-3">
@@ -1143,7 +1156,7 @@ export default function ChatPage() {
 								variant="destructive"
 								className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
 								onClick={() => setSelectedImageUrl(null)}
-								disabled={isLoading || isStreaming}
+								disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 							>
 								<X className="h-3 w-3" />
 							</Button>
@@ -1167,16 +1180,16 @@ export default function ChatPage() {
 										(e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
 									}
 								}}
-								placeholder={`Kirim pesan ...`}
+								placeholder={messages.length >= MAX_MESSAGES ? "Batas pesan tercapai" : "Kirim pesan ..."}
 								rows={1}
 								style={{ minHeight: 0 }}
 								className="w-full rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto pr-12"
-								disabled={isLoading || isStreaming}
+								disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 							/>
 							<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
 								<ImageUpload
 									onImageUpload={setSelectedImageUrl}
-									disabled={isLoading || isStreaming}
+									disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 								/>
 								<Button
 									type="button"
@@ -1184,7 +1197,7 @@ export default function ChatPage() {
 									variant="ghost"
 									className="h-8 w-8 rounded-full"
 									onClick={isListening ? stopListening : startListening}
-									disabled={isLoading || isStreaming}
+									disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 									title={isListening ? "Berhenti merekam" : "Mulai bicara"}
 								>
 									{isListening ? (
@@ -1199,7 +1212,7 @@ export default function ChatPage() {
 							type="submit"
 							size="icon"
 							className="h-10 w-10 rounded-full"
-							disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming}
+							disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 						>
 							<Send className="h-5 w-5" />
 						</Button>
