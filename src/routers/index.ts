@@ -296,20 +296,20 @@ export const appRouter = router({
 						.string()
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
-					complianceMode: z
-						.enum(["strict", "standard", "obedient"])
-						.default("standard"),
-					isPublic: z.boolean().default(false),
-				}),
-			)
-			.mutation(async ({ ctx, input }) => {
-				const newCharacter = await db
-					.insert(characters)
-					.values({
-						...input,
-						userId: ctx.session.user.id,
-					})
-					.returning();
+				complianceMode: z
+					.enum(["strict", "standard", "obedient"])
+					.default("standard"),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const newCharacter = await db
+				.insert(characters)
+				.values({
+					...input,
+					isPublic: false, // Always private by default
+					userId: ctx.session.user.id,
+				})
+				.returning();
 
 				return newCharacter[0];
 			}),
@@ -361,47 +361,46 @@ export const appRouter = router({
 						.string()
 						.max(1000, "Detail situasi maksimal 1000 karakter")
 						.optional(),
-					complianceMode: z
-						.enum(["strict", "standard", "obedient"])
-						.default("standard"),
-					isPublic: z.boolean(),
-				}),
-			)
-			.mutation(async ({ ctx, input }) => {
-				// Check if user owns character
-				const existingCharacter = await db
-					.select()
-					.from(characters)
-					.where(eq(characters.id, input.id))
-					.limit(1);
+				complianceMode: z
+					.enum(["strict", "standard", "obedient"])
+					.default("standard"),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Check if user owns character
+			const existingCharacter = await db
+				.select()
+				.from(characters)
+				.where(eq(characters.id, input.id))
+				.limit(1);
 
-				if (
-					!existingCharacter[0] ||
-					existingCharacter[0].userId !== ctx.session.user.id
-				) {
-					throw new Error(
-						"Karakter tidak ditemukan atau Anda tidak memiliki akses",
-					);
-				}
+			if (
+				!existingCharacter[0] ||
+				existingCharacter[0].userId !== ctx.session.user.id
+			) {
+				throw new Error(
+					"Karakter tidak ditemukan atau Anda tidak memiliki akses",
+				);
+			}
 
-				const updatedCharacter = await db
-					.update(characters)
-					.set({
-						name: input.name,
-						synopsis: input.synopsis,
-						description: input.description,
-						greetings: input.greetings,
-						avatarUrl: input.avatarUrl,
-						defaultUserRoleName: input.defaultUserRoleName,
-						defaultUserRoleDetails: input.defaultUserRoleDetails,
-						defaultSituationName: input.defaultSituationName,
-						initialSituationDetails: input.initialSituationDetails,
-						complianceMode: input.complianceMode,
-						isPublic: input.isPublic,
-						updatedAt: new Date(),
-					})
-					.where(eq(characters.id, input.id))
-					.returning();
+			const updatedCharacter = await db
+				.update(characters)
+				.set({
+					name: input.name,
+					synopsis: input.synopsis,
+					description: input.description,
+					greetings: input.greetings,
+					avatarUrl: input.avatarUrl,
+					defaultUserRoleName: input.defaultUserRoleName,
+					defaultUserRoleDetails: input.defaultUserRoleDetails,
+					defaultSituationName: input.defaultSituationName,
+					initialSituationDetails: input.initialSituationDetails,
+					complianceMode: input.complianceMode,
+					isPublic: false, // Always private by default
+					updatedAt: new Date(),
+				})
+				.where(eq(characters.id, input.id))
+				.returning();
 
 				return updatedCharacter[0];
 			}),

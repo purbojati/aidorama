@@ -58,7 +58,6 @@ interface CharacterForm {
 	defaultSituationName: string;
 	initialSituationDetails: string;
 	complianceMode: string;
-	isPublic: boolean;
 }
 
 interface CharacterFormComponentProps {
@@ -85,7 +84,6 @@ export default function CharacterFormComponent({
 		defaultSituationName: "",
 		initialSituationDetails: "",
 		complianceMode: "standard",
-		isPublic: false,
 	});
 	const [avatarPreview, setAvatarPreview] = useState<string>("");
 	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -117,7 +115,6 @@ export default function CharacterFormComponent({
 				defaultSituationName: character.defaultSituationName || "",
 				initialSituationDetails: character.initialSituationDetails || "",
 				complianceMode: character.complianceMode || "standard",
-				isPublic: character.isPublic || false,
 			});
 			if (character.avatarUrl) {
 				setAvatarPreview(character.avatarUrl);
@@ -252,8 +249,6 @@ export default function CharacterFormComponent({
 				newForm.defaultSituationName = parsedData.defaultSituationName;
 			if (parsedData.initialSituationDetails)
 				newForm.initialSituationDetails = parsedData.initialSituationDetails;
-			if (typeof parsedData.isPublic === "boolean")
-				newForm.isPublic = parsedData.isPublic;
 
 			setForm(newForm);
 			setIsAiDialogOpen(false);
@@ -354,7 +349,6 @@ export default function CharacterFormComponent({
 			defaultSituationName: form.defaultSituationName.trim() || undefined,
 			initialSituationDetails: form.initialSituationDetails.trim() || undefined,
 			complianceMode: form.complianceMode,
-			isPublic: form.isPublic,
 		};
 
 		if (mode === "create") {
