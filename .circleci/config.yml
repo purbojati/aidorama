@@ -76,6 +76,8 @@ jobs:
           name: Build and push Docker image
           command: |
             docker buildx build --platform linux/amd64 \
+              --build-arg NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY} \
+              --build-arg NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST} \
               --cache-from=type=local,src=/tmp/.buildx-cache \
               --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
               --push \
