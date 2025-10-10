@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import SignInForm from "@/components/sign-in-form";
@@ -9,12 +9,14 @@ import { authClient } from "@/lib/auth-client";
 export default function LoginPage() {
 	const { data: session, isPending } = authClient.useSession();
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const redirect = searchParams.get("redirect") || "/";
 
 	useEffect(() => {
 		if (session) {
-			router.push("/");
+			router.push(redirect);
 		}
-	}, [session, router]);
+	}, [session, router, redirect]);
 
 	if (isPending) {
 		return (
@@ -46,7 +48,7 @@ export default function LoginPage() {
 			{/* Main content */}
 			<div className="flex min-h-[calc(100vh-100px)] items-center justify-center px-4">
 				<div className="w-full max-w-6xl">
-					<SignInForm />
+					<SignInForm redirectUrl={redirect} />
 				</div>
 			</div>
 		</div>

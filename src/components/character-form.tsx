@@ -64,11 +64,13 @@ interface CharacterForm {
 interface CharacterFormComponentProps {
 	mode: "create" | "edit";
 	characterId?: number;
+	initialName?: string;
 }
 
 export default function CharacterFormComponent({
 	mode,
 	characterId,
+	initialName,
 }: CharacterFormComponentProps) {
 	const router = useRouter();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -123,6 +125,13 @@ export default function CharacterFormComponent({
 			setIsInitialized(true);
 		}
 	}, [mode, character, isInitialized]);
+
+	// Set initial name from URL parameter (create mode)
+	useEffect(() => {
+		if (mode === "create" && initialName && !form.name) {
+			setForm((prev) => ({ ...prev, name: initialName }));
+		}
+	}, [mode, initialName, form.name]);
 
 	const createCharacterMutation = useMutation({
 		mutationFn: async (input: any) => {

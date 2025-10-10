@@ -8,9 +8,11 @@ import { Card, CardContent } from "./ui/card";
 
 export default function SignInForm({
 	className,
+	redirectUrl = "/",
 	...props
 }: {
 	className?: string;
+	redirectUrl?: string;
 } & React.ComponentProps<"div">) {
 	const router = useRouter();
 	const { isPending } = authClient.useSession();
@@ -51,7 +53,7 @@ export default function SignInForm({
 									onClick={() => {
 										authClient.signIn.social({
 											provider: "google",
-											callbackURL: "/",
+											callbackURL: redirectUrl,
 										});
 									}}
 								>

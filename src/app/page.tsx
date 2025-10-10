@@ -134,11 +134,26 @@ export default function PublicCharactersPage() {
 									</h3>
 									<p className="px-4 text-muted-foreground text-sm">
 										{searchTerm
-											? `Tidak ada karakter yang cocok dengan "${searchTerm}". Coba kata kunci lain.`
+											? `Tidak ada karakter yang cocok dengan "${searchTerm}".`
 											: "Belum ada karakter yang tersedia. Jadilah yang pertama membuat karakter!"}
 									</p>
 								</div>
-								{!searchTerm && (
+								{searchTerm ? (
+									<Button
+										size="lg"
+										className="bg-primary/90 shadow-lg hover:bg-primary"
+										onClick={() => {
+											if (!session) {
+												router.push(`/login?redirect=/characters/create?name=${encodeURIComponent(searchTerm)}`);
+											} else {
+												router.push(`/characters/create?name=${encodeURIComponent(searchTerm)}`);
+											}
+										}}
+									>
+										<Plus className="mr-2 h-5 w-5" />
+										Buat Karakter "{searchTerm}"
+									</Button>
+								) : (
 									<Button
 										size="lg"
 										className="bg-primary/90 shadow-lg hover:bg-primary"
