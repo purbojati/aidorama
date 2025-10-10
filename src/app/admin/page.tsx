@@ -162,6 +162,52 @@ export default function AdminDashboard() {
   const loadMoreSessions = () => {
     setSessionsPage(prev => prev + 1);
   };
+  // Render formatted text similar to chat/[characterId]/ page
+  const renderFormattedText = (text: string) => {
+    const lines = text.split("\n");
+    return lines.map((line, lineIndex) => {
+      const parts: React.ReactElement[] = [];
+      let lastIndex = 0;
+      const regex = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(
+            <span key={`text-${lineIndex}-${lastIndex}`}>
+              {line.substring(lastIndex, match.index)}
+            </span>
+          );
+        }
+        if (match[2]) {
+          parts.push(
+            <strong key={`bold-${lineIndex}-${match.index}`} className="font-bold">
+              {match[2]}
+            </strong>
+          );
+        } else if (match[3]) {
+          parts.push(
+            <em key={`italic-${lineIndex}-${match.index}`} className="italic">
+              {match[3]}
+            </em>
+          );
+        }
+        lastIndex = match.index + match[0].length;
+      }
+      if (lastIndex < line.length) {
+        parts.push(
+          <span key={`text-${lineIndex}-${lastIndex}`}>
+            {line.substring(lastIndex)}
+          </span>
+        );
+      }
+      return (
+        <span key={`line-${lineIndex}`}>
+          {parts.length > 0 ? parts : line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      );
+    });
+  };
 
   return (
     <SidebarLayout requireAuth={true}>
@@ -532,7 +578,9 @@ export default function AdminDashboard() {
                                             </div>
                                           )}
                                           {message.content && (
-                                            <p className="text-sm leading-relaxed">{message.content}</p>
+                                            <div className="text-sm leading-relaxed">
+                                              {renderFormattedText(message.content)}
+                                            </div>
                                           )}
                                           {message.imageDescription && (
                                             <p className="text-xs opacity-70 italic mt-1">
