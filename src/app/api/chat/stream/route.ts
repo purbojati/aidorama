@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
 
 Aturan:
 - Mode: ${getComplianceMode(character.complianceMode || "standard")}
-- Balasan: PANJANG, detail, deskriptif, natural (Bahasa Indonesia).
+- Balasan: Detail, deskriptif, natural.
 - Aksi: Selalu dalam karakter, ekspresikan emosi dengan detail.
 - Inisiatif: Ambil inisiatif untuk melakukan apa yang diminta user dengan antusias dan detail.
 - Penjelasan: Jelaskan setiap tindakan dengan detail, termasuk proses, perasaan, dan konteks.
@@ -221,7 +221,7 @@ Aturan:
 					
 					const response = await callWithFallback({
 						messages,
-						max_tokens: 4000,
+						max_tokens: 250,
 						temperature: 0.7,
 						stream: true, // Enable streaming
 					});
@@ -316,7 +316,7 @@ Aturan:
 								const { callWithFallback } = await import("../../../../lib/openrouter-discovery");
 								const summaryResponse = await callWithFallback({
 									messages: summaryMessages,
-									max_tokens: 200,
+									max_tokens: 100,
 									temperature: 0.3,
 									stream: false,
 								});
