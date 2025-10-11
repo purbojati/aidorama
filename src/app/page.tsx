@@ -77,8 +77,8 @@ export default function PublicCharactersPage() {
 							</p>
 						</div>
 
-						{/* Search and Actions */}
-						<div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row lg:mb-8">
+						{/* Search */}
+						<div className="mb-6 flex justify-center lg:mb-8">
 							<div className="relative w-full sm:w-auto sm:max-w-md">
 								<Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 text-muted-foreground" />
 								<Input
@@ -88,13 +88,6 @@ export default function PublicCharactersPage() {
 									className="w-full border-primary/20 bg-background/50 pl-10 backdrop-blur-sm focus:border-primary/40 focus:ring-primary/20 sm:w-80"
 								/>
 							</div>
-							<Button
-								onClick={handleCreateCharacter}
-								className="w-full sm:w-auto bg-primary/90 shadow-lg hover:bg-primary"
-							>
-								<Plus className="mr-2 h-4 w-4" />
-								Buat Karaktermu
-							</Button>
 						</div>
 
 						{/* Characters Grid */}
@@ -173,6 +166,37 @@ export default function PublicCharactersPage() {
 							</div>
 						) : (
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+								{/* Create Character Card */}
+								<Card
+									className="group cursor-pointer border-primary/10 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/20 hover:bg-card/80 hover:shadow-lg"
+									onClick={handleCreateCharacter}
+								>
+									<div className="flex gap-4 px-4">
+										{/* Plus Icon Avatar */}
+										<div className="flex-shrink-0">
+											<div className="aspect-[2/3] w-20 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 transition-all group-hover:from-primary/30 group-hover:to-primary/20">
+												<Plus className="h-8 w-8 text-primary" />
+											</div>
+										</div>
+
+										{/* Content */}
+										<div className="min-w-0 flex-1">
+											<div className="mb-3">
+												<CardTitle className="text-base transition-colors group-hover:text-primary">
+													Buat Karaktermu
+												</CardTitle>
+												<p className="text-muted-foreground text-xs">
+													Kreasikan karakter AI yang unik
+												</p>
+											</div>
+
+											<p className="line-clamp-3 text-muted-foreground text-sm leading-relaxed">
+												Mulai petualangan kreatif dengan membuat karakter AI yang menarik dan unik untuk diajak berbicara.
+											</p>
+										</div>
+									</div>
+								</Card>
+
 								{filteredCharacters.map((character: any) => (
 									<Card
 										key={character.id}
