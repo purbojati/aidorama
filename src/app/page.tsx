@@ -88,6 +88,13 @@ export default function PublicCharactersPage() {
 									className="w-full border-primary/20 bg-background/50 pl-10 backdrop-blur-sm focus:border-primary/40 focus:ring-primary/20 sm:w-80"
 								/>
 							</div>
+							<Button
+								onClick={handleCreateCharacter}
+								className="w-full sm:w-auto bg-primary/90 shadow-lg hover:bg-primary"
+							>
+								<Plus className="mr-2 h-4 w-4" />
+								Buat Karaktermu
+							</Button>
 						</div>
 
 						{/* Characters Grid */}
