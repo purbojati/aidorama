@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { useClientDate } from "@/hooks/use-client-date";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
@@ -66,6 +67,7 @@ export default function ChatPage() {
 	const searchParams = useSearchParams();
 	const queryClient = useQueryClient();
 	const { formatTime } = useClientDate();
+	const isMobile = useIsMobile();
 	const characterId = Number.parseInt(params.characterId as string);
 	const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
@@ -88,6 +90,7 @@ export default function ChatPage() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [hasUserTyped, setHasUserTyped] = useState(false);
 	const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 	const [isCheckingSession, setIsCheckingSession] = useState(false);
 	const [streamingMessage, setStreamingMessage] = useState("");
@@ -117,8 +120,18 @@ export default function ChatPage() {
 		const el = textareaRef.current;
 		if (!el) return;
 		el.style.height = "auto";
-		const newHeight = Math.min(el.scrollHeight, 200);
+		// Increased max height for better long message handling
+		const newHeight = Math.min(el.scrollHeight, isMobile ? 120 : 200);
 		el.style.height = `${newHeight}px`;
+		
+		// Adjust padding for better visual appearance when expanded
+		if (newHeight > 40) {
+			el.style.paddingTop = "12px";
+			el.style.paddingBottom = "12px";
+		} else {
+			el.style.paddingTop = "8px";
+			el.style.paddingBottom = "8px";
+		}
 	};
 
 	useEffect(() => {
@@ -438,6 +451,7 @@ export default function ChatPage() {
 				return [...withoutTemp, response.userMessage, response.aiMessage];
 			});
 			setNewMessage("");
+			setHasUserTyped(false);
 			setIsLoading(false);
 			setIsStreaming(false);
 			setStreamingMessage("");
@@ -646,6 +660,7 @@ export default function ChatPage() {
 				}
 				const composed = (accumulatedTranscriptRef.current + (interimTranscript ? " " + interimTranscript : "")).trim();
 				setNewMessage(composed);
+				setHasUserTyped(composed.trim().length > 0);
 			};
 
 			recognitionRef.current.onerror = (event: any) => {
@@ -1191,7 +1206,11 @@ export default function ChatPage() {
 							<Textarea
 								ref={textareaRef}
 								value={newMessage}
-								onChange={(e) => setNewMessage(e.target.value)}
+								onChange={(e) => {
+									const value = e.target.value;
+									setNewMessage(value);
+									setHasUserTyped(value.trim().length > 0);
+								}}
 								onInput={autoResizeTextarea}
 								onKeyDown={(e) => {
 									if (e.key === "Enter" && !e.shiftKey) {
@@ -1202,39 +1221,56 @@ export default function ChatPage() {
 								placeholder={messages.length >= MAX_MESSAGES ? "Batas pesan tercapai" : "Kirim pesan ..."}
 								rows={1}
 								style={{ minHeight: 0 }}
-								className="w-full rounded-full bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto pr-12"
+								className="w-full rounded-3xl bg-muted focus-visible:ring-1 focus-visible:ring-primary/50 resize-none overflow-y-auto pr-12 transition-all duration-200"
 								disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 							/>
-							<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-								<ImageUpload
-									onImageUpload={setSelectedImageUrl}
-									disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
-								/>
+							<div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+								{/* Show image upload only when user hasn't typed on mobile, or always on desktop */}
+								{(!isMobile || !hasUserTyped) && (
+									<ImageUpload
+										onImageUpload={setSelectedImageUrl}
+										disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
+									/>
+								)}
+							</div>
+						</div>
+						{/* On mobile: show voice input when no text, send button when text exists */}
+						{isMobile ? (
+							!hasUserTyped ? (
 								<Button
 									type="button"
 									size="icon"
-									variant="ghost"
-									className="h-8 w-8 rounded-full"
+									className="h-10 w-10 rounded-full"
 									onClick={isListening ? stopListening : startListening}
 									disabled={isLoading || isStreaming || messages.length >= MAX_MESSAGES}
 									title={isListening ? "Berhenti merekam" : "Mulai bicara"}
 								>
 									{isListening ? (
-										<Square className="h-4 w-4" />
+										<Square className="h-5 w-5" />
 									) : (
-										<Mic className="h-4 w-4" />
+										<Mic className="h-5 w-5" />
 									)}
 								</Button>
-							</div>
-						</div>
-						<Button
-							type="submit"
-							size="icon"
-							className="h-10 w-10 rounded-full"
-							disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming || messages.length >= MAX_MESSAGES}
-						>
-							<Send className="h-5 w-5" />
-						</Button>
+							) : (
+								<Button
+									type="submit"
+									size="icon"
+									className="h-10 w-10 rounded-full"
+									disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming || messages.length >= MAX_MESSAGES}
+								>
+									<Send className="h-5 w-5" />
+								</Button>
+							)
+						) : (
+							<Button
+								type="submit"
+								size="icon"
+								className="h-10 w-10 rounded-full"
+								disabled={(!newMessage.trim() && !selectedImageUrl) || isLoading || isStreaming || messages.length >= MAX_MESSAGES}
+							>
+								<Send className="h-5 w-5" />
+							</Button>
+						)}
 					</form>
 				</div>
 			</div>
