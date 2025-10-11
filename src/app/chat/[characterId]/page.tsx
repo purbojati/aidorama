@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import SidebarLayout from "@/components/sidebar-layout";
 import { ImageUpload } from "@/components/image-upload";
+import { ImageZoom } from "@/components/image-zoom";
 
 interface Message {
 	id: number;
@@ -859,10 +860,11 @@ export default function ChatPage() {
 							<ArrowLeft className="h-4 w-4" />
 						</Button>
 						{character.avatarUrl ? (
-							<img
+							<ImageZoom
 								src={character.avatarUrl}
 								alt={character.name}
 								className="h-8 w-8 rounded-full object-cover"
+								triggerClassName="h-8 w-8"
 							/>
 						) : (
 							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
@@ -950,11 +952,18 @@ export default function ChatPage() {
 							<div className="mb-8">
 								<div className="relative group">
 									{character.avatarUrl ? (
-										<img
+										<ImageZoom
 											src={character.avatarUrl}
 											alt={character.name}
 											className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
-										/>
+											triggerClassName="h-32 w-32 sm:h-40 sm:w-40"
+										>
+											<img
+												src={character.avatarUrl}
+												alt={character.name}
+												className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
+											/>
+										</ImageZoom>
 									) : (
 										<div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300">
 											<User className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground" />
@@ -969,10 +978,10 @@ export default function ChatPage() {
 								</div>
 								<div className="mt-6 text-center">
 									<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground drop-shadow-lg">{character.name}</h2>
-									<p className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
+									<div className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
 										<div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500 animate-pulse"></div>
 										Online
-									</p>
+									</div>
 								</div>
 							</div>
 							<div className="mb-4 rounded-full bg-muted p-4">
@@ -991,11 +1000,18 @@ export default function ChatPage() {
 							<div className="flex flex-col items-center justify-center py-8 px-4 bg-gradient-to-b from-background via-background/95 to-transparent rounded-lg mb-6">
 								<div className="relative group">
 									{character.avatarUrl ? (
-										<img
+										<ImageZoom
 											src={character.avatarUrl}
 											alt={character.name}
 											className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
-										/>
+											triggerClassName="h-32 w-32 sm:h-40 sm:w-40"
+										>
+											<img
+												src={character.avatarUrl}
+												alt={character.name}
+												className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300"
+											/>
+										</ImageZoom>
 									) : (
 										<div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center shadow-2xl border-4 border-background ring-4 ring-primary/20 group-hover:scale-105 transition-transform duration-300">
 											<User className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground" />
@@ -1010,10 +1026,10 @@ export default function ChatPage() {
 								</div>
 								<div className="mt-6 text-center">
 									<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground drop-shadow-lg">{character.name}</h2>
-									<p className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
+									<div className="text-sm sm:text-base md:text-lg text-muted-foreground flex items-center justify-center gap-1 mt-2">
 										<div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500 animate-pulse"></div>
 										Online
-									</p>
+									</div>
 								</div>
 							</div>
 							{messages.map((message, index) => {
@@ -1031,10 +1047,11 @@ export default function ChatPage() {
 											<div className="h-8 w-8 flex-shrink-0">
 												{showAvatar && (
 													character.avatarUrl ? (
-														<img
+														<ImageZoom
 															src={character.avatarUrl}
 															alt={character.name}
 															className="h-full w-full rounded-full object-cover"
+															triggerClassName="h-full w-full"
 														/>
 													) : (
 														<div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -1073,10 +1090,11 @@ export default function ChatPage() {
 								<div className="flex items-end gap-3 justify-start mb-4">
 									<div className="h-8 w-8 flex-shrink-0">
 										{character.avatarUrl ? (
-											<img
+											<ImageZoom
 												src={character.avatarUrl}
 												alt={character.name}
 												className="h-full w-full rounded-full object-cover"
+												triggerClassName="h-full w-full"
 											/>
 										) : (
 											<div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -1102,10 +1120,11 @@ export default function ChatPage() {
 						<div className="mx-auto flex max-w-3xl items-center gap-3">
 							<div className="h-6 w-6 flex-shrink-0">
 								{character.avatarUrl && (
-									<img
+									<ImageZoom
 										src={character.avatarUrl}
 										alt={character.name}
 										className="h-full w-full rounded-full object-cover"
+										triggerClassName="h-full w-full"
 									/>
 								)}
 							</div>
